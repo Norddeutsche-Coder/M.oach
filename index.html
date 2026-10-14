@@ -110,7 +110,7 @@ const DEF=()=>({race:'2027-09-26',goal:9900,base:11400,res:[],log:{},chk:{},well
 try{const x=localStorage.getItem('mplan2');if(x)S=Object.assign(S,JSON.parse(x))}catch(e){}
 let ICU={id:'',key:''};
 try{const x=localStorage.getItem('mplan_icu');if(x)ICU=JSON.parse(x)}catch(e){}
-const setSync=t=>{const e=$('#sy');if(e)e.textContent=t};
+const setSync=t=>{const e=$('#sy');if(e)e.textContent=t;const f=$('#icust');if(f)f.textContent=t};
 const store=()=>{try{localStorage.setItem('mplan2',JSON.stringify(S))}catch(e){}};
 const save=()=>store();
 const now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
@@ -186,8 +186,8 @@ function openM(k){
 function rPerf(){
  const z=Z(today),f=fitP();
  const dist=[[5,'5 km'],[10,'10 km'],[21.0975,'Halbmarathon'],[42.195,'Marathon']];
- let wk='';for(let i=9;i>=0;i--){const ws=addD(mon(today),-7*i);if(ws<START)continue;let pl=0,ac=0;for(let j=0;j<7;j++){const d=addD(ws,j),p=plan(d,1),l=S.log[iso(d)];if(p)pl+=p.km;if(l&&l.done)ac+=+l.km||0}
-  wk+=`<div style="font-size:.78rem">${ws.toLocaleDateString('de-DE',{day:'numeric',month:'short'})}: ${Math.round(ac)} / ${Math.round(pl)} km<div class="bar"><i style="width:${Math.min(100,pl/1.2)}%;background:var(--bd);filter:brightness(.8)"></i></div><div class="bar"><i style="width:${Math.min(100,ac/1.2)}%;background:var(--ok)"></i></div></div>`}
+ let wk='';for(let i=9;i>=0;i--){const ws=addD(mon(today),-7*i);let pl=0,ac=0;for(let j=0;j<7;j++){const d=addD(ws,j),p=plan(d,1),l=S.log[iso(d)];if(p)pl+=p.km;if(l&&l.done)ac+=+l.km||0}
+  if(!pl&&!ac)continue;wk+=`<div style="font-size:.78rem">${ws.toLocaleDateString('de-DE',{day:'numeric',month:'short'})}: ${Math.round(ac)}${pl?' / '+Math.round(pl):''} km<div class="bar"><i style="width:${Math.min(100,pl/1.2)}%;background:var(--bd);filter:brightness(.8)"></i></div><div class="bar"><i style="width:${Math.min(100,ac/1.2)}%;background:var(--ok)"></i></div></div>`}
  $('#perf').innerHTML=`<div class="card"><h3>Neues Ergebnis (Wettkampf oder Test)</h3><div class="f"><label>Datum<input id="rd" type="date" value="${iso(today)}"></label><label>Distanz<select id="rk">${dist.map(x=>`<option value="${x[0]}">${x[1]}</option>`).join('')}</select></label><label>Std<input id="rh" type="number" min="0" value="0"></label><label>Min<input id="rm" type="number" min="0" value="0"></label><label>Sek<input id="rs" type="number" min="0" value="0"></label></div><button class="pri" id="ra">Hinzufügen</button>
  <table style="margin-top:10px">${S.res.map((x,i)=>`<tr><td>${x.d}</td><td>${r1(x.km)} km</td><td>${ft(x.sec)}</td><td>→ Marathon ${ft(x.sec*Math.pow(42.195/x.km,1.06))}</td><td><button data-x="${i}">✕</button></td></tr>`).join('')||'<tr><td class="mu">Noch keine Ergebnisse – Paces basieren auf dem Plan-Verlauf von 3:10 h Richtung Ziel.</td></tr>'}</table></div>
  <div class="card"><h3>Deine aktuellen Trainingspaces</h3><table><tr><td>Marathontempo</td><td><b>${fp(z.mp)}</b> /km</td></tr><tr><td>Locker</td><td>${fp(z.e1)}–${fp(z.e2)} /km</td></tr><tr><td>Schwelle</td><td>${fp(z.t)} /km</td></tr><tr><td>Intervall 3–5 min</td><td>${fp(z.i)} /km</td></tr><tr><td>Kurz 200–400 m</td><td>${fp(z.r)} /km</td></tr></table><small>${f?'Berechnet aus deinem letzten Ergebnis ('+f.d+').':'Noch ohne Testergebnis; gedeckelt auf Zielpace.'}</small></div>
@@ -196,7 +196,8 @@ function rPerf(){
  document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{S.res.splice(+b.dataset.x,1);save();render()})}
 function rSet(){
  const g=S.goal,b=S.base;
- $('#set').innerHTML=`<div class="card"><h3>Intervals.icu</h3><div class="f"><label>Athlete-ID (z. B. i12345)<input id="ia" value="${esc(ICU.id)}"></label><label>API-Schlüssel<input id="ik" type="password" value="${esc(ICU.key)}"></label></div><div class="b"><button class="pri" id="isv">Verbinden &amp; synchronisieren</button></div><p class="mu">ID und Schlüssel werden nur in diesem Browser gespeichert (nie im Repository). Du findest beides in Intervals.icu unter Einstellungen → Entwicklereinstellungen/API.</p></div><div class="card"><h3>Einstellungen</h3><div class="f"><label>Renndatum<input id="sr" type="date" value="${S.race}"></label><label>Ziel Std<input id="gh" type="number" value="${Math.floor(g/3600)}"></label><label>Ziel Min<input id="gm" type="number" value="${Math.floor(g%3600/60)}"></label><label>Bisher Std<input id="bh" type="number" value="${Math.floor(b/3600)}"></label><label>Bisher Min<input id="bm" type="number" value="${Math.floor(b%3600/60)}"></label></div><div class="b"><button class="pri" id="ss">Speichern</button><button id="rs2">Alles zurücksetzen</button></div><p class="mu">Läufe kommen automatisch aus Intervals.icu. Testergebnisse, Einstellungen und Notizen liegen lokal in diesem Browser (pro Gerät). Ändere das Renndatum, falls du in Berlin keinen Startplatz bekommst – der Plan verschiebt sich mit.</p></div>`;
+ $('#set').innerHTML=`<div class="card"><h3>Intervals.icu</h3><div class="f"><label>API-Schlüssel<input id="ik" type="password" autocomplete="off" value="${esc(ICU.key)}"></label><label>Athlete-ID (optional)<input id="ia" placeholder="leer = eigenes Konto" value="${esc(ICU.id)}"></label></div><div class="b"><button class="pri" id="isv">Verbinden &amp; synchronisieren</button>${ICU.key?'<button id="idc">Trennen</button>':''}</div><div id="icust" class="mu" style="margin-top:8px"></div><p class="mu">M.oach lädt deine Läufe der letzten 12 Wochen aus Intervals.icu und aktualisiert sich alle 10 Minuten, solange die App offen ist. Den API-Schlüssel findest du in Intervals.icu unter Einstellungen → „Developer Settings“. Die Athlete-ID (z. B. i12345) steht in der Adresszeile und kann leer bleiben. Schlüssel und ID bleiben nur in diesem Browser gespeichert (nie im Repository). Behandle den Schlüssel wie ein Passwort.</p></div><div class="card"><h3>Einstellungen</h3><div class="f"><label>Renndatum<input id="sr" type="date" value="${S.race}"></label><label>Ziel Std<input id="gh" type="number" value="${Math.floor(g/3600)}"></label><label>Ziel Min<input id="gm" type="number" value="${Math.floor(g%3600/60)}"></label><label>Bisher Std<input id="bh" type="number" value="${Math.floor(b/3600)}"></label><label>Bisher Min<input id="bm" type="number" value="${Math.floor(b%3600/60)}"></label></div><div class="b"><button class="pri" id="ss">Speichern</button><button id="rs2">Alles zurücksetzen</button></div><p class="mu">Läufe kommen automatisch aus Intervals.icu. Testergebnisse, Einstellungen und Notizen liegen lokal in diesem Browser (pro Gerät). Ändere das Renndatum, falls du in Berlin keinen Startplatz bekommst – der Plan verschiebt sich mit.</p></div>`;
+ {const st0=$('#sy'),ic=$('#icust');if(st0&&ic)ic.textContent=st0.textContent;const dc=$('#idc');if(dc)dc.onclick=()=>{ICU={id:'',key:''};try{localStorage.removeItem('mplan_icu')}catch(e){}setSync('Intervals.icu verbinden →');render()}}
  $('#isv').onclick=()=>{ICU={id:$('#ia').value.trim(),key:$('#ik').value.trim()};try{localStorage.setItem('mplan_icu',JSON.stringify(ICU))}catch(e){}icuSync()};$('#ss').onclick=()=>{S.race=$('#sr').value||S.race;S.goal=(+$('#gh').value*60+ +$('#gm').value)*60;S.base=(+$('#bh').value*60+ +$('#bm').value)*60;save();render()};
  let armed=0;$('#rs2').onclick=e=>{if(!armed){armed=1;e.target.textContent='Wirklich löschen? Nochmal tippen'}else{S=DEF();save();render()}}}
 /* ===== M.oach: Startseite / Tagesbriefing ===== */
@@ -209,7 +210,7 @@ const KRAFT={h:'Kraft (20–25 min, nach dem Lauf)',i:['3 × 8–10 je Bein: ein
 
 function readiness(){
  const R={pts:0,why:[],good:[],pain:0,m:{}};
- const H=[];for(let i=1;i<=28;i++){const d=addD(today,-i);if(d<START)break;const l=S.log[iso(d)];H.push({i,l:(l&&l.done)?l:null})}
+ const H=[];for(let i=1;i<=28;i++){const d=addD(today,-i);const l=S.log[iso(d)];H.push({i,l:(l&&l.done)?l:null})}
  const ck=S.chk[iso(today)]||{},W=S.well||{},wl=W[iso(today)]||{};
  if(ck.pain==2){R.pts+=4;R.pain=2;R.why.push('Du meldest deutliche Schmerzen.')}
  else if(ck.pain==1){R.pts+=2;R.pain=1;R.why.push('Leichtes Ziehen oder Schmerz gemeldet.')}
@@ -230,7 +231,7 @@ function readiness(){
  let st=0;for(const h of H){if(h.l)st++;else break}R.m.streak=st;
  if(st>=7){R.pts+=2;R.why.push(st+' Lauftage in Folge: ein freier Tag ist überfällig.')}else if(st>=6){R.pts+=1;R.why.push(st+' Lauftage in Folge.')}
  const ac=H.filter(h=>h.i<=7&&h.l).reduce((s,h)=>s+(+h.l.km||0),0);R.m.acute=ac;
- if(H.length>=28){const ch=H.filter(h=>h.i>7&&h.l).reduce((s,h)=>s+(+h.l.km||0),0)/3;R.m.chronic=ch;if(ch>=10){const q=ac/ch;R.m.ratio=q;if(q>1.5){R.pts+=2;R.why.push('Der Umfang der letzten 7 Tage ist '+q.toFixed(1)+'× so hoch wie dein 4-Wochen-Schnitt.')}else if(q>1.3){R.pts+=1;R.why.push('Der Umfang steigt schnell ('+q.toFixed(1)+'× dein Schnitt).')}}}
+ const sp=Math.max(0,...H.filter(h=>h.l).map(h=>h.i));if(sp>=21){const ch=H.filter(h=>h.i>7&&h.l).reduce((s,h)=>s+(+h.l.km||0),0)/Math.min(3,(sp-7)/7);R.m.chronic=ch;if(ch>=10){const q=ac/ch;R.m.ratio=q;if(q>1.5){R.pts+=2;R.why.push('Der Umfang der letzten 7 Tage ist '+q.toFixed(1)+'× so hoch wie dein 4-Wochen-Schnitt.')}else if(q>1.3){R.pts+=1;R.why.push('Der Umfang steigt schnell ('+q.toFixed(1)+'× dein Schnitt).')}}}
  R.lvl=(R.pain==2||R.pts>=4)?2:(R.pts>=2?1:0);
  if(!R.why.length&&!R.good.length)R.good.push('Keine Warnsignale in deinen Daten.');
  return R}
@@ -328,13 +329,14 @@ function rToday(){
  const ck=S.chk[k0]||{};
  const chips=(key,arr)=>arr.map(a=>'<button class="chip '+(ck[key]==a[0]?'on':'')+'" data-k="'+key+'" data-v="'+a[0]+'">'+a[1]+'</button>').join('');
  const checkin='<div class="card"><h3>Wie fühlst du dich heute?</h3><small>Dein Briefing passt sich sofort an.</small><div class="cr"><span>Energie</span>'+chips('en',[[1,'Müde'],[2,'Okay'],[3,'Frisch']])+'</div><div class="cr"><span>Beine</span>'+chips('leg',[[1,'Schwer'],[2,'Normal'],[3,'Leicht']])+'</div><div class="cr"><span>Schmerz</span>'+chips('pain',[[0,'Keiner'],[1,'Leicht'],[2,'Deutlich']])+'</div><div class="cr"><span>Schlaf</span>'+chips('sleep',[[5.5,'&lt; 6 h'],[6.5,'6–7 h'],[7.5,'7–8 h'],[8.5,'&gt; 8 h']])+'</div></div>';
+ const conn=ICU.key?'':'<div class="card"><h3>Läufe automatisch übernehmen</h3><div>Verbinde Intervals.icu, dann trägt M.oach deine Läufe selbst ein, auch die letzten 12 Wochen. Du brauchst nur deinen API-Schlüssel.</div><div class="b"><button class="pri" id="goicu">Jetzt verbinden</button></div></div>';
  const wire=()=>{
   el.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{const c=S.chk[k0]||(S.chk[k0]={}),kk=b.dataset.k,v=+b.dataset.v;if(c[kk]===v)delete c[kk];else c[kk]=v;save();render()});
-  const hl=$('#hlog');if(hl)hl.onclick=()=>openM(k0);
+  const hl=$('#hlog');if(hl)hl.onclick=()=>openM(k0);const gi=$('#goicu');if(gi)gi.onclick=()=>showTab('set');
   el.querySelectorAll('.wp').forEach(b=>b.onclick=()=>openM(b.dataset.d))};
  if(!p){
   const msg=today<START?{t:'Dein Plan startet bald',s:'Der erste Trainingstag ist der '+START.toLocaleDateString('de-DE',{day:'numeric',month:'long',year:'numeric'})+'.'}:{t:'Rennen geschafft',s:'Gönn dir Erholung: 1–2 Wochen nur locker oder frei. Danach legst du unter „Einstellungen“ ein neues Renndatum fest.'};
-  el.innerHTML='<section class="hero"><div class="hr1"><div><div class="gr">'+gr+'</div><div class="dt">'+ds+'</div></div></div><div class="ht">'+msg.t+'</div><div class="hs">'+msg.s+'</div></section>'+stats;wire();return}
+  el.innerHTML='<section class="hero"><div class="hr1"><div><div class="gr">'+gr+'</div><div class="dt">'+ds+'</div></div></div><div class="ht">'+msg.t+'</div><div class="hs">'+msg.s+'</div></section>'+conn+stats;wire();return}
  const R=readiness(),adj=adjust(p,R),nx=plan(addD(today,1));
  const e=fp(z.e1)+'–'+fp(z.e2)+' /km',ep=(z.e1+z.e2)/2,min=Math.round(adj.km*ep/60);
  const lg=S.log[k0],done=!!(lg&&lg.done);
@@ -357,7 +359,7 @@ function rToday(){
  const nxt=[1,2,3].map(i=>{const d=addD(today,i),q=plan(d);return q?'<div class="nr"><b>'+DOW[(d.getDay()+6)%7]+' '+d.getDate()+'.</b><span class="dot t-'+q.t+'"></span>'+q.lab+(q.km?' · '+r1(q.km)+' km':'')+'</div>':''}).join('');
  const next='<div class="card"><h3>Als Nächstes</h3>'+nxt+(nx?'<small style="display:block;margin-top:6px">'+tip(nx)+'</small>':'')+'</div>';
  const focus='<div class="card"><h3>Fokus: '+ph(w)+'</h3><div>'+(FOCUS[ph(w)]||'')+'</div></div>';
- el.innerHTML=hero+checkin+steps+detail+state+week+next+focus+stats;wire()}
+ el.innerHTML=hero+conn+checkin+steps+detail+state+week+next+focus+stats;wire()}
 
 function render(){
  const y=window.scrollY;
@@ -370,26 +372,46 @@ function showTab(t){document.querySelectorAll('nav.bar button').forEach(x=>x.cla
 document.querySelectorAll('nav.bar button').forEach(b=>b.onclick=()=>showTab(b.dataset.t));
 render();
 
+const ICU_WEEKS=12;
+let icuBusy=false,icuLast=0;
+const fromIcu=o=>!!o&&(o.src==='icu'||o.note==='Intervals.icu');
 async function icuSync(){
- if(!ICU.id||!ICU.key){setSync('Intervals.icu verbinden →');return}
+ if(!ICU.key){setSync('Intervals.icu verbinden →');return}
+ if(icuBusy)return;icuBusy=true;
  setSync('⏳ lädt Läufe…');
  try{
-  const base='https://intervals.icu/api/v1/athlete/'+encodeURIComponent(ICU.id),hd={Authorization:'Basic '+btoa('API_KEY:'+ICU.key)};
-  const r=await fetch(base+'/activities?oldest='+iso(START)+'&newest='+iso(today),{headers:hd});
-  if(r.status==401||r.status==403)throw new Error('Zugang abgelehnt (ID/Schlüssel prüfen)');
-  if(!r.ok)throw new Error('Fehler '+r.status);
-  const acts=await r.json(),by={};
-  for(const a of acts){if(!/Run/.test(a.type||''))continue;const k=(a.start_date_local||'').slice(0,10);if(!k)continue;
-   const b=by[k]||(by[k]={km:0,min:0,rpe:0});b.km+=(a.distance||0)/1000;b.min+=(a.moving_time||0)/60;b.rpe=Math.max(b.rpe,a.icu_rpe||0)}
-  let n=0;
-  for(const k in by){const o=S.log[k]||{},b=by[k];S.log[k]={done:true,km:r1(b.km),min:Math.round(b.min),rpe:o.rpe||(b.rpe?String(b.rpe):''),note:o.note||'Intervals.icu'};n++}
+  const base='https://intervals.icu/api/v1/athlete/'+encodeURIComponent((ICU.id||'').trim()||'0'),hd={Authorization:'Basic '+btoa('API_KEY:'+ICU.key)};
+  const from=iso(addD(today,-7*ICU_WEEKS)),to=iso(addD(today,1));
+  let r;
+  try{r=await fetch(base+'/activities?oldest='+from+'&newest='+to,{headers:hd})}
+  catch(e){throw new Error(navigator.onLine===false?'Offline – Abruf folgt, sobald du online bist':'Keine Verbindung zu Intervals.icu')}
+  if(r.status==401||r.status==403)throw new Error('Zugang abgelehnt: API-Schlüssel (und ggf. Athlete-ID) prüfen');
+  if(!r.ok)throw new Error('Intervals.icu meldet Fehler '+r.status);
+  const acts=await r.json();
+  if(!Array.isArray(acts))throw new Error('Unerwartete Antwort von Intervals.icu');
+  const by={};
+  for(const a of acts){
+   if(!/Run/.test(a.type||''))continue;
+   const k=String(a.start_date_local||'').slice(0,10);if(!/^\d{4}-\d{2}-\d{2}$/.test(k))continue;
+   const b=by[k]||(by[k]={km:0,sec:0,rpe:0});
+   b.km+=(+(a.icu_distance!=null?a.icu_distance:a.distance)||0)/1000;
+   b.sec+=+(a.moving_time!=null?a.moving_time:a.elapsed_time)||0;
+   b.rpe=Math.max(b.rpe,+(a.icu_rpe||a.perceived_exertion)||0)}
+  let fresh=0;
+  for(const k in by){const o=S.log[k]||{},b=by[k];if(!o.done)fresh++;
+   S.log[k]={done:true,km:r1(b.km),min:Math.round(b.sec/60),rpe:o.rpe||(b.rpe?String(b.rpe):''),note:o.note||'Intervals.icu',src:'icu'}}
+  if(acts.length)for(const k of Object.keys(S.log)){if(k>=from&&k<=to&&!(k in by)&&fromIcu(S.log[k]))delete S.log[k]}
   try{const wr=await fetch(base+'/wellness?oldest='+iso(addD(today,-28))+'&newest='+iso(today),{headers:hd});
    if(wr.ok){const arr=await wr.json(),W={};for(const x of arr){const id=String(x.id||'').slice(0,10);if(!id)continue;W[id]={rhr:x.restingHR||null,hrv:x.hrv||null,sleep:x.sleepSecs?x.sleepSecs/3600:null,ctl:x.ctl!=null?x.ctl:null,atl:x.atl!=null?x.atl:null}}S.well=W}}catch(e){}
-  save();render();setSync('✅ '+n+' Lauftage synchronisiert · '+new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}));
- }catch(e){setSync('⚠️ '+(e.message||'Sync fehlgeschlagen'))}}
-$('#sy').onclick=()=>{if(!ICU.id||!ICU.key)showTab('set');else icuSync()};
+  icuLast=Date.now();save();render();
+  setSync('✅ '+(fresh==0?'aktuell':fresh==1?'1 neuer Lauftag':fresh+' neue Lauftage')+' · '+new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}));
+ }catch(e){setSync('⚠️ '+(e.message||'Sync fehlgeschlagen'))}
+ finally{icuBusy=false}}
+$('#sy').onclick=()=>{if(!ICU.key)showTab('set');else icuSync()};
 const DAY0=iso(new Date());
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(iso(new Date())!==DAY0){location.reload();return}icuSync()}});
+window.addEventListener('online',()=>icuSync());
+setInterval(()=>{if(!document.hidden&&Date.now()-icuLast>10*60*1000)icuSync()},60000);
 icuSync();
 if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 
