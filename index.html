@@ -348,7 +348,8 @@ let START=parse(S.start||'2026-10-12');
 const setSync=t=>{const e=$('#sy');if(e)e.textContent=t;const f=$('#icust');if(f)f.textContent=t};
 /* ===== Cloud (Supabase): Grundlagen ===== */
 const SB_DEFAULT={url:'',key:''}; /* hier Projekt-URL und anon-Schlüssel eintragen, siehe supabase/ANLEITUNG.md */
-const SBC=()=>{let o=null;try{o=JSON.parse(LS.get('moach_sb')||'null')}catch(e){}const c=o&&o.url&&o.key?o:SB_DEFAULT;return{url:String(c.url||'').trim().replace(/\/+$/,''),key:String(c.key||'').trim()}};
+const sbNorm=v=>{v=String(v||'').trim();if(v&&!/^[a-z]+:\/\//i.test(v))v='https://'+v;try{const x=new URL(v);return x.protocol=='https:'?x.origin:''}catch(e){return''}};
+const SBC=()=>{let o=null;try{o=JSON.parse(LS.get('moach_sb')||'null')}catch(e){}const c=o&&o.url&&o.key?o:SB_DEFAULT;return{url:sbNorm(c.url)||String(c.url||'').trim().replace(/\/+$/,''),key:String(c.key||'').trim()}};
 const sbOn=()=>{const c=SBC();return /^https:\/\/[^\s\/]+$/.test(c.url)&&c.key.length>20};
 const CL={ses:null,adm:null,reqs:null,names:{},shared:{},err:'',busy:0,pulled:false,pushing:0,sig:'',shSig:'',rsig:'',bak:0,bakAt:0,choice:null,t:0};
 try{CL.ses=JSON.parse(LS.get('moach_sbs_'+UID)||'null')}catch(e){}
@@ -1988,8 +1989,9 @@ function cloudCard(){
   +'<small>Gespeichert sind Name, E-Mail und dein App-Stand. Mit „Cloud-Konto löschen“ verschwinden alle Cloud-Daten, auch geteilte. Die Daten auf diesem Gerät bleiben.</small></div>'}
 function wireCloud(){
  const er=()=>$('#clr'),sbs=$('#sbs');
- if(sbs)sbs.onclick=()=>{const u=($('#sbu').value||'').trim().replace(/\/+$/,''),k=($('#sbk').value||'').trim(),e=$('#sbe');
-  if(!/^https:\/\/[^\s\/]+$/.test(u)||k.length<=20){e.textContent='Bitte gib eine Adresse wie https://abcd.supabase.co und den anon-Schlüssel ein.';e.hidden=false;return}
+ if(sbs)sbs.onclick=()=>{const u=sbNorm($('#sbu').value),k=($('#sbk').value||'').trim(),e=$('#sbe');
+  if(!u||k.length<=20){e.textContent='Bitte gib eine Adresse wie https://abcd.supabase.co und den Publishable-/anon-Schlüssel ein.';e.hidden=false;return}
+  if(/^sb_secret_/.test(k)){e.textContent='Das ist ein geheimer Schlüssel (secret). Bitte nimm den Publishable Key (sb_publishable_…) oder den anon-Schlüssel.';e.hidden=false;return}
   LS.set('moach_sb',JSON.stringify({url:u,key:k}));render();showTab('set')};
  const go=mode=>async()=>{const b=mode=='up'?$('#clu'):$('#cli'),e=er();
   await cloudRun(b,async()=>{const em=($('#cle').value||'').trim(),pw=$('#clp').value||'';
