@@ -117,16 +117,59 @@ ul.ex{margin:5px 0 0;padding-left:18px;font-size:.88rem}ul.ex li{margin:2px 0}
 #pf{flex:none;width:34px;height:34px;padding:0;border-radius:50%;background:rgba(255,255,255,.14);border:0;color:#fff;display:flex;align-items:center;justify-content:center}
 #pf svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
 .top .in>div.r{display:flex;align-items:center;gap:10px;min-width:0}
+
+nav.bar{padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 18px rgba(10,31,68,.08)}
+nav.bar button{min-height:60px;gap:3px;font-size:.74rem;padding:4px 0;font-weight:600;justify-content:center}
+nav.bar button svg{box-sizing:content-box;width:24px;height:24px;padding:4px 0;border-radius:16px;transition:background .15s}
+nav.bar button.on::before{display:none}
+nav.bar button.on svg{width:48px;padding:4px 0;background:color-mix(in srgb,var(--pri) 16%,transparent);stroke-width:2.3}
+nav.bar button.on span{font-weight:800}
+nav.bar button:active svg{background:color-mix(in srgb,var(--pri) 10%,transparent)}
+button.tr{width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--bd);border-radius:0;padding:10px 0;font:inherit}
+button.tr .chev{flex:none;font-size:1.4rem;color:var(--mu);line-height:1;margin-left:2px}
+button.tr:active{background:var(--bg)}
+body.noscroll{overflow:hidden}
+.cmod{position:fixed;inset:0;z-index:20;background:rgba(6,14,34,.55);overflow:auto;display:flex;align-items:flex-start;justify-content:center}
+.cbox{background:var(--card);width:100%;max-width:720px;min-height:100%;padding:14px 14px calc(24px + env(safe-area-inset-bottom,0px))}
+@media (min-width:760px){.cbox{margin:24px 0;border-radius:18px;min-height:0}}
+.ch{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.ch h3{font-size:1.25rem;margin:0}
+.ch button{width:40px;height:40px;border-radius:50%;padding:0;flex:none}
+.ctext{margin:12px 0;padding:10px 12px;border-radius:12px;background:var(--bg);border-left:4px solid var(--bd);font-size:.92rem}
+.ctext.good{border-color:var(--ok)}.ctext.bad{border-color:#e5484d}
+.cwrap{background:var(--bg);border-radius:14px;padding:4px;touch-action:none}
+#csvg{display:block;width:100%;height:300px;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+#csvg .gl{stroke:var(--bd);stroke-width:1}#csvg .ax{fill:var(--mu);font-size:10.5px}
+#csvg .ln2{stroke:var(--pri);stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round}
+#csvg .pt{fill:var(--card);stroke:var(--pri);stroke-width:2}#csvg .pt.sel{fill:var(--pri)}
+#csvg .bar{fill:color-mix(in srgb,var(--pri) 70%,var(--card))}#csvg .bar.sel{fill:var(--q)}
+#csvg .gd{stroke:var(--mu);stroke-dasharray:3 3}
+#csvg .tipb{fill:var(--pri)}#csvg .tipt{fill:var(--pri-tx);font-size:11.5px;font-weight:700}
+.crng{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.crng button{padding:9px 14px;min-height:42px;font-weight:600}
+.cst{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.chint{display:block;margin-top:10px}
+.auth{position:fixed;inset:0;z-index:40;background:var(--bg);overflow:auto}
+.abox{max-width:480px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 14px) 14px 40px}
+.ahd{background:linear-gradient(135deg,#14397a,#0a1f44 60%,#061330);color:#b7c4e3;border-radius:20px;padding:24px 18px;text-align:center;margin-bottom:14px}
+.logo.big{height:44px;margin:0 auto 6px}
+.acc{width:100%;display:flex;justify-content:space-between;align-items:center;padding:14px;margin-top:8px;font-weight:700;font-size:1rem;text-align:left}
+.acc i{font-style:normal;color:var(--mu);font-size:1.3rem}
+.aerr{margin-top:10px;padding:9px 12px;border-radius:10px;background:color-mix(in srgb,#e5484d 14%,var(--card));border:1px solid #e5484d;font-size:.9rem}
+.mh2{display:flex;justify-content:space-between;align-items:baseline;margin:14px 2px 4px}.mh2 b{text-transform:capitalize}.mh2 span{color:var(--mu);font-size:.85rem}
+.run{border-bottom:1px solid var(--bd)}.run:last-of-type{border:0}
+.run>summary{display:flex;align-items:center;gap:11px;padding:11px 0;cursor:pointer}.run>summary::after{display:none}
+.run .rd{flex:none;width:36px;text-align:center;line-height:1.1}.run .rd b{display:block}.run .rd span{font-size:.72rem;color:var(--mu)}
+.run .rm{min-width:0;flex:1}.run .rn{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.run .rk{flex:none;text-align:right}.run .rk b{font-size:1.15rem;display:block;line-height:1.1}.run .rk span{font-size:.72rem;color:var(--mu)}
+.run .tiles{margin:2px 0 8px}.rp{font-size:.88rem;margin:4px 0}
 </style></head><body>
 <header class="top"><div class="in"><svg class="logo" viewBox="-2 -4 497.5 108.0" role="img" aria-label="M.oach"><path d="M0.00,100.00 L15.84,0.00 L38.95,0.00 L54.39,47.00 L84.73,0.00 L107.84,0.00 L92.00,100.00 L68.89,100.00 L77.37,46.50 L47.03,93.50 L31.58,46.50 L23.11,100.00Z" fill="#FFFFFF"/><circle cx="121.31" cy="85.67" r="14.33" fill="#C6F135"/><path d="M157.46 62.30Q159.30 50.68 165.84 41.82Q172.38 32.97 182.04 28.24Q191.71 23.51 202.79 23.51Q213.88 23.51 222.04 28.24Q230.21 32.97 233.95 41.82Q237.68 50.68 235.84 62.30Q234.00 73.92 227.40 82.77Q220.79 91.62 211.05 96.35Q201.32 101.08 190.24 101.08Q179.16 101.08 171.05 96.35Q162.95 91.62 159.28 82.84Q155.60 74.05 157.46 62.30ZM212.33 62.30Q213.76 53.24 210.00 48.38Q206.25 43.51 199.63 43.51Q192.87 43.51 187.65 48.31Q182.43 53.11 180.98 62.30Q179.54 71.35 183.16 76.22Q186.78 81.08 193.41 81.08Q200.03 81.08 205.46 76.22Q210.89 71.35 212.33 62.30Z M281.31 23.51Q289.28 23.51 294.78 26.76Q300.28 30.00 302.69 35.27L304.38 24.59H327.49L315.54 100.00H292.44L294.13 89.32Q289.91 94.59 283.39 97.84Q276.86 101.08 268.89 101.08Q259.70 101.08 252.89 96.28Q246.08 91.49 243.09 82.64Q240.10 73.78 241.94 62.16Q243.78 50.54 249.57 41.76Q255.35 32.97 263.67 28.24Q271.98 23.51 281.31 23.51ZM284.88 43.65Q277.98 43.65 272.40 48.58Q266.83 53.51 265.46 62.16Q264.09 70.81 268.08 75.88Q272.08 80.95 278.97 80.95Q285.86 80.95 291.45 75.95Q297.04 70.95 298.41 62.30Q299.78 53.65 295.77 48.65Q291.77 43.65 284.88 43.65Z M376.04 23.51Q390.23 23.51 398.58 30.95Q406.93 38.38 407.76 51.89H383.16Q381.43 43.24 372.51 43.24Q366.16 43.24 361.59 48.18Q357.03 53.11 355.57 62.30Q354.11 71.49 357.12 76.42Q360.12 81.35 366.47 81.35Q375.39 81.35 379.87 72.70H404.46Q399.39 85.95 388.60 93.51Q377.81 101.08 363.75 101.08Q352.67 101.08 344.84 96.35Q337.01 91.62 333.60 82.84Q330.19 74.05 332.06 62.30Q333.92 50.54 340.11 41.76Q346.30 32.97 355.63 28.24Q364.96 23.51 376.04 23.51Z M492.79 55.95 485.81 100.00H462.84L469.33 59.05Q470.53 51.49 467.27 47.30Q464.01 43.11 457.39 43.11Q450.77 43.11 446.19 47.30Q441.61 51.49 440.41 59.05L433.92 100.00H410.81L426.65 0.00H449.76L444.26 34.73Q448.57 29.73 455.12 26.76Q461.67 23.78 469.24 23.78Q482.21 23.78 488.69 32.36Q495.17 40.95 492.79 55.95Z" fill="#FFFFFF"/></svg><div class="r"><div class="meta"><div id="cd"></div><div id="sy" role="button">…</div></div><button id="pf" aria-label="Profil"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg></button></div></div></header>
 <div class="wrap">
-<section id="today"></section><section id="cal" hidden></section><section id="perf" hidden></section><section id="set" hidden></section>
-<div id="md" class="modal" hidden></div></div>
-<nav class="bar"><button data-t="today" class="on"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Heute</button><button data-t="cal"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Kalender</button><button data-t="perf"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-9"/><path d="M15 6h6v6"/></svg>Leistung</button><button data-t="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>Profil</button></nav>
+<section id="today"></section><section id="cal" hidden></section><section id="runs" hidden></section><section id="perf" hidden></section><section id="set" hidden></section>
+<div id="md" class="modal" hidden></div></div><div id="cm" class="cmod" hidden></div><div id="auth" class="auth" hidden></div>
+<nav class="bar" aria-label="Hauptmenü"><button data-t="today" class="on" aria-current="page"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Heute</span></button><button data-t="cal"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Kalender</span></button><button data-t="runs"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg><span>Läufe</span></button><button data-t="perf"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-9"/><path d="M15 6h6v6"/></svg><span>Leistung</span></button><button data-t="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg><span>Profil</span></button></nav>
 <script>
 
 const D=864e5,A=[[49,15],[48,35],[47,50],[40,70],[37,66],[29,78],[22,90],[21,86],[20,70],[16,90],[5,120],[3,96],[2,72],[1,50],[0,45]];
-const START=new Date(2026,9,12),$=s=>document.querySelector(s),pad=n=>String(n).padStart(2,'0');
+const $=s=>document.querySelector(s),pad=n=>String(n).padStart(2,'0');
 const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
 const parse=s=>{const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c)};
 const addD=(d,n)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+n),mon=d=>addD(d,-((d.getDay()+6)%7));
@@ -134,12 +177,20 @@ const fp=s=>{s=Math.round(s);return Math.floor(s/60)+':'+pad(s%60)};
 const ft=s=>{s=Math.round(s);return Math.floor(s/3600)+':'+pad(Math.floor(s%3600/60))+':'+pad(s%60)};
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const r1=x=>Math.round(x*10)/10;
-const DEF=()=>({race:'2027-09-26',goal:9900,base:11400,res:[],log:{},chk:{},well:{},prof:{}});let S=DEF();
-try{const x=localStorage.getItem('mplan2');if(x)S=Object.assign(S,JSON.parse(x))}catch(e){}
+const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+let USERS=[];try{USERS=JSON.parse(LS.get('moach_users')||'[]')||[]}catch(e){}
+let UID=LS.get('moach_cur')||'';
+if(!USERS.length){let lk=null;try{lk=JSON.parse(LS.get('mplan_icu')||'null')}catch(e){}
+ if(lk&&lk.key){const id='u1';let nm='Läufer';const old=LS.get('mplan2');try{nm=(JSON.parse(old||'{}').prof||{}).name||nm}catch(e){}
+  if(old)LS.set('mplan2_'+id,old);LS.set('mplan_icu_'+id,JSON.stringify(lk));USERS=[{id,name:nm}];LS.set('moach_users',JSON.stringify(USERS));UID=id;LS.set('moach_cur',id)}}
+if(!USERS.some(u=>u.id===UID))UID='';
+const DEF=()=>({start:null,runs:[],race:'2027-09-26',goal:9900,base:11400,res:[],log:{},chk:{},well:{},prof:{}});let S=DEF();
+try{const x=UID&&LS.get('mplan2_'+UID);if(x)S=Object.assign(S,JSON.parse(x))}catch(e){}
 let ICU={id:'',key:''};
-try{const x=localStorage.getItem('mplan_icu');if(x)ICU=JSON.parse(x)}catch(e){}
+try{const x=LS.get('mplan_icu_'+UID);if(x)ICU=JSON.parse(x)}catch(e){}
+const START=parse(S.start||'2026-10-12');
 const setSync=t=>{const e=$('#sy');if(e)e.textContent=t;const f=$('#icust');if(f)f.textContent=t};
-const store=()=>{try{localStorage.setItem('mplan2',JSON.stringify(S))}catch(e){}};
+const store=()=>{if(UID)LS.set('mplan2_'+UID,JSON.stringify(S))};
 const save=()=>store();
 const now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
 const wtr=d=>Math.round((mon(parse(S.race))-mon(d))/(7*D));
@@ -226,12 +277,14 @@ function rSet(){
  const g=S.goal,b=S.base,P=S.prof||{};
  $('#set').innerHTML=`<div class="card"><h3>Persönliche Daten</h3><div class="sub">Damit werden Begrüßung, Essensmengen und Schlafzeit angepasst.</div><div class="f"><label>Name<input id="pn" autocomplete="given-name" value="${esc(P.name)}"></label><label>Gewicht (kg)<input id="pw" type="number" step="0.5" min="30" max="200" value="${esc(P.weight)}"></label><label>Aufstehen um<input id="pu" type="time" value="${esc(P.wake||'06:30')}"></label></div></div>
  <div class="card"><h3>Marathon-Ziel</h3><div class="f"><label>Renndatum<input id="sr" type="date" value="${S.race}"></label><label>Ziel Std<input id="gh" type="number" value="${Math.floor(g/3600)}"></label><label>Ziel Min<input id="gm" type="number" value="${Math.floor(g%3600/60)}"></label><label>Bisher Std<input id="bh" type="number" value="${Math.floor(b/3600)}"></label><label>Bisher Min<input id="bm" type="number" value="${Math.floor(b%3600/60)}"></label></div><small>„Bisher“ ist deine letzte Marathonzeit, Ausgangspunkt für Prognose und Trainingstempo. Ändere das Renndatum, falls du in Berlin keinen Startplatz bekommst – der Plan verschiebt sich mit.</small><div class="b"><button class="pri" id="ss">Speichern</button></div></div>
- <div class="card"><h3>Intervals.icu</h3><div class="sub">${ICU.key?'Verbunden':'Nicht verbunden'}</div><div class="f"><label>API-Schlüssel<input id="ik" type="password" autocomplete="off" value="${esc(ICU.key)}"></label><label>Athlete-ID (optional)<input id="ia" placeholder="leer = eigenes Konto" value="${esc(ICU.id)}"></label></div><div class="b"><button class="pri" id="isv">Verbinden &amp; synchronisieren</button>${ICU.key?'<button id="idc">Trennen</button>':''}</div><div id="icust" class="mu" style="margin-top:8px"></div><p class="mu">M.oach lädt deine Läufe der letzten 12 Wochen sowie Ruhepuls, HRV, Schlaf und Fitness aus Intervals.icu und aktualisiert sich alle 10 Minuten, solange die App offen ist. Den API-Schlüssel findest du in Intervals.icu unter Einstellungen → „Developer Settings“. Die Athlete-ID (z. B. i12345) steht in der Adresszeile und kann leer bleiben. Schlüssel und ID bleiben nur in diesem Browser gespeichert (nie im Repository). Behandle den Schlüssel wie ein Passwort.</p></div>
- <div class="card"><h3>Daten</h3><p class="mu" style="margin-top:0">Testergebnisse, Profil und Notizen liegen lokal in diesem Browser (pro Gerät).</p><div class="b"><button id="rs2">Alles zurücksetzen</button></div></div>`;
- {const st0=$('#sy'),ic=$('#icust');if(st0&&ic)ic.textContent=st0.textContent;const dc=$('#idc');if(dc)dc.onclick=()=>{ICU={id:'',key:''};try{localStorage.removeItem('mplan_icu')}catch(e){}setSync('Intervals.icu verbinden →');render()}}
- $('#isv').onclick=()=>{ICU={id:$('#ia').value.trim(),key:$('#ik').value.trim()};try{localStorage.setItem('mplan_icu',JSON.stringify(ICU))}catch(e){}icuSync()};
- $('#ss').onclick=()=>{S.race=$('#sr').value||S.race;S.goal=(+$('#gh').value*60+ +$('#gm').value)*60;S.base=(+$('#bh').value*60+ +$('#bm').value)*60;S.prof={name:$('#pn').value.trim(),weight:$('#pw').value,wake:$('#pu').value||'06:30'};save();render();showTab('set');const t=$('#ss');if(t){t.textContent='✓ Gespeichert';setTimeout(()=>{const u=$('#ss');if(u)u.textContent='Speichern'},1500)}};
- let armed=0;$('#rs2').onclick=e=>{if(!armed){armed=1;e.target.textContent='Wirklich löschen? Nochmal tippen'}else{S=DEF();save();render()}}}
+ <div class="card"><h3>Intervals.icu</h3><div class="sub">${ICU.key?'Verbunden':'Nicht verbunden'}</div><div class="f"><label>API-Schlüssel<input id="ik" type="password" autocomplete="off" value="${esc(ICU.key)}"></label><label>Athlete-ID (optional)<input id="ia" placeholder="leer = eigenes Konto" value="${esc(ICU.id)}"></label></div><div class="b"><button class="pri" id="isv">Verbinden &amp; synchronisieren</button></div><div id="icust" class="mu" style="margin-top:8px"></div><p class="mu">M.oach lädt deine Läufe der letzten 12 Wochen sowie Ruhepuls, HRV, Schlaf und Fitness aus Intervals.icu und aktualisiert sich alle 10 Minuten, solange die App offen ist. Den API-Schlüssel findest du in Intervals.icu unter Einstellungen → „Developer Settings“. Die Athlete-ID (z. B. i12345) steht in der Adresszeile und kann leer bleiben. Schlüssel und ID bleiben nur in diesem Browser gespeichert (nie im Repository). Behandle den Schlüssel wie ein Passwort.</p></div>
+ <div class="card"><h3>Konto</h3><div class="sub">Angemeldet als <b>${esc(P.name||'Läufer')}</b>. Jedes Konto hat eigene Daten auf diesem Gerät.</div><div class="b"><button class="pri" id="lo">Abmelden / Konto wechseln</button></div><div class="b"><button id="rs2">Trainingsdaten zurücksetzen</button><button id="del">Konto löschen</button></div></div>`;
+ {const st0=$('#sy'),ic=$('#icust');if(st0&&ic)ic.textContent=st0.textContent}
+ $('#isv').onclick=()=>{ICU={id:$('#ia').value.trim(),key:$('#ik').value.trim()};LS.set('mplan_icu_'+UID,JSON.stringify(ICU));icuSync()};
+ $('#ss').onclick=()=>{S.race=$('#sr').value||S.race;S.goal=(+$('#gh').value*60+ +$('#gm').value)*60;S.base=(+$('#bh').value*60+ +$('#bm').value)*60;S.prof={name:$('#pn').value.trim(),weight:$('#pw').value,wake:$('#pu').value||'06:30'};{const u=USERS.find(x=>x.id===UID);if(u&&S.prof.name){u.name=S.prof.name;LS.set('moach_users',JSON.stringify(USERS))}}save();render();showTab('set');const t=$('#ss');if(t){t.textContent='✓ Gespeichert';setTimeout(()=>{const u=$('#ss');if(u)u.textContent='Speichern'},1500)}};
+ $('#lo').onclick=()=>{LS.del('moach_cur');location.reload()};
+ let armed=0;$('#rs2').onclick=e=>{if(!armed){armed=1;e.target.textContent='Wirklich löschen? Nochmal tippen'}else{const k={start:S.start,prof:S.prof};S=Object.assign(DEF(),k);save();render()}};
+ let ad=0;$('#del').onclick=e=>{if(!ad){ad=1;e.target.textContent='Wirklich löschen? Nochmal tippen'}else{LS.del('mplan2_'+UID);LS.del('mplan_icu_'+UID);USERS=USERS.filter(u=>u.id!==UID);LS.set('moach_users',JSON.stringify(USERS));LS.del('moach_cur');location.reload()}}}
 /* ===== M.oach: Startseite / Tagesbriefing ===== */
 const DOW=['Mo','Di','Mi','Do','Fr','Sa','So'];
 const LV=[{t:'Bereit',c:'s-g'},{t:'Anpassen',c:'s-y'},{t:'Erholen',c:'s-r'}];
@@ -250,7 +303,7 @@ function readiness(){
  if(ck.leg==1){R.pts+=1;R.why.push('Die Beine fühlen sich schwer an.')}else if(ck.leg==3)R.good.push('Die Beine fühlen sich leicht an.');
  const sl=ck.sleep!=null?ck.sleep:(wl.sleep!=null?wl.sleep:null);R.m.sleep=sl;R.m.sleepSrc=ck.sleep!=null?'Check-in':(wl.sleep!=null?'Intervals.icu':'');
  if(sl!=null){if(sl<5.5){R.pts+=2;R.why.push('Nur ca. '+r1(sl)+' h Schlaf.')}else if(sl<6.5){R.pts+=1;R.why.push('Eher kurze Nacht (ca. '+r1(sl)+' h).')}else if(sl>=7.5)R.good.push('Gut geschlafen (ca. '+r1(sl)+' h).')}
- const others=Object.keys(W).filter(k=>k!==iso(today)).map(k=>W[k]);
+ const others=Object.keys(W).filter(k=>k!==iso(today)&&k>=iso(addD(today,-28))).map(k=>W[k]);
  const avg=f=>{const v=others.map(o=>o[f]).filter(x=>x>0);return v.length>=4?v.reduce((a,b)=>a+b)/v.length:null};
  const rb=avg('rhr'),hb=avg('hrv');
  if(wl.rhr>0){R.m.rhr=wl.rhr;R.m.rhrB=rb;if(rb&&wl.rhr-rb>=8){R.pts+=2;R.why.push('Ruhepuls '+Math.round(wl.rhr)+' (sonst Ø '+Math.round(rb)+').')}else if(rb&&wl.rhr-rb>=5){R.pts+=1;R.why.push('Ruhepuls erhöht: '+Math.round(wl.rhr)+' (sonst Ø '+Math.round(rb)+').')}}
@@ -302,25 +355,26 @@ function spark(vals){
  const l=xy(pts[pts.length-1]);
  return '<svg class="sp" viewBox="0 0 '+Wd+' '+H+'" width="'+Wd+'" height="'+H+'" aria-hidden="true"><polyline points="'+pts.map(p=>xy(p).join(',')).join(' ')+'" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="'+l[0]+'" cy="'+l[1]+'" r="2.6" fill="currentColor"/></svg>'}
 const arrow=(d,u,dp)=>{if(d==null)return'';const a=Math.abs(d)<(dp?0.05:0.5)?'●':d>0?'▲':'▼';return a+' '+(d>0?'+':d<0?'−':'')+Math.abs(d).toFixed(dp||0).replace('.',',')+(u?' '+u:'')};
-const trow=(name,val,unit,ar,cls,sub,vals)=>'<div class="tr '+cls+'"><div class="tx"><div class="tn">'+name+'</div><div class="tv"><b>'+val+'</b> '+unit+(ar?'<span class="ar">'+ar+'</span>':'')+'</div>'+(sub?'<small>'+sub+'</small>':'')+'</div>'+spark(vals)+'</div>';
+const trow=(key,name,val,unit,ar,cls,sub,vals)=>'<button type="button" class="tr '+cls+'" data-ch="'+key+'"><div class="tx"><div class="tn">'+name+'</div><div class="tv"><b>'+val+'</b> '+unit+(ar?'<span class="ar">'+ar+'</span>':'')+'</div>'+(sub?'<small>'+sub+'</small>':'')+'</div>'+spark(vals)+'<span class="chev">›</span></button>';
 const lastv=s=>{for(let i=s.length-1;i>=Math.max(0,s.length-3);i--)if(s[i]!=null)return s[i];return null};
 
 function trends(R){
  const o=[];
  let s=wser('rhr',28),c=lastv(s),b=mean(s.slice(0,-3));
- if(c!=null&&cnt(s)>=2){const d=b!=null?c-b:null;o.push(trow('Ruhepuls',Math.round(c),'bpm',arrow(d!=null?Math.round(d):null,'',0),d==null?'neu':d>=5?'bad':d<=-3?'good':'neu','Ø '+(b!=null?Math.round(b):'–')+' bpm der letzten 4 Wochen',s.slice(-14)))}
+ if(c!=null&&cnt(s)>=2){const d=b!=null?c-b:null;o.push(trow('rhr','Ruhepuls',Math.round(c),'bpm',arrow(d!=null?Math.round(d):null,'',0),d==null?'neu':d>=5?'bad':d<=-3?'good':'neu','Ø '+(b!=null?Math.round(b):'–')+' bpm der letzten 4 Wochen',s.slice(-14)))}
  s=wser('hrv',28);c=lastv(s);b=mean(s.slice(0,-3));
- if(c!=null&&cnt(s)>=2){const d=b!=null?c-b:null;o.push(trow('HRV',Math.round(c),'ms',arrow(d!=null?Math.round(d):null,'',0),b==null?'neu':c<b*.85?'bad':c>b*1.1?'good':'neu','Ø '+(b!=null?Math.round(b):'–')+' ms der letzten 4 Wochen',s.slice(-14)))}
+ if(c!=null&&cnt(s)>=2){const d=b!=null?c-b:null;o.push(trow('hrv','HRV',Math.round(c),'ms',arrow(d!=null?Math.round(d):null,'',0),b==null?'neu':c<b*.85?'bad':c>b*1.1?'good':'neu','Ø '+(b!=null?Math.round(b):'–')+' ms der letzten 4 Wochen',s.slice(-14)))}
  s=wser('sleep',14);c=lastv(s);b=mean(s.slice(0,-3));
- if(c!=null&&cnt(s)>=2){const d=b!=null?c-b:null;o.push(trow('Schlaf',dec(c,1),'h',arrow(d,'',1),c<6.5?'bad':c>=7.5?'good':'neu','Ø '+(b!=null?dec(b,1):'–')+' h der letzten 2 Wochen',s.slice(-14)))}
+ if(c!=null&&cnt(s)>=2){const d=b!=null?c-b:null;o.push(trow('sleep','Schlaf',dec(c,1),'h',arrow(d,'',1),c<6.5?'bad':c>=7.5?'good':'neu','Ø '+(b!=null?dec(b,1):'–')+' h der letzten 2 Wochen',s.slice(-14)))}
  s=wser('ctl',42,true);c=lastv(s);b=mean(s.slice(0,7));
  if(c!=null&&cnt(s)>=3){const d=b!=null?c-b:null,fm=R.m.form,fl=fm==null?'':fm>5?'frisch':fm>=-10?'neutral':fm>=-30?'produktiv':'hohe Ermüdung';
-  o.push(trow('Fitness (CTL)',Math.round(c),'',arrow(d!=null?Math.round(d):null,'',0),d==null?'neu':d>=2?'good':'neu',fm!=null?'Form '+Math.round(fm)+' · '+fl:'Entwicklung der letzten 6 Wochen',s.slice(-28)))}
+  o.push(trow('ctl','Fitness (CTL)',Math.round(c),'',arrow(d!=null?Math.round(d):null,'',0),d==null?'neu':d>=2?'good':'neu',fm!=null?'Form '+Math.round(fm)+' · '+fl:'Entwicklung der letzten 6 Wochen',s.slice(-28)))}
+ {const cs=wser('ctl',42,true),as=wser('atl',42,true),fs=cs.map((v,i)=>v!=null&&as[i]!=null?v-as[i]:null),c2=lastv(fs);if(c2!=null&&cnt(fs)>=3)o.push(trow('form','Form (CTL−ATL)',Math.round(c2),'','',c2<-30?'bad':'neu',c2>5?'frisch':c2>=-10?'neutral':c2>=-30?'produktiv ermüdet':'hohe Ermüdung',fs.slice(-28)))}
  const wk=[];for(let i=5;i>=0;i--){let t=0;for(let j=0;j<7;j++){const l=S.log[iso(addD(today,-7*i-j))];if(l&&l.done)t+=+l.km||0}wk.push(t)}
  if(wk[5]+wk[4]+wk[3]>0){const b2=mean(wk.slice(0,5).filter(x=>x>0)),d=b2!=null?wk[5]-b2:null;
-  o.push(trow('Wochenumfang',Math.round(wk[5]),'km (7 Tage)',arrow(d!=null?Math.round(d):null,'km',0),b2!=null&&b2>=10&&wk[5]/b2>1.3?'bad':'neu',(R.m.streak||0)+' Lauftage am Stück'+(b2!=null?' · Ø '+Math.round(b2)+' km/Woche':''),wk))}
+  o.push(trow('km','Wochenumfang',Math.round(wk[5]),'km (7 Tage)',arrow(d!=null?Math.round(d):null,'km',0),b2!=null&&b2>=10&&wk[5]/b2>1.3?'bad':'neu',(R.m.streak||0)+' Lauftage am Stück'+(b2!=null?' · Ø '+Math.round(b2)+' km/Woche':''),wk))}
  const rp=[];for(let i=1;i<=28;i++){const l=S.log[iso(addD(today,-i))];if(l&&l.done&&+l.rpe>0)rp.unshift(+l.rpe)}
- if(rp.length>=2){const last=rp.slice(-3),a=mean(last);o.push(trow('Anstrengung',dec(a,1),'RPE Ø','',a>=8?'bad':a<=5?'good':'neu','letzte '+last.length+' Läufe',rp.slice(-8)))}
+ if(rp.length>=2){const last=rp.slice(-3),a=mean(last);o.push(trow('rpe','Anstrengung',dec(a,1),'RPE Ø','',a>=8?'bad':a<=5?'good':'neu','letzte '+last.length+' Läufe',rp.slice(-8)))}
  return o.join('')}
 
 function kpis(f,w,ws,pl,ac,days){
@@ -423,6 +477,7 @@ function rToday(){
  const checkin='<div class="ci"><h4>Wie fühlst du dich heute?</h4><small>Dein Briefing passt sich sofort an.</small><div class="cr"><span>Energie</span>'+chips('en',[[1,'Müde'],[2,'Okay'],[3,'Frisch']])+'</div><div class="cr"><span>Beine</span>'+chips('leg',[[1,'Schwer'],[2,'Normal'],[3,'Leicht']])+'</div><div class="cr"><span>Schmerz</span>'+chips('pain',[[0,'Keiner'],[1,'Leicht'],[2,'Deutlich']])+'</div><div class="cr"><span>Schlaf</span>'+chips('sleep',[[5.5,'&lt; 6 h'],[6.5,'6–7 h'],[7.5,'7–8 h'],[8.5,'&gt; 8 h']])+'</div></div>';
  const wire=()=>{
   el.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{const c=S.chk[k0]||(S.chk[k0]={}),kk=b.dataset.k,v=+b.dataset.v;if(c[kk]===v)delete c[kk];else c[kk]=v;save();render()});
+  el.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>openChart(b.dataset.ch));
   el.querySelectorAll('.goicu').forEach(b=>b.onclick=()=>showTab('set'));
   el.querySelectorAll('.wr').forEach(b=>b.onclick=()=>openM(b.dataset.d))};
  const why=whyBox(f,w,z),kp=kpis(f,w,ws,pl,ac,days);
@@ -453,7 +508,7 @@ function rToday(){
  const trs=trends(R);
  const connRow=ICU.key?'':'<div class="tips">Mit Intervals.icu siehst du hier Ruhepuls-, HRV-, Schlaf- und Fitness-Trends, und deine Läufe kommen automatisch.<div class="b"><button class="pri goicu">Intervals.icu verbinden</button></div></div>';
  const warn=R.why.slice(0,3).map(x=>'<div class="ln w">'+x+'</div>').join('')+R.good.slice(0,1).map(x=>'<div class="ln o">'+x+'</div>').join('');
- const state='<div class="card"><h3>Dein Zustand</h3><div class="sub">Trends der letzten Wochen'+(ICU.key?' · Daten aus Intervals.icu':'')+'</div>'+(trs||'<div class="mu" style="margin:6px 0">Noch keine Trenddaten.</div>')+connRow+'<div style="margin-top:8px">'+warn+'</div><div class="ln" style="color:var(--mu)">🔄 '+AD.msg+course+'</div>'+checkin+'</div>';
+ const state='<div class="card"><h3>Dein Zustand</h3><div class="sub">Tippe auf eine Zeile für Diagramm und Trend'+(ICU.key?' · Daten aus Intervals.icu':'')+'</div>'+(trs||'<div class="mu" style="margin:6px 0">Noch keine Trenddaten.</div>')+connRow+'<div style="margin-top:8px">'+warn+'</div><div class="ln" style="color:var(--mu)">🔄 '+AD.msg+course+'</div>'+checkin+'</div>';
  const T=trainBlock(p,adj,z),F=foodBlock(p,adj,z,rest),N=nightBlock(p,adj,nx,rest);
  const rowsH=a=>a.map(r=>'<div class="sr"><div class="sl">'+r[0]+'</div><div class="sv">'+r[1]+'</div></div>').join('');
  const step=(n,ic,title,meta,col,body,badge)=>'<div class="card step" style="--sc:'+col+'"><div class="sh2"><div class="ib">'+IC[ic]+'</div><div class="st1"><b>'+n+' · '+title+(badge||'')+'</b><span>'+meta+'</span></div></div><div class="bd">'+body+'</div></div>';
@@ -463,18 +518,202 @@ function rToday(){
   +step(3,'moon','Abend &amp; Schlaf',N.meta,'#7c5cd6',rowsH(N.rows));
  el.innerHTML=hero+week+kp+why+state+steps;wire()}
 
+/* ===== Diagramme & Trends ===== */
+const DAYMS=864e5,ts=s=>Date.parse(s+'T00:00:00Z'),tsl=t=>{const d=new Date(t);return pad(d.getUTCDate())+'.'+pad(d.getUTCMonth()+1)+'.'};
+const CH={
+ rhr:{t:'Ruhepuls',u:'bpm',f:v=>Math.round(v),sub:'Pro Tag · Intervals.icu'},
+ hrv:{t:'HRV',u:'ms',f:v=>Math.round(v),sub:'Pro Tag · Intervals.icu'},
+ sleep:{t:'Schlaf',u:'h',f:v=>dec(v,1),sub:'Pro Nacht · Intervals.icu'},
+ ctl:{t:'Fitness (CTL)',u:'',f:v=>Math.round(v),sub:'Pro Tag · Intervals.icu'},
+ form:{t:'Form (CTL − ATL)',u:'',f:v=>Math.round(v),sub:'Pro Tag · Intervals.icu'},
+ km:{t:'Wochenumfang',u:'km',f:v=>Math.round(v),bar:true,sub:'Kilometer pro Woche (Mo–So)'},
+ pace:{t:'Lauftempo',u:'/km',f:v=>fp(v),inv:true,sub:'Ø Pace pro Lauf (ab 3 km)'},
+ hr:{t:'Ø Puls im Lauf',u:'bpm',f:v=>Math.round(v),sub:'Pro Lauf · Intervals.icu'},
+ rpe:{t:'Anstrengung (RPE)',u:'',f:v=>dec(v,1),sub:'Pro Lauf · 1–10'}};
+function series(key){
+ const W=S.well||{},m=CH[key],o=[];
+ const wl=g=>Object.keys(W).sort().forEach(k=>{const v=g(W[k]);if(v!=null&&isFinite(v))o.push({d:k,t:ts(k),v})});
+ if(key=='rhr')wl(x=>x.rhr>0?x.rhr:null);
+ else if(key=='hrv')wl(x=>x.hrv>0?x.hrv:null);
+ else if(key=='sleep')wl(x=>x.sleep>0?x.sleep:null);
+ else if(key=='ctl')wl(x=>x.ctl!=null?x.ctl:null);
+ else if(key=='form')wl(x=>x.ctl!=null&&x.atl!=null?x.ctl-x.atl:null);
+ else if(key=='km'){let started=false;for(let i=25;i>=0;i--){const ws=addD(mon(today),-7*i);let t=0;for(let j=0;j<7;j++){const l=S.log[iso(addD(ws,j))];if(l&&l.done)t+=+l.km||0}
+   if(t>0)started=true;if(started)o.push({d:iso(ws),t:ts(iso(ws))+3.5*DAYMS,v:t})}}
+ else{const R=allRuns().slice().reverse();
+  for(const r of R){let v=null;
+   if(key=='pace'){if(r.km>=3&&r.sec>0)v=r.sec/r.km}
+   else if(key=='hr'){if(r.hr>0)v=r.hr}
+   else if(key=='rpe'){if(r.rpe>0)v=r.rpe}
+   if(v!=null)o.push({d:r.d,t:ts(r.d)+(o.length&&o[o.length-1].d==r.d?DAYMS*.3:0),v})}}
+ return o}
+function trendText(key,pts){
+ const m=CH[key],mn=a=>a.length?a.reduce((s,p)=>s+p.v,0)/a.length:null;
+ let last,prev,win;
+ if(key=='km'){const f=pts.filter(p=>p.d<iso(mon(today)));last=f.slice(-2);prev=f.slice(-6,-2);win='letzten 2 Wochen';if(last.length<2||prev.length<2)return{t:'Noch zu wenig volle Wochen für einen Trend.',c:'neu'}}
+ else if(key=='pace'||key=='hr'||key=='rpe'){last=pts.slice(-3);prev=pts.slice(-8,-3);win='letzten '+last.length+' Läufen';if(last.length<3||prev.length<2)return{t:'Noch zu wenige Läufe für einen Trend.',c:'neu'}}
+ else{const a=iso(addD(today,-6)),b=iso(addD(today,-27));last=pts.filter(p=>p.d>=a);prev=pts.filter(p=>p.d<a&&p.d>=b);win='letzten 7 Tagen';if(last.length<2||prev.length<3)return{t:'Noch zu wenige Tage mit Daten für einen Trend.',c:'neu'}}
+ const A=mn(last),B=mn(prev),d=A-B,pc=B?d/Math.abs(B)*100:0;
+ const thr={rhr:1.5,hrv:null,sleep:.2,ctl:1.5,form:4,km:null,pace:4,hr:2,rpe:.4}[key];
+ const flat=key=='hrv'?Math.abs(pc)<5:key=='km'?Math.abs(pc)<10:Math.abs(d)<thr,up=!flat&&d>0,dn=!flat&&d<0;
+ const ab=Math.abs(d),amt=key=='pace'?Math.round(ab)+' s/km':key=='km'?Math.round(ab)+' km':key=='sleep'?dec(ab,1)+' h':key=='rpe'?dec(ab,1):Math.round(ab)+(m.u?' '+m.u:'');
+ const cmp=key=='pace'?(dn?'schneller':'langsamer'):(dn?'niedriger':'höher');
+ let s='Ø '+m.f(A)+(m.u?' '+m.u:'')+' in den '+win+', '+(flat?'praktisch unverändert gegenüber davor (Ø '+m.f(B)+').':amt+' '+cmp+' als davor (Ø '+m.f(B)+').'),c='neu';
+ const T={
+  rhr:()=>up?(c='bad','Ein steigender Ruhepuls deutet oft auf Ermüdung, Stress oder eine beginnende Erkältung hin. Plane die nächsten Tage lockerer.'):dn?(c='good','Ein fallender Ruhepuls spricht für gute Anpassung und Erholung.'):'Stabil, das ist kein Warnsignal.',
+  hrv:()=>up?(c='good','Eine höhere HRV spricht für gute Erholung. Du verträgst die Belastung derzeit gut.'):dn?(c='bad','Eine sinkende HRV zeigt hohe Gesamtbelastung. Achte auf Schlaf und halte lockere Läufe wirklich locker.'):'Stabil, deine Erholung ist gleichbleibend.',
+  sleep:()=>(A<7?(c='bad','Das liegt unter 7 h. Für 100+ km pro Woche sind 8 h das Ziel.'):up?(c='good','Mehr Schlaf unterstützt die Erholung.'):dn?'Etwas weniger Schlaf als zuvor, halte 8 h im Blick.':'Gleichbleibender Schlaf.'),
+  ctl:()=>up?(c='good','Deine Fitness wächst: Das Training zahlt sich aus.'):dn?'Deine Fitness sinkt, weil du weniger trainierst als zuvor. In Entlastungswochen ist das normal.':'Deine Fitness bleibt stabil.',
+  form:()=>{const x=pts[pts.length-1].v;return x>5?'Aktuell bist du frisch (Form '+Math.round(x)+'), gut für Tests und Wettkämpfe.':x>=-10?'Aktuell neutral (Form '+Math.round(x)+').':x>=-30?'Aktuell produktiv ermüdet (Form '+Math.round(x)+'), das ist im Aufbau normal.':(c='bad','Aktuell hohe Ermüdung (Form '+Math.round(x)+'). Plane eine Entlastung ein.')},
+  km:()=>pc>30?(c='bad','Das ist eine schnelle Steigerung. Vorsicht, das Verletzungsrisiko steigt. Bleibe bei etwa +10 % pro Woche.'):pc<-30?'Deutlich weniger als zuvor, passt zu einer Entlastungswoche.':'Gleichmäßiger Umfang.',
+  pace:()=>dn?(c='good','Du läufst im Schnitt schneller. Beachte, dass sich lockere und harte Läufe mischen.'):up?'Du läufst im Schnitt langsamer. Bei lockeren Läufen ist das gewollt, sonst kann es Ermüdung zeigen.':'Dein Tempo ist stabil.',
+  hr:()=>up?'Dein Puls pro Lauf steigt. Prüfe, ob du schneller läufst, oder ob Ermüdung oder Hitze eine Rolle spielen.':dn?'Dein Puls pro Lauf sinkt. Das passt zu besserer Ausdauer, wenn das Tempo gleich bleibt.':'Dein Puls ist stabil.',
+  rpe:()=>up?(c='bad','Deine Läufe fühlen sich härter an. Prüfe Schlaf und Erholung.'):dn?(c='good','Deine Läufe fühlen sich leichter an.'):'Das Anstrengungsgefühl ist stabil.'};
+ const extra=key=='km'?(()=>{const cur=pts.find(p=>p.d==iso(mon(today)));return cur?' Diese Woche bisher: '+Math.round(cur.v)+' km.':''})():'';
+ const e=T[key]();
+ return{t:s+' '+e+extra,c}}
+function openChart(key){
+ const m=CH[key],pts=series(key),cm=$('#cm');
+ cm.hidden=false;document.body.classList.add('noscroll');
+ const tr=pts.length?trendText(key,pts):{t:'Noch keine Daten vorhanden. Synchronisiere Intervals.icu.',c:'neu'};
+ cm.innerHTML='<div class="cbox"><div class="ch"><div><h3>'+m.t+'</h3><small>'+m.sub+'</small></div><button id="cx" aria-label="Schließen">✕</button></div>'
+  +'<div class="ctext '+tr.c+'">'+tr.t+'</div>'
+  +'<div class="cwrap"><svg id="csvg" role="img" aria-label="Diagramm '+m.t+'"></svg></div>'
+  +'<div class="crng"><button data-r="7">7 T</button><button data-r="28">4 W</button><button data-r="84">12 W</button><button data-r="0">Alles</button><button data-z="in" aria-label="Hineinzoomen">＋</button><button data-z="out" aria-label="Herauszoomen">－</button></div>'
+  +'<div class="cst" id="cst"></div><small class="chint">Mit zwei Fingern oder Mausrad zoomen, ziehen zum Verschieben, tippen für den Wert, Doppeltippen setzt zurück.</small></div>';
+ const close=()=>{cm.hidden=true;cm.innerHTML='';document.body.classList.remove('noscroll')};
+ $('#cx').onclick=close;cm.onclick=e=>{if(e.target===cm)close()};
+ const svg=$('#csvg');
+ if(!pts.length){svg.outerHTML='<div class="mu" style="padding:30px 0;text-align:center">Keine Daten</div>';$('#cst').innerHTML='';return}
+ const H=300,L=46,R=14,T=14,B=28,pad0=(m.bar?3.5:.6)*DAYMS;
+ const f0=pts[0].t-pad0,f1=Math.max(pts[pts.length-1].t+pad0,f0+14*DAYMS),FS=f1-f0,MINS=Math.min(FS,(m.bar?14:3)*DAYMS);
+ let v0,v1,sel=-1;
+ const setView=(a,b)=>{const sp=Math.max(MINS,Math.min(FS,b-a));if(a<f0)a=f0;if(a+sp>f1)a=f1-sp;v0=a;v1=a+sp};
+ const preset=n=>{if(!n)return setView(f0,f1);const e=Math.max(pts[pts.length-1].t+pad0,ts(iso(today))+pad0);setView(e-n*DAYMS,e)};
+ const isDaily=!(m.bar||key=='pace'||key=='hr'||key=='rpe');
+ preset(isDaily?28:84);
+ const geo=()=>{const W=svg.clientWidth||340;return{W,pw:W-L-R,ph:H-T-B}};
+ function draw(){
+  const{W,pw,ph}=geo();svg.setAttribute('viewBox','0 0 '+W+' '+H);svg.setAttribute('height',H);
+  const vp=pts.filter(p=>p.t>=v0&&p.t<=v1),base=vp.length?vp:pts;
+  let lo=Math.min(...base.map(p=>p.v)),hi=Math.max(...base.map(p=>p.v));
+  if(m.bar)lo=0;if(hi-lo<1e-6){hi+=1;lo-=m.bar?0:1}
+  const pd=(hi-lo)*.12;if(!m.bar)lo-=pd;hi+=pd;
+  const X=t=>L+(t-v0)/(v1-v0)*pw,Y=v=>m.inv?T+(v-lo)/(hi-lo)*ph:T+ph-(v-lo)/(hi-lo)*ph;
+  const fy=v=>(!m.bar&&hi-lo<6&&String(m.f(1.5)).indexOf(',')<0&&m.f(1.5)!=='1,5'&&!/:/.test(m.f(70))?dec(v,1):m.f(v));
+  let g='<defs><clipPath id="cp"><rect x="'+L+'" y="'+T+'" width="'+pw+'" height="'+ph+'"/></clipPath></defs>';
+  for(let i=0;i<=4;i++){const v=lo+(hi-lo)*i/4,y=Y(v);g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y.toFixed(1)+'" y2="'+y.toFixed(1)+'" class="gl"/><text x="'+(L-6)+'" y="'+(y+4).toFixed(1)+'" text-anchor="end" class="ax">'+fy(v)+'</text>'}
+  const long=(v1-v0)>200*DAYMS;
+  for(let i=0;i<=4;i++){const t=v0+(v1-v0)*i/4,x=X(t);g+='<text x="'+x.toFixed(1)+'" y="'+(H-8)+'" text-anchor="'+(i==0?'start':i==4?'end':'middle')+'" class="ax">'+(long?new Date(t).toLocaleDateString('de-DE',{month:'short',year:'2-digit',timeZone:'UTC'}):tsl(t))+'</text>'}
+  g+='<g clip-path="url(#cp)">';
+  if(m.bar){const bw=Math.max(3,Math.min(40,7*DAYMS/(v1-v0)*pw*.7)),y0=Y(0);pts.forEach((p,i)=>{const x=X(p.t),y=Y(p.v);g+='<rect x="'+(x-bw/2).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+Math.max(1,y0-y).toFixed(1)+'" rx="3" class="bar'+(i==sel?' sel':'')+'"/>'})}
+  else{g+='<polyline points="'+pts.map(p=>X(p.t).toFixed(1)+','+Y(p.v).toFixed(1)).join(' ')+'" fill="none" class="ln2"/>';
+   if(vp.length<=45)pts.forEach((p,i)=>{g+='<circle cx="'+X(p.t).toFixed(1)+'" cy="'+Y(p.v).toFixed(1)+'" r="'+(i==sel?5.5:3)+'" class="pt'+(i==sel?' sel':'')+'"/>'})}
+  g+='</g>';
+  if(sel>=0&&pts[sel]){const p=pts[sel],x=X(p.t),y=Y(p.v);
+   if(x>=L&&x<=W-R){const lab=(m.bar?'Woche ab ':'')+dshort(p.d)+' · '+m.f(p.v)+(m.u?' '+m.u:''),w2=lab.length*6.4+14,bx=Math.min(Math.max(L,x-w2/2),W-R-w2);
+    g+='<line x1="'+x.toFixed(1)+'" x2="'+x.toFixed(1)+'" y1="'+T+'" y2="'+(T+ph)+'" class="gd"/><g><rect x="'+bx.toFixed(1)+'" y="'+(T+2)+'" width="'+w2.toFixed(1)+'" height="22" rx="7" class="tipb"/><text x="'+(bx+w2/2).toFixed(1)+'" y="'+(T+17)+'" text-anchor="middle" class="tipt">'+lab+'</text></g>'}}
+  svg.innerHTML=g;
+  const vv=vp.map(p=>p.v),cur=pts[pts.length-1],avg=vv.length?vv.reduce((a,b)=>a+b,0)/vv.length:null;
+  const tl=(l,v)=>'<div class="tl"><b>'+v+'</b><span>'+l+'</span></div>',fm=v=>v==null?'–':m.f(v)+(m.u&&m.u!='/km'?' '+m.u:'')+(m.u=='/km'?' /km':'');
+  $('#cst').innerHTML=tl('Aktuell ('+dshort(cur.d)+')',fm(cur.v))+tl('Ø sichtbar',fm(avg))+tl(m.inv?'Schnellster':'Niedrigster',vv.length?fm(Math.min(...vv)):'–')+tl(m.inv?'Langsamster':'Höchster',vv.length?fm(Math.max(...vv)):'–')+'<div class="tl"><b>'+vp.length+'</b><span>Werte sichtbar</span></div><div class="tl"><b>'+tsl(v0)+'–'+tsl(v1)+'</b><span>Zeitraum</span></div>'}
+ const zoom=(f,cf)=>{const sp=v1-v0,c=v0+sp*cf,ns=Math.max(MINS,Math.min(FS,sp*f));setView(c-ns*cf,c-ns*cf+ns);draw()};
+ const P=new Map();let pan=null,pin=null,moved=0;
+ const frac=cx=>{const rc=svg.getBoundingClientRect();return Math.min(1,Math.max(0,(cx-rc.left-L)/(rc.width-L-R)))};
+ svg.onpointerdown=e=>{try{svg.setPointerCapture(e.pointerId)}catch(x){}P.set(e.pointerId,{x:e.clientX});moved=0;
+  if(P.size==1)pan={x:e.clientX,a:v0,b:v1};
+  else if(P.size==2){const q=[...P.values()];pin={d:Math.abs(q[0].x-q[1].x)||1,a:v0,b:v1,c:(q[0].x+q[1].x)/2};pan=null}};
+ svg.onpointermove=e=>{const q=P.get(e.pointerId);if(!q)return;q.x=e.clientX;const rc=svg.getBoundingClientRect(),pw=rc.width-L-R;
+  if(P.size==2&&pin){const a=[...P.values()],d=Math.abs(a[0].x-a[1].x)||1,sp=(pin.b-pin.a),ns=Math.max(MINS,Math.min(FS,sp*pin.d/d)),cf=Math.min(1,Math.max(0,(pin.c-rc.left-L)/pw)),c=pin.a+sp*cf;moved=99;setView(c-ns*cf,c-ns*cf+ns);draw()}
+  else if(pan){const dx=pan.x-e.clientX;moved+=Math.abs(dx-(pan.last||0));pan.last=dx;const dt=dx/pw*(pan.b-pan.a);setView(pan.a+dt,pan.b+dt);draw()}};
+ const up=e=>{if(!P.has(e.pointerId))return;
+  if(P.size==1&&moved<8){const t=v0+frac(e.clientX)*(v1-v0);let bi=-1,bd=1e18;pts.forEach((p,i)=>{const d=Math.abs(p.t-t);if(d<bd){bd=d;bi=i}});sel=bi==sel?-1:bi;}
+  P.delete(e.pointerId);pin=null;
+  if(P.size==1){const r=[...P.values()][0];pan={x:r.x,a:v0,b:v1};moved=99}else pan=null;draw()};
+ svg.onpointerup=up;svg.onpointercancel=up;
+ svg.addEventListener('wheel',e=>{e.preventDefault();zoom(e.deltaY>0?1.25:.8,frac(e.clientX))},{passive:false});
+ svg.ondblclick=()=>{preset(isDaily?28:84);sel=-1;draw()};
+ cm.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{preset(+b.dataset.r);draw()});
+ cm.querySelectorAll('[data-z]').forEach(b=>b.onclick=()=>zoom(b.dataset.z=='in'?.6:1.6,.5));
+ draw();
+ window.onresize=()=>{if(!cm.hidden&&$('#csvg'))draw()}}
+document.addEventListener('keydown',e=>{if(e.key=='Escape'){const c=$('#cx');if(c)c.click()}});
+
+/* ===== Läufe ===== */
+let RUNMAX=30;
+function allRuns(){
+ const R=(S.runs||[]).map(x=>Object.assign({},x)),have=new Set(R.map(r=>r.d));
+ for(const k in S.log){const l=S.log[k];if(l&&l.done&&!have.has(k)&&+l.km>0)R.push({id:'m'+k,d:k,t:'',n:'Manueller Eintrag',km:+l.km,sec:(+l.min||0)*60,rpe:+l.rpe||0,manual:true})}
+ R.sort((a,b)=>(b.d+(b.t||''))<(a.d+(a.t||''))?-1:1);return R}
+const dur=s=>s>=3600?ft(s):fp(s);
+function rRuns(){
+ const R=allRuns(),el=$('#runs');
+ if(!R.length){el.innerHTML='<div class="card"><h3>Läufe</h3><div class="mu" style="margin-top:6px">Noch keine Läufe gefunden. M.oach lädt deine Läufe der letzten 6 Monate aus Intervals.icu. Tippe oben rechts auf den Sync-Status, um erneut abzurufen.</div></div>';return}
+ const c28=iso(addD(today,-27)),rc=R.filter(r=>r.d>=c28),km=rc.reduce((s,r)=>s+r.km,0),sec=rc.reduce((s,r)=>s+(r.km>0?r.sec:0),0),kmP=rc.reduce((s,r)=>s+(r.sec>0?r.km:0),0);
+ const hrs=rc.filter(r=>r.hr>0),ahr=hrs.length?hrs.reduce((s,r)=>s+r.hr,0)/hrs.length:null;
+ const tl=(v,l)=>'<div class="tl"><b>'+v+'</b><span>'+l+'</span></div>';
+ const sum='<div class="card"><h3>Letzte 4 Wochen</h3><div class="tiles">'+tl(rc.length,'Läufe')+tl(Math.round(km)+' km','Umfang')+tl(kmP>0?fp(sec/kmP)+' /km':'–','Ø Pace')+'</div><div class="crng" style="margin-top:6px"><button data-ch="km">Wochenumfang ›</button><button data-ch="pace">Tempo ›</button><button data-ch="hr">Puls ›</button></div>'+(ahr?'<small>Ø Puls '+Math.round(ahr)+' bpm</small>':'')+'</div>';
+ const mt={};R.forEach(r=>{const k=r.d.slice(0,7);mt[k]=(mt[k]||0)+r.km});
+ let h='',cur='';
+ R.slice(0,RUNMAX).forEach(r=>{
+  const mk=r.d.slice(0,7);
+  if(mk!=cur){cur=mk;const[y,mo]=mk.split('-');h+='<div class="mh2"><b>'+new Date(+y,+mo-1,1).toLocaleDateString('de-DE',{month:'long',year:'numeric'})+'</b><span>'+Math.round(mt[mk])+' km</span></div>'}
+  const d=parse(r.d),pc=r.km>0&&r.sec>0?r.sec/r.km:null,p=plan(d,1);
+  const t=(v,l)=>v==null||v===''||v===0?'':'<div class="tl"><b>'+v+'</b><span>'+l+'</span></div>';
+  const cmp=p&&p.km?'<div class="rp">Plan: <b>'+p.lab+' · '+r1(p.km)+' km</b>. Gelaufen: '+r1(r.km)+' km ('+(r.km-p.km>=0?'+':'−')+r1(Math.abs(r.km-p.km))+' km).</div>':(p&&p.t=='rest'?'<div class="rp">Laut Plan war ein freier Tag.</div>':'');
+  h+='<details class="run"><summary><div class="rd"><b>'+DOW[(d.getDay()+6)%7]+'</b><span>'+d.getDate()+'.</span></div><div class="rm"><div class="rn">'+esc(r.n)+'</div><small>'+(r.sec?dur(r.sec):'–')+(pc?' · '+fp(pc)+' /km':'')+(r.hr?' · '+r.hr+' bpm':'')+'</small></div><div class="rk"><b>'+dec(r.km,1)+'</b><span>km</span></div></summary>'
+   +'<div class="tiles">'+t(r.sec?dur(r.sec):null,'Dauer')+t(pc?fp(pc)+' /km':null,'Pace')+t(r.hr?r.hr+' bpm':null,'Ø Puls')+t(r.mx?r.mx+' bpm':null,'Max. Puls')+t(r.el?r.el+' m':null,'Höhenmeter')+t(r.ld,'Trainingslast')+t(r.rpe?dec(r.rpe,0)+' / 10':null,'Anstrengung')+'</div>'+cmp
+   +(r.manual?'<small>Manuell eingetragen, nicht aus Intervals.icu.</small>':'')+'<div class="b"><button data-d="'+r.d+'">Eintrag bearbeiten</button></div></details>'});
+ el.innerHTML=sum+'<div class="card" style="padding-top:6px">'+h+(R.length>RUNMAX?'<div class="b"><button id="rmore">Mehr anzeigen ('+(R.length-RUNMAX)+')</button></div>':'')+'</div>';
+ el.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>openChart(b.dataset.ch));
+ el.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>openM(b.dataset.d));
+ const mo=$('#rmore');if(mo)mo.onclick=()=>{RUNMAX+=30;rRuns()}}
+
+/* ===== Anmeldung ===== */
+const idHeaders=k=>({Authorization:'Basic '+btoa('API_KEY:'+k)});
+function showAuth(){
+ const a=$('#auth');a.hidden=false;document.body.classList.add('noscroll');
+ const lg=document.querySelector('.logo').outerHTML.replace('class="logo"','class="logo big"');
+ const list=USERS.length?'<div class="card"><h3>Konto wählen</h3>'+USERS.map(u=>'<button class="acc" data-u="'+esc(u.id)+'"><span>'+esc(u.name||'Läufer')+'</span><i>›</i></button>').join('')+'</div><div class="mu" style="text-align:center;margin:4px 0 10px">oder neues Konto</div>':'';
+ a.innerHTML='<div class="abox"><div class="ahd">'+lg+'<div>Dein Marathon-Coach</div></div>'+list
+  +'<div class="card"><h3>'+(USERS.length?'Neues Konto':'Willkommen!')+'</h3><div class="sub">Melde dich mit deinem Intervals.icu-Zugang an. Danach lädt M.oach deine Läufe automatisch.</div>'
+  +'<div class="f"><label>Name<input id="an" autocomplete="given-name" placeholder="z. B. Lukas"></label></div>'
+  +'<div class="f"><label>Intervals.icu API-Schlüssel<input id="ak" type="password" autocomplete="off"></label><label>Athlete-ID (optional)<input id="ai" placeholder="leer = eigenes Konto"></label></div>'
+  +'<div class="sub" style="margin-top:6px">Dein Ziel</div><div class="f"><label>Renndatum<input id="ar" type="date" value="2027-09-26"></label><label>Zielzeit Std<input id="agh" type="number" value="2"></label><label>Zielzeit Min<input id="agm" type="number" value="45"></label><label>Letzter Marathon Std<input id="abh" type="number" value="3"></label><label>Letzter Marathon Min<input id="abm" type="number" value="10"></label></div>'
+  +'<div id="aerr" class="aerr" hidden></div><div class="b"><button class="pri" id="ago" style="width:100%;padding:12px">Anmelden &amp; loslegen</button></div>'
+  +'<p class="mu" style="font-size:.8rem">Den API-Schlüssel findest du in Intervals.icu unter Einstellungen → „Developer Settings“. Er bleibt nur in diesem Browser gespeichert. Jedes Konto hat eigene Daten auf diesem Gerät.</p></div></div>';
+ a.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{LS.set('moach_cur',b.dataset.u);location.reload()});
+ const err=m=>{const e=$('#aerr');e.textContent=m;e.hidden=!m};
+ $('#ago').onclick=async()=>{
+  err('');const nm=$('#an').value.trim(),key=$('#ak').value.trim(),id=$('#ai').value.trim(),race=$('#ar').value;
+  const goal=(+$('#agh').value*60+ +$('#agm').value)*60,base=(+$('#abh').value*60+ +$('#abm').value)*60;
+  if(!nm)return err('Bitte gib einen Namen ein.');
+  if(!key)return err('Bitte gib deinen Intervals.icu API-Schlüssel ein.');
+  if(!race||parse(race)<addD(today,56))return err('Das Rennen muss mindestens 8 Wochen entfernt sein.');
+  if(!(goal>=5400&&goal<=21600)||!(base>=5400&&base<=21600))return err('Bitte gib sinnvolle Marathonzeiten ein (zwischen 1:30 und 6:00 h).');
+  const btn=$('#ago');btn.disabled=true;btn.textContent='Prüfe Zugang…';
+  try{
+   let r;try{r=await fetch('https://intervals.icu/api/v1/athlete/'+encodeURIComponent(id||'0'),{headers:idHeaders(key)})}catch(e){throw new Error(navigator.onLine===false?'Du bist offline. Bitte verbinde dich mit dem Internet.':'Keine Verbindung zu Intervals.icu. Bitte später erneut versuchen.')}
+   if(r.status==401||r.status==403)throw new Error('Zugang abgelehnt: Bitte API-Schlüssel (und ggf. Athlete-ID) prüfen.');
+   if(!r.ok)throw new Error('Intervals.icu meldet Fehler '+r.status+'.');
+   const uid='u'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+   const S0=Object.assign(DEF(),{race,goal,base,start:iso(mon(today)),prof:{name:nm}});
+   LS.set('mplan2_'+uid,JSON.stringify(S0));LS.set('mplan_icu_'+uid,JSON.stringify({id,key}));
+   USERS.push({id:uid,name:nm});LS.set('moach_users',JSON.stringify(USERS));LS.set('moach_cur',uid);location.reload();
+  }catch(e){err(e.message);btn.disabled=false;btn.textContent='Anmelden & loslegen'}}}
+
 function render(){
  const y=window.scrollY;
  calcAd();
  const days=Math.round((parse(S.race)-today)/D);
- $('#cd').innerHTML=days>=0?'Rennen in <b>'+days+'</b> Tagen · '+Math.floor(days/7)+' Wochen':'Rennen vorbei';
- rToday();rCal();rPerf();rSet();
+ $('#cd').innerHTML=days>=0?'Rennen in <b>'+days+'</b> Tagen':'Rennen vorbei';
+ rToday();rCal();rRuns();rPerf();rSet();
  window.scrollTo(0,y)}
-function showTab(t){document.querySelectorAll('nav.bar button').forEach(x=>x.classList.toggle('on',x.dataset.t==t));['today','cal','perf','set'].forEach(id=>$('#'+id).hidden=id!=t);window.scrollTo(0,0)}
+function showTab(t){document.querySelectorAll('nav.bar button').forEach(x=>x.classList.toggle('on',x.dataset.t==t));['today','cal','runs','perf','set'].forEach(id=>$('#'+id).hidden=id!=t);document.querySelectorAll('nav.bar button').forEach(x=>{if(x.dataset.t==t)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});window.scrollTo(0,0)}
 document.querySelectorAll('nav.bar button').forEach(b=>b.onclick=()=>showTab(b.dataset.t));
 render();
 
-const ICU_WEEKS=12;
+const ICU_WEEKS=26;
 let icuBusy=false,icuLast=0;
 const fromIcu=o=>!!o&&(o.src==='icu'||o.note==='Intervals.icu');
 async function icuSync(){
@@ -491,19 +730,21 @@ async function icuSync(){
   if(!r.ok)throw new Error('Intervals.icu meldet Fehler '+r.status);
   const acts=await r.json();
   if(!Array.isArray(acts))throw new Error('Unerwartete Antwort von Intervals.icu');
-  const by={};
+  const by={},RUNS=[];
   for(const a of acts){
    if(!/Run/.test(a.type||''))continue;
    const k=String(a.start_date_local||'').slice(0,10);if(!/^\d{4}-\d{2}-\d{2}$/.test(k))continue;
    const b=by[k]||(by[k]={km:0,sec:0,rpe:0});
    b.km+=(+(a.icu_distance!=null?a.icu_distance:a.distance)||0)/1000;
    b.sec+=+(a.moving_time!=null?a.moving_time:a.elapsed_time)||0;
-   b.rpe=Math.max(b.rpe,+(a.icu_rpe||a.perceived_exertion)||0)}
+   b.rpe=Math.max(b.rpe,+(a.icu_rpe||a.perceived_exertion)||0);
+   RUNS.push({id:a.id,d:k,t:String(a.start_date_local).slice(11,16),n:a.name||'Lauf',km:Math.round((+(a.icu_distance!=null?a.icu_distance:a.distance)||0)/10)/100,sec:+(a.moving_time!=null?a.moving_time:a.elapsed_time)||0,hr:Math.round(+a.average_heartrate)||null,mx:Math.round(+a.max_heartrate)||null,el:Math.round(+a.total_elevation_gain)||null,ld:Math.round(+a.icu_training_load)||null,rpe:+(a.icu_rpe||a.perceived_exertion)||0})}
+  if(acts.length)S.runs=RUNS.sort((x,y)=>(y.d+y.t)<(x.d+x.t)?-1:1);
   let fresh=0;
   for(const k in by){const o=S.log[k]||{},b=by[k];if(!o.done)fresh++;
    S.log[k]={done:true,km:r1(b.km),min:Math.round(b.sec/60),rpe:o.rpe||(b.rpe?String(b.rpe):''),note:o.note||'Intervals.icu',src:'icu'}}
   if(acts.length)for(const k of Object.keys(S.log)){if(k>=from&&k<=to&&!(k in by)&&fromIcu(S.log[k]))delete S.log[k]}
-  try{const wr=await fetch(base+'/wellness?oldest='+iso(addD(today,-28))+'&newest='+iso(today),{headers:hd});
+  try{const wr=await fetch(base+'/wellness?oldest='+iso(addD(today,-84))+'&newest='+iso(today),{headers:hd});
    if(wr.ok){const arr=await wr.json(),W={};for(const x of arr){const id=String(x.id||'').slice(0,10);if(!id)continue;W[id]={rhr:x.restingHR||null,hrv:x.hrv||null,sleep:x.sleepSecs?x.sleepSecs/3600:null,ctl:x.ctl!=null?x.ctl:null,atl:x.atl!=null?x.atl:null}}S.well=W}}catch(e){}
   icuLast=Date.now();save();render();
   setSync('✅ '+(fresh==0?'aktuell':fresh==1?'1 neuer Lauftag':fresh+' neue Lauftage')+' · '+new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}));
@@ -516,6 +757,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(iso(ne
 window.addEventListener('online',()=>icuSync());
 setInterval(()=>{if(!document.hidden&&Date.now()-icuLast>10*60*1000)icuSync()},60000);
 icuSync();
+if(!UID)showAuth();
 if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 
 </script></body></html>
