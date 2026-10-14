@@ -29,11 +29,11 @@ h3{margin:0 0 4px}.mu,small{color:var(--mu)}
 .st{min-width:0}.st b{display:block;font-size:1.1rem;line-height:1.2;overflow-wrap:anywhere;hyphens:auto}.st span{font-size:.75rem;color:var(--mu)}
 button,select,input{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:7px 11px}
 button{cursor:pointer}button.pri{background:var(--pri);border-color:var(--pri);color:var(--pri-tx);font-weight:600}
-nav.bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--bd);display:flex;padding:7px 6px calc(7px + env(safe-area-inset-bottom,0px));z-index:5}
-nav.bar button{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.68rem;color:var(--mu);padding:4px 0;border-radius:10px;position:relative}
-nav.bar button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-nav.bar button.on{color:var(--pri);font-weight:700}
-nav.bar button.on::before{content:"";position:absolute;top:-8px;width:28px;height:3px;border-radius:2px;background:var(--pri)}
+nav.dock{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--bd);display:flex;padding:7px 6px calc(7px + env(safe-area-inset-bottom,0px));z-index:5}
+nav.dock button{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.68rem;color:var(--mu);padding:4px 0;border-radius:10px;position:relative}
+nav.dock button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+nav.dock button.on{color:var(--pri);font-weight:700}
+nav.dock button.on::before{content:"";position:absolute;top:-8px;width:28px;height:3px;border-radius:2px;background:var(--pri)}
 .hero{background:linear-gradient(140deg,#14397a,#0a1f44 60%,#061330);color:#fff;border-radius:20px;padding:16px;margin:12px 0;box-shadow:var(--sh);position:relative;overflow:hidden}
 .hero::after{content:"";position:absolute;right:-34px;top:-34px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(198,241,53,.30),transparent 70%);pointer-events:none}
 .hr1{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;position:relative}
@@ -118,13 +118,13 @@ ul.ex{margin:5px 0 0;padding-left:18px;font-size:.88rem}ul.ex li{margin:2px 0}
 #pf svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
 .top .in>div.r{display:flex;align-items:center;gap:10px;min-width:0}
 
-nav.bar{padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 18px rgba(10,31,68,.08)}
-nav.bar button{min-height:60px;gap:3px;font-size:.74rem;padding:4px 0;font-weight:600;justify-content:center}
-nav.bar button svg{box-sizing:content-box;width:24px;height:24px;padding:4px 0;border-radius:16px;transition:background .15s}
-nav.bar button.on::before{display:none}
-nav.bar button.on svg{width:48px;padding:4px 0;background:color-mix(in srgb,var(--pri) 16%,transparent);stroke-width:2.3}
-nav.bar button.on span{font-weight:800}
-nav.bar button:active svg{background:color-mix(in srgb,var(--pri) 10%,transparent)}
+nav.dock{padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 18px rgba(10,31,68,.08)}
+nav.dock button{min-height:60px;gap:3px;font-size:.74rem;padding:4px 0;font-weight:600;justify-content:center}
+nav.dock button svg{box-sizing:content-box;width:24px;height:24px;padding:4px 0;border-radius:16px;transition:background .15s}
+nav.dock button.on::before{display:none}
+nav.dock button.on svg{width:48px;padding:4px 0;background:color-mix(in srgb,var(--pri) 16%,transparent);stroke-width:2.3}
+nav.dock button.on span{font-weight:800}
+nav.dock button:active svg{background:color-mix(in srgb,var(--pri) 10%,transparent)}
 button.tr{width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--bd);border-radius:0;padding:10px 0;font:inherit}
 button.tr .chev{flex:none;font-size:1.4rem;color:var(--mu);line-height:1;margin-left:2px}
 button.tr:active{background:var(--bg)}
@@ -160,12 +160,22 @@ body.noscroll{overflow:hidden}
 .run .rm{min-width:0;flex:1}.run .rn{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .run .rk{flex:none;text-align:right}.run .rk b{font-size:1.15rem;display:block;line-height:1.1}.run .rk span{font-size:.72rem;color:var(--mu)}
 .run .tiles{margin:2px 0 8px}.rp{font-size:.88rem;margin:4px 0}
+
+/* Dock-Navigation */
+.wrap{padding-bottom:calc(112px + env(safe-area-inset-bottom,0px))}
+nav.dock{left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));padding:6px;border:1px solid var(--bd);border-radius:24px;gap:2px;box-shadow:0 8px 28px rgba(10,31,68,.22);max-width:560px;margin:0 auto}
+nav.dock button{min-height:64px;border-radius:18px;font-size:.78rem;gap:4px;color:var(--mu);-webkit-user-select:none;user-select:none;touch-action:manipulation;transition:transform .1s}
+nav.dock button svg{width:26px;height:26px;padding:5px 0;stroke-width:2}
+nav.dock button:active{transform:scale(.93)}
+nav.dock button.on{color:var(--pri)}
+nav.dock button.on svg{width:56px;padding:5px 0;border-radius:15px;background:var(--pri);stroke:var(--pri-tx);stroke-width:2.2}
+nav.dock button.on span{color:var(--tx);font-weight:800}
 </style></head><body>
 <header class="top"><div class="in"><svg class="logo" viewBox="-2 -4 497.5 108.0" role="img" aria-label="M.oach"><path d="M0.00,100.00 L15.84,0.00 L38.95,0.00 L54.39,47.00 L84.73,0.00 L107.84,0.00 L92.00,100.00 L68.89,100.00 L77.37,46.50 L47.03,93.50 L31.58,46.50 L23.11,100.00Z" fill="#FFFFFF"/><circle cx="121.31" cy="85.67" r="14.33" fill="#C6F135"/><path d="M157.46 62.30Q159.30 50.68 165.84 41.82Q172.38 32.97 182.04 28.24Q191.71 23.51 202.79 23.51Q213.88 23.51 222.04 28.24Q230.21 32.97 233.95 41.82Q237.68 50.68 235.84 62.30Q234.00 73.92 227.40 82.77Q220.79 91.62 211.05 96.35Q201.32 101.08 190.24 101.08Q179.16 101.08 171.05 96.35Q162.95 91.62 159.28 82.84Q155.60 74.05 157.46 62.30ZM212.33 62.30Q213.76 53.24 210.00 48.38Q206.25 43.51 199.63 43.51Q192.87 43.51 187.65 48.31Q182.43 53.11 180.98 62.30Q179.54 71.35 183.16 76.22Q186.78 81.08 193.41 81.08Q200.03 81.08 205.46 76.22Q210.89 71.35 212.33 62.30Z M281.31 23.51Q289.28 23.51 294.78 26.76Q300.28 30.00 302.69 35.27L304.38 24.59H327.49L315.54 100.00H292.44L294.13 89.32Q289.91 94.59 283.39 97.84Q276.86 101.08 268.89 101.08Q259.70 101.08 252.89 96.28Q246.08 91.49 243.09 82.64Q240.10 73.78 241.94 62.16Q243.78 50.54 249.57 41.76Q255.35 32.97 263.67 28.24Q271.98 23.51 281.31 23.51ZM284.88 43.65Q277.98 43.65 272.40 48.58Q266.83 53.51 265.46 62.16Q264.09 70.81 268.08 75.88Q272.08 80.95 278.97 80.95Q285.86 80.95 291.45 75.95Q297.04 70.95 298.41 62.30Q299.78 53.65 295.77 48.65Q291.77 43.65 284.88 43.65Z M376.04 23.51Q390.23 23.51 398.58 30.95Q406.93 38.38 407.76 51.89H383.16Q381.43 43.24 372.51 43.24Q366.16 43.24 361.59 48.18Q357.03 53.11 355.57 62.30Q354.11 71.49 357.12 76.42Q360.12 81.35 366.47 81.35Q375.39 81.35 379.87 72.70H404.46Q399.39 85.95 388.60 93.51Q377.81 101.08 363.75 101.08Q352.67 101.08 344.84 96.35Q337.01 91.62 333.60 82.84Q330.19 74.05 332.06 62.30Q333.92 50.54 340.11 41.76Q346.30 32.97 355.63 28.24Q364.96 23.51 376.04 23.51Z M492.79 55.95 485.81 100.00H462.84L469.33 59.05Q470.53 51.49 467.27 47.30Q464.01 43.11 457.39 43.11Q450.77 43.11 446.19 47.30Q441.61 51.49 440.41 59.05L433.92 100.00H410.81L426.65 0.00H449.76L444.26 34.73Q448.57 29.73 455.12 26.76Q461.67 23.78 469.24 23.78Q482.21 23.78 488.69 32.36Q495.17 40.95 492.79 55.95Z" fill="#FFFFFF"/></svg><div class="r"><div class="meta"><div id="cd"></div><div id="sy" role="button">…</div></div><button id="pf" aria-label="Profil"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg></button></div></div></header>
 <div class="wrap">
 <section id="today"></section><section id="cal" hidden></section><section id="runs" hidden></section><section id="perf" hidden></section><section id="set" hidden></section>
 <div id="md" class="modal" hidden></div></div><div id="cm" class="cmod" hidden></div><div id="auth" class="auth" hidden></div>
-<nav class="bar" aria-label="Hauptmenü"><button data-t="today" class="on" aria-current="page"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Heute</span></button><button data-t="cal"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Kalender</span></button><button data-t="runs"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg><span>Läufe</span></button><button data-t="perf"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-9"/><path d="M15 6h6v6"/></svg><span>Leistung</span></button><button data-t="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg><span>Profil</span></button></nav>
+<nav class="dock" aria-label="Hauptmenü"><button data-t="today" class="on" aria-current="page"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Heute</span></button><button data-t="cal"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Kalender</span></button><button data-t="runs"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg><span>Läufe</span></button><button data-t="perf"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-9"/><path d="M15 6h6v6"/></svg><span>Leistung</span></button><button data-t="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg><span>Profil</span></button></nav>
 <script>
 
 const D=864e5,A=[[49,15],[48,35],[47,50],[40,70],[37,66],[29,78],[22,90],[21,86],[20,70],[16,90],[5,120],[3,96],[2,72],[1,50],[0,45]];
@@ -709,8 +719,8 @@ function render(){
  $('#cd').innerHTML=days>=0?'Rennen in <b>'+days+'</b> Tagen':'Rennen vorbei';
  rToday();rCal();rRuns();rPerf();rSet();
  window.scrollTo(0,y)}
-function showTab(t){document.querySelectorAll('nav.bar button').forEach(x=>x.classList.toggle('on',x.dataset.t==t));['today','cal','runs','perf','set'].forEach(id=>$('#'+id).hidden=id!=t);document.querySelectorAll('nav.bar button').forEach(x=>{if(x.dataset.t==t)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});window.scrollTo(0,0)}
-document.querySelectorAll('nav.bar button').forEach(b=>b.onclick=()=>showTab(b.dataset.t));
+function showTab(t){document.querySelectorAll('nav.dock button').forEach(x=>x.classList.toggle('on',x.dataset.t==t));['today','cal','runs','perf','set'].forEach(id=>$('#'+id).hidden=id!=t);document.querySelectorAll('nav.dock button').forEach(x=>{if(x.dataset.t==t)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});window.scrollTo(0,0)}
+document.querySelectorAll('nav.dock button').forEach(b=>b.onclick=()=>{try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}showTab(b.dataset.t)});
 render();
 
 const ICU_WEEKS=26;
