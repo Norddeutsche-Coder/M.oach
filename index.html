@@ -347,7 +347,7 @@ try{const x=LS.get('mplan_icu_'+UID);if(x)ICU=JSON.parse(x)}catch(e){}
 let START=parse(S.start||'2026-10-12');
 const setSync=t=>{const e=$('#sy');if(e)e.textContent=t;const f=$('#icust');if(f)f.textContent=t};
 /* ===== Cloud (Supabase): Grundlagen ===== */
-const SB_DEFAULT={url:'',key:''}; /* hier Projekt-URL und anon-Schlüssel eintragen, siehe supabase/ANLEITUNG.md */
+const SB_DEFAULT={url:'https://vlzuaoyhxfqtdbncmfvu.supabase.co/rest/v1/',key:'sb_publishable_jaZO9LSAJschiXT3BLmdRg_8yFDebaY'}; /* hier Projekt-URL und anon-Schlüssel eintragen, siehe supabase/ANLEITUNG.md */
 const sbNorm=v=>{v=String(v||'').trim();if(v&&!/^[a-z]+:\/\//i.test(v))v='https://'+v;try{const x=new URL(v);return x.protocol=='https:'?x.origin:''}catch(e){return''}};
 const SBC=()=>{let o=null;try{o=JSON.parse(LS.get('moach_sb')||'null')}catch(e){}const c=o&&o.url&&o.key?o:SB_DEFAULT;return{url:sbNorm(c.url)||String(c.url||'').trim().replace(/\/+$/,''),key:String(c.key||'').trim()}};
 const sbOn=()=>{const c=SBC();return /^https:\/\/[^\s\/]+$/.test(c.url)&&c.key.length>20};
