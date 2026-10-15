@@ -47,6 +47,7 @@ nav.dock button.on::before{content:"";position:absolute;top:-8px;width:28px;heig
 .hn{margin-top:10px;font-size:.88rem;background:rgba(255,255,255,.11);border-radius:10px;padding:8px 10px;position:relative}
 .hdone{margin-top:10px;background:rgba(198,241,53,.16);border:1px solid rgba(198,241,53,.55);border-radius:10px;padding:8px 10px;font-size:.9rem;position:relative}
 .hero .b{margin-top:14px;position:relative}
+.htr{margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,.2);position:relative}.htt{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:.78rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--volt);margin-bottom:4px}.htt span{color:#b7c4e3;text-transform:none;letter-spacing:0;font-weight:600}.hero .inf{color:#fff;border-color:rgba(255,255,255,.7)}.hero .sr{border-top-color:rgba(255,255,255,.15)}.hero .sl{color:#9fb2d9}.hero .sv{color:#fff}.hero .tips{background:rgba(255,255,255,.11);color:#e8eefc}.hero .b .pri{background:var(--volt);color:#0a1f44;border-color:transparent}
 .vb{background:var(--volt);color:#0a1f44;border:0;font-weight:700;border-radius:10px;padding:9px 15px}
 .cr{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:8px 0}.cr>span{width:68px;font-size:.8rem;color:var(--mu)}
 .chip{padding:5px 11px;border-radius:999px;font-size:.84rem}
@@ -257,6 +258,7 @@ nav.dock.six button svg{width:22px}nav.dock.six button.on svg{width:40px}
 .fc.good{background:color-mix(in srgb,#16a34a 14%,var(--card));border:1px solid color-mix(in srgb,#16a34a 55%,var(--bd))}
 .zs{font-size:.76rem;font-weight:800;border-radius:999px;padding:3px 10px;background:var(--bg);color:var(--mu)}.zs.good{color:var(--ok)}.zs.bad{color:#e5484d}
 .zgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0 4px}
+.zgrid>:last-child:nth-child(odd){grid-column:1/-1}
 @media(min-width:600px){.zgrid{grid-template-columns:repeat(3,1fr)}}
 .zt{display:block;width:100%;text-align:left;border-radius:14px;padding:10px 11px 8px;border:1px solid var(--bd);border-top:4px solid var(--zc);background:var(--card);--zc:#94a3b8;color:var(--tx);min-width:0}
 .zt.good{--zc:#16a34a}.zt.bad{--zc:#ef4444}.zt.neu{--zc:#3b82f6}
@@ -581,7 +583,7 @@ function rPerf(){
  const dist=[[5,'5 km'],[10,'10 km'],[21.0975,'Halbmarathon'],[42.195,'Marathon']];
  let wk='';for(let i=9;i>=0;i--){const ws=addD(mon(today),-7*i);let pl=0,ac=0;for(let j=0;j<7;j++){const d=addD(ws,j),p=plan(d,1),l=S.log[iso(d)];if(p)pl+=p.km;if(l&&l.done)ac+=+l.km||0}
   if(!pl&&!ac)continue;wk+=`<div style="font-size:.78rem">${ws.toLocaleDateString('de-DE',{day:'numeric',month:'short'})}: ${Math.round(ac)}${pl?' / '+Math.round(pl):''} km<div class="bar"><i style="width:${Math.min(100,pl/1.2)}%;background:var(--bd);filter:brightness(.8)"></i></div><div class="bar"><i style="width:${Math.min(100,ac/1.2)}%;background:var(--ok)"></i></div></div>`}
- $('#perf').innerHTML=`${yearCard()}<div class="card"><h3>Zustand im Detail</h3><div class="sub">Tippe auf eine Zeile für Diagramm und Trend${ICU.key?' · Daten aus Intervals.icu':''}</div>${zdetail(readiness())||'<div class="mu" style="margin:6px 0">Noch keine Trenddaten. Verbinde Intervals.icu im Profil.</div>'}</div><div class="card"><h3>Neues Ergebnis (Wettkampf oder Test)${inf('perf_res')}</h3><div class="sub">Verändert nur deine Trainingspaces. Die Prognose auf der Startseite rechnet allein aus deinen Läufen.</div><div class="f"><label>Datum<input id="rd" type="date" value="${iso(today)}"></label><label>Distanz<select id="rk">${dist.map(x=>`<option value="${x[0]}">${x[1]}</option>`).join('')}</select></label><label>Std<input id="rh" type="number" min="0" value="0"></label><label>Min<input id="rm" type="number" min="0" value="0"></label><label>Sek<input id="rs" type="number" min="0" value="0"></label></div><button class="pri" id="ra">Hinzufügen</button>
+ $('#perf').innerHTML=`${insightHtml()}${yearCard()}<div class="card"><h3>Zustand im Detail</h3><div class="sub">Tippe auf eine Zeile für Diagramm und Trend${ICU.key?' · Daten aus Intervals.icu':''}</div>${zdetail(readiness())||'<div class="mu" style="margin:6px 0">Noch keine Trenddaten. Verbinde Intervals.icu im Profil.</div>'}</div><div class="card"><h3>Neues Ergebnis (Wettkampf oder Test)${inf('perf_res')}</h3><div class="sub">Verändert nur deine Trainingspaces. Die Prognose auf der Startseite rechnet allein aus deinen Läufen.</div><div class="f"><label>Datum<input id="rd" type="date" value="${iso(today)}"></label><label>Distanz<select id="rk">${dist.map(x=>`<option value="${x[0]}">${x[1]}</option>`).join('')}</select></label><label>Std<input id="rh" type="number" min="0" value="0"></label><label>Min<input id="rm" type="number" min="0" value="0"></label><label>Sek<input id="rs" type="number" min="0" value="0"></label></div><button class="pri" id="ra">Hinzufügen</button>
  <table style="margin-top:10px">${S.res.map((x,i)=>`<tr><td>${x.d}</td><td>${r1(x.km)} km</td><td>${ft(x.sec)}</td><td>→ Marathon ${ft(x.sec*Math.pow(42.195/x.km,1.06))}</td><td><button data-x="${i}">✕</button></td></tr>`).join('')||'<tr><td class="mu">Noch keine Ergebnisse – Paces basieren auf dem Plan-Verlauf von 3:10 h Richtung Ziel.</td></tr>'}</table></div>
  <div class="card"><h3>Deine aktuellen Trainingspaces${inf('perf_pace')}</h3><table><tr><td>Marathontempo</td><td><b>${fp(z.mp)}</b> /km</td></tr><tr><td>Locker</td><td>${fp(z.e1)}–${fp(z.e2)} /km</td></tr><tr><td>Schwelle</td><td>${fp(z.t)} /km</td></tr><tr><td>Intervall 3–5 min</td><td>${fp(z.i)} /km</td></tr><tr><td>Kurz 200–400 m</td><td>${fp(z.r)} /km</td></tr></table><small>${f?'Berechnet aus deinem letzten Ergebnis ('+f.d+').':'Noch ohne Testergebnis; gedeckelt auf Zielpace.'}</small></div>
  <div class="card"><h3>Umfang pro Woche (grün = gelaufen)</h3>${wk||'<span class="mu">Noch keine Wochen.</span>'}</div>`;
@@ -1335,7 +1337,7 @@ function briefing(R,p,adj,pl,ac){
 function wireBrief(el){}
 
 /* ===== Dein Zustand (kompakt) ===== */
-const ZT_HOME=['rhr','hrv','sleep','ctl','form','km'];
+const ZT_HOME=['rhr','hrv','sleep','ctl','form'];
 function ztile(a){const[key,name,val,unit,ar,cls,sub,vals]=a;
  return'<button type="button" class="zt '+cls+'" data-ch="'+key+'"><div class="zl">'+name+inf('t_'+key)+'</div><div class="zm"><div class="zv"><b>'+val+'</b>'+(unit?'<span>'+unit.replace(' (7 Tage)','')+'</span>':'')+'</div>'+spark(vals)+'</div>'+(ar?'<div class="za">'+ar+'</div>':'')+'<small>'+sub+'</small></button>'}
 function zustandCard(R,p,course,chips,ck){
@@ -1497,9 +1499,10 @@ function rToday(){
  let T;
  if(p)T=trainBlock(p,adj,z);
  else{const after=!S.noPlan&&today>=START;
-  T={meta:'Kein Plan für heute',rows:[['Heute','Locker laufen oder bewegen, ganz nach Gefühl. Achte auf die Ampel oben und deinen Zustand.']].concat(after?[['Erholung','Nach einem Rennen: 1–2 Wochen nur locker oder frei, dann wieder aufbauen.']]:[]).concat([['Plan','Für konkrete Einheiten erstellst du im Kalender einen Plan: für ein Rennen oder zum Erhalten deiner Ausdauer.']]),tips:[],btn:true}}
- const steps='<h3 class="h3s">Dein Training heute</h3>'+stepCard('run','Training',T.meta,'#2563eb',rowsH(T.rows)+(T.tips.length?'<div class="tips">'+T.tips.map(t=>'<div>💡 '+t+'</div>').join('')+'</div>':'')+(T.btn?'<div class="b"><button class="pri gocal">Zum Trainingsplan</button></div>':''),(done?'<span class="tag">✓ erledigt</span>':'')+inf('train'))+'';
- el.innerHTML=inboxHtml()+hero+repairHtml()+brief+newRunCard()+insightHtml()+kp+state+steps;wire()}
+  T={meta:'Kein Plan für heute',rows:[['Heute','Locker laufen oder bewegen, ganz nach Gefühl. Achte auf deine Training Readiness und deinen Zustand.']].concat(after?[['Erholung','Nach einem Rennen: 1–2 Wochen nur locker oder frei, dann wieder aufbauen.']]:[]).concat([['Plan','Für konkrete Einheiten erstellst du im Kalender einen Plan: für ein Rennen oder zum Erhalten deiner Ausdauer.']]),tips:[],btn:true}}
+ const trH='<div class="htr"><div class="htt">Dein Training heute'+inf('train')+'<span>'+T.meta+(done?' · ✓ erledigt':'')+'</span></div>'+rowsH(T.rows)+(T.tips.length?'<div class="tips">'+T.tips.map(t=>'<div>💡 '+t+'</div>').join('')+'</div>':'')+(T.btn?'<div class="b"><button class="pri gocal">Zum Trainingsplan</button></div>':'')+'</div>';
+ const heroFull=hero.replace(/<\/section>$/,()=>trH+'</section>');
+ el.innerHTML=inboxHtml()+heroFull+repairHtml()+brief+newRunCard()+kp+state;wire()}
 
 /* ===== Diagramme & Trends ===== */
 const DAYMS=864e5,ts=s=>Date.parse(s+'T00:00:00Z'),tsl=t=>{const d=new Date(t);return pad(d.getUTCDate())+'.'+pad(d.getUTCMonth()+1)+'.'};
