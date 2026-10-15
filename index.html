@@ -319,6 +319,7 @@ nav.dock button.badge::after{content:"";position:absolute;top:8px;left:calc(50% 
 label.ck{display:flex;flex-direction:row;gap:9px;align-items:flex-start;margin:10px 0 4px;font-size:.8rem;font-weight:400;color:var(--mu);line-height:1.35}label.ck span{font-weight:400;font-size:.8rem;text-transform:none;letter-spacing:0}label.ck input{margin-top:2px;flex:none;width:18px;height:18px}
 .chs{width:100%;height:auto;display:block;margin:6px 0 2px}
 .rexp{font-size:.88rem;margin-top:8px;padding:8px 10px;background:var(--bg);border-radius:10px}.atabs{display:flex;background:var(--bg);border:1px solid var(--bd);border-radius:999px;padding:3px;margin:0 0 12px}.atabs button{flex:1;border:0;background:none;color:var(--mu);font:inherit;font-weight:700;padding:9px 10px;border-radius:999px}.atabs button.on{background:var(--pri);color:var(--pri-tx)}
+.nrcw{margin:6px 0 4px}.nrct{font-size:.78rem;font-weight:700;color:var(--mu);margin-bottom:4px}.rsh{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:.72rem;color:var(--mu)}.rsh i{display:inline-block;width:12px;height:3px;border-radius:2px;margin-right:4px;vertical-align:middle}.rsh b{margin-left:auto;color:var(--tx);font-size:.8rem}.rsc{touch-action:pan-y;cursor:crosshair;user-select:none;-webkit-user-select:none}.rsc svg{width:100%;height:auto;display:block}.rsl{font-size:.8rem;padding:8px 0}
 .card.nrun{border-top:4px solid var(--kc)}.nrh{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.nrk{font-size:.74rem;color:var(--mu);font-weight:700}.nrn{font-size:1.05rem;font-weight:800;margin-top:2px}.nrb{font-size:2.3rem;font-weight:800;line-height:1.1;margin:6px 0 2px}.nrb small{font-size:.9rem;margin-left:5px;color:var(--mu)}.nrp{font-size:.86rem;margin:2px 0 6px}.card.nrun .tiles{grid-template-columns:repeat(auto-fit,minmax(92px,1fr))}
 .card.ins,.box.ins{border-top:4px solid #f59e0b}.card.ins.warn,.box.ins.warn{border-top-color:#ef4444}.card.ins.good,.box.ins.good{border-top-color:#22c55e}
 .inh{display:flex;align-items:center;gap:7px;font-size:.82rem;font-weight:600;color:var(--mu)}
@@ -971,10 +972,90 @@ function openInsight(id){
   +'<div class="inc">'+x.chart+'<small>'+x.cap+'</small></div><details style="margin-top:10px"><summary><b>Rechenweg</b></summary><div class="how">'+x.how+'</div></details><div class="b"><button class="pri" id="cl">Schließen</button></div></div>';
  $('#cl').onclick=()=>m.hidden=true}
 
+/* ---- Lauf-Diagramm (Distanz, Pace, Herzfrequenz) ---- */
+const RSK='moach_rs_';let NRUN=null;const RSM={},RSF={};
+const rsLoad=()=>{try{return JSON.parse(LS.get(RSK+UID)||'{}')||{}}catch(e){return{}}};
+function rsSave(id,v){try{const o=rsLoad();delete o[id];o[id]=v;const ks=Object.keys(o);while(ks.length>6)delete o[ks.shift()];LS.set(RSK+UID,JSON.stringify(o))}catch(e){}}
+function rsProcess(raw){
+ const g={};
+ if(Array.isArray(raw))raw.forEach(x=>{if(x&&x.type&&Array.isArray(x.data))g[x.type]=x.data});
+ else if(raw&&typeof raw=='object')for(const k in raw)if(Array.isArray(raw[k]))g[k]=raw[k];
+ const D=g.distance,T=g.time,V=g.velocity_smooth,H=g.heartrate;
+ if(!D||D.length<20||!(T||V))return null;
+ const n=D.length,tot=(+D[n-1]||0)/1000;if(!(tot>=.5))return null;
+ const N=Math.min(140,Math.max(20,Math.round(tot*10))),w=Math.max(.12,tot/N*1.5);
+ const bs=(a,x)=>{let lo=0,hi=a.length-1;while(lo<hi){const m=(lo+hi)>>1;if(a[m]<x)lo=m+1;else hi=m}return lo};
+ const ph=[0],pc=[0],pv=[0],pn=[0];
+ for(let i=0;i<n;i++){const h=H&&H[i]>40?+H[i]:0,v=V&&V[i]>.3?+V[i]:0;ph.push(ph[i]+h);pc.push(pc[i]+(h?1:0));pv.push(pv[i]+v);pn.push(pn[i]+(v?1:0))}
+ const pts=[];
+ for(let i=0;i<=N;i++){
+  const x=tot*i/N,ia=bs(D,Math.max(0,x-w)*1000),ib=bs(D,Math.min(tot,x+w)*1000);
+  let p=null;
+  if(T){const dt=T[ib]-T[ia],dd=(D[ib]-D[ia])/1000;if(dd>.02&&dt>0)p=dt/dd}
+  else if(pn[ib+1]-pn[ia]>0){p=1000/((pv[ib+1]-pv[ia])/(pn[ib+1]-pn[ia]))}
+  if(p!=null&&(p<150||p>900))p=null;
+  const c=pc[ib+1]-pc[ia],h=c>0?(ph[ib+1]-ph[ia])/c:null;
+  pts.push([Math.round(x*100)/100,p==null?null:Math.round(p),h==null?null:Math.round(h)])}
+ const tt=T?(T[n-1]-T[0]):null,hv=H?H.filter(x=>x>40):[];
+ return{tot:Math.round(tot*100)/100,pts,ap:tt>0?Math.round(tt/tot):null,ah:hv.length?Math.round(hv.reduce((a,b)=>a+b,0)/hv.length):null}}
+function rsSvg(d,sel){
+ const W=340,H=206,L=36,Rr=34,Tp=12,B=24,iw=W-L-Rr,ih=H-Tp-B,tot=d.tot,f=v=>v.toFixed(1);
+ const ps=d.pts.map(p=>p[1]).filter(v=>v!=null).sort((a,b)=>a-b),hs=d.pts.map(p=>p[2]).filter(v=>v!=null);
+ const X=v=>L+iw*v/tot;
+ let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Verlauf von Pace und Herzfrequenz über die Distanz">';
+ let pl=0,ph_=1;
+ if(ps.length){const a=ps[Math.floor(ps.length*.03)],b=ps[Math.min(ps.length-1,Math.floor(ps.length*.97))],pad=Math.max(6,(b-a)*.12);pl=a-pad;ph_=b+pad}
+ const YP=v=>Tp+ih*(v-pl)/(ph_-pl);
+ let hl=0,hh=1;if(hs.length){const a=Math.min(...hs),b=Math.max(...hs),pad=Math.max(4,(b-a)*.12);hl=a-pad;hh=b+pad}
+ const YH=v=>Tp+ih*(1-(v-hl)/(hh-hl));
+ for(let i=0;i<=3;i++){const y=Tp+ih*i/3;s+='<line x1="'+L+'" x2="'+(W-Rr)+'" y1="'+f(y)+'" y2="'+f(y)+'" stroke="var(--bd)" stroke-width="1"/>';
+  if(ps.length)s+='<text x="'+(L-5)+'" y="'+f(y+3)+'" text-anchor="end" font-size="9.5" fill="#2563eb">'+fp(pl+(ph_-pl)*i/3)+'</text>';
+  if(hs.length)s+='<text x="'+(W-Rr+5)+'" y="'+f(y+3)+'" font-size="9.5" fill="#ef4444">'+Math.round(hh-(hh-hl)*i/3)+'</text>'}
+ const st=tot<=6?1:tot<=14?2:tot<=30?5:10;
+ for(let k=0;k<=tot+.001;k+=st)s+='<text x="'+f(X(k))+'" y="'+(H-8)+'" text-anchor="middle" font-size="9.5" fill="var(--mu)">'+k+'</text>';
+ s+='<text x="'+(W-Rr)+'" y="'+(H-8)+'" text-anchor="end" font-size="9" fill="var(--mu)" opacity="0">km</text>';
+ const path=(ix,Y)=>{let o='',up=false;for(const p of d.pts){const v=p[ix];if(v==null){up=false;continue}o+=(up?'L':'M')+f(X(p[0]))+' '+f(Y(v));up=true}return o};
+ const pp=path(1,YP),hp=path(2,YH);
+ if(hp)s+='<path d="'+hp+'" fill="none" stroke="#ef4444" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+ if(pp){const first=d.pts.find(p=>p[1]!=null),last=d.pts.slice().reverse().find(p=>p[1]!=null);
+  s+='<path d="'+pp+'L'+f(X(last[0]))+' '+(Tp+ih)+'L'+f(X(first[0]))+' '+(Tp+ih)+'Z" fill="#2563eb" opacity=".1"/><path d="'+pp+'" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>'}
+ if(sel>=0){const p=d.pts[sel],x=X(p[0]);s+='<line x1="'+f(x)+'" x2="'+f(x)+'" y1="'+Tp+'" y2="'+(Tp+ih)+'" stroke="var(--tx)" stroke-width="1" stroke-dasharray="3 3"/>';
+  if(p[1]!=null)s+='<circle cx="'+f(x)+'" cy="'+f(YP(p[1]))+'" r="4" fill="#2563eb" stroke="var(--card)" stroke-width="2"/>';
+  if(p[2]!=null)s+='<circle cx="'+f(x)+'" cy="'+f(YH(p[2]))+'" r="4" fill="#ef4444" stroke="var(--card)" stroke-width="2"/>'}
+ return s+'</svg>'}
+function rsDraw(box,d){
+ let sel=-1;
+ const ro=()=>{if(sel<0)return'Ø '+(d.ap?fp(d.ap)+' /km':'–')+(d.ah?' · Ø '+d.ah+' bpm':'')+' · '+dec(d.tot,1)+' km';const p=d.pts[sel];return dec(p[0],1)+' km · '+(p[1]!=null?fp(p[1])+' /km':'–')+(p[2]!=null?' · '+p[2]+' bpm':'')};
+ box.innerHTML='<div class="rsh"><span><i style="background:#2563eb"></i>Pace /km (oben = schneller)</span>'+(d.pts.some(p=>p[2]!=null)?'<span><i style="background:#ef4444"></i>Herzfrequenz</span>':'')+'<span>Distanz in km</span><b id="rsro"></b></div><div class="rsc"></div>';
+ const c=box.querySelector('.rsc'),r=box.querySelector('#rsro');
+ const paint=()=>{c.innerHTML=rsSvg(d,sel);r.textContent=ro()};
+ const pick=e=>{const b=c.getBoundingClientRect(),x=(e.clientX-b.left)/b.width*340,v=(x-36)/(340-36-34)*d.tot;let bi=0,bd=1e9;d.pts.forEach((p,i)=>{const q=Math.abs(p[0]-v);if(q<bd){bd=q;bi=i}});return bi};
+ let dn=false;const set=i=>{if(i!==sel){sel=i;paint()}};
+ c.addEventListener('pointerdown',e=>{dn=true;set(pick(e))});
+ c.addEventListener('pointermove',e=>{if(dn||e.pointerType==='mouse')set(pick(e))});
+ c.addEventListener('pointerup',()=>{dn=false});c.addEventListener('pointercancel',()=>{dn=false});
+ c.addEventListener('pointerleave',()=>{dn=false;if(sel>=0){sel=-1;paint()}});
+ paint()}
+async function nrunChart(){
+ const box=document.querySelector('#nrc');if(!box||!NRUN)return;
+ const id=String(NRUN.id);let d=RSM[id]||rsLoad()[id];
+ if(d){RSM[id]=d;rsDraw(box,d);return}
+ if(RSF[id]&&Date.now()-RSF[id]<3e5){box.innerHTML='<div class="mu rsl">Für diesen Lauf liefert Intervals.icu keinen Verlauf.</div>';return}
+ box.innerHTML='<div class="mu rsl">Verlauf wird geladen…</div>';
+ try{
+  const r=await fetch('https://intervals.icu/api/v1/activity/'+encodeURIComponent(id)+'/streams.json?types=time,distance,velocity_smooth,heartrate',{headers:{Authorization:'Basic '+btoa('API_KEY:'+ICU.key)}});
+  if(!r.ok)throw new Error('http');
+  d=rsProcess(await r.json());if(!d)throw new Error('leer');
+  RSM[id]=d;rsSave(id,d)}
+ catch(e){RSF[id]=Date.now()}
+ const b2=document.querySelector('#nrc');if(!b2||!NRUN||String(NRUN.id)!==id)return;
+ if(d)rsDraw(b2,d);else b2.innerHTML='<div class="mu rsl">Für diesen Lauf liefert Intervals.icu keinen Verlauf.</div>'}
+
 /* ---- Neuer Lauf auf Heute ---- */
 function newRunCard(){
- const R=allRuns(),r=R[0];if(!r||!(r.km>0))return'';
+ const R=allRuns(),r=R[0];NRUN=null;if(!r||!(r.km>0))return'';
  const age=Math.round((today-parse(r.d))/D);if(age<0||age>1)return'';
+ NRUN=r;
  const cx=rctx(R,d=>plan(d,1),true),a=analyzeRun(r,cx),d=parse(r.d),pc=r.sec>0?r.sec/r.km:null,pn=plan(d,1),ws=mon(d),wa=iso(ws),wb=iso(addD(ws,6));
  let wk=0,wp=0;for(const x of R)if(x.d>=wa&&x.d<=wb)wk+=x.km;for(let i=0;i<7;i++){const q=plan(addD(ws,i),1);if(q&&q.km)wp+=q.km}
  const t=(v,l,k)=>v==null||v===''||v===0?'':'<div class="tl"><b>'+v+'</b><span>'+l+(k?inf(k):'')+'</span></div>';
@@ -986,6 +1067,7 @@ function newRunCard(){
  return'<div class="card nrun" style="--kc:'+KCOL[a.kind]+'"><div class="nrh"><div><div class="nrk"><span class="kt" style="background:'+KCOL[a.kind]+'">'+KIND[a.kind]+'</span> '+when+inf('nr')+'</div><div class="nrn">'+esc(r.n||'Lauf')+'</div></div><span class="vd v-'+a.v.c+'">'+a.v.t+'</span></div>'
   +'<div class="nrb">'+dec(r.km,1)+'<small>km</small></div>'+vs
   +'<div class="tiles">'+t(r.sec?dur(r.sec):null,'Dauer','r_dur')+t(pc?fp(pc)+' /km':null,'Pace','r_pace')+t(r.hr?r.hr+' bpm':null,'Ø Puls','r_hr')+t(r.el?r.el+' m':null,'Höhenmeter','r_el')+t(r.ld,'Trainingslast','r_ld')+t(r.rpe?dec(r.rpe,0)+' / 10':null,'Anstrengung','r_rpe')+t(wp>0?Math.round(wk)+' / '+Math.round(wp):Math.round(wk),'km diese Woche')+'</div>'
+  +((ICU.key&&!r.manual&&r.id&&!String(r.id).startsWith('m'))?'<div class="nrcw"><div class="nrct">Verlauf: Pace und Herzfrequenz über die Distanz</div><div id="nrc"></div></div>':'')
   +'<div class="an a-g"><b>Das lief gut</b><ul>'+g+'</ul></div>'+(b?'<div class="an a-y"><b>Weniger gut</b><ul>'+b+'</ul></div>':'')
   +'<div class="an nx"><b>Nächstes Mal</b><ul><li>'+a.nxt[0]+'</li></ul></div>'
   +'<div class="b"><button data-go="runs">Alle Details im Reiter Läufe</button></div></div>'}
@@ -1382,7 +1464,7 @@ function rToday(){
   el.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>openChart(b.dataset.ch));
   el.querySelectorAll('.goicu').forEach(b=>b.onclick=()=>showTab('set'));
   el.querySelectorAll('.gocal').forEach(b=>b.onclick=()=>showTab('cal'));
-  el.querySelectorAll('.wr').forEach(b=>b.onclick=()=>openM(b.dataset.d));wireBrief(el);wireInbox(el);wireNew(el);const za=el.querySelector('#zall');if(za)za.onclick=()=>showTab('perf');};
+  el.querySelectorAll('.wr').forEach(b=>b.onclick=()=>openM(b.dataset.d));wireBrief(el);wireInbox(el);wireNew(el);nrunChart();const za=el.querySelector('#zall');if(za)za.onclick=()=>showTab('perf');};
  const R=readiness(),adj=p?adjust(p,R):{mode:'plan',km:0,title:null,note:''},nx=plan(addD(today,1));
  const kp=kpis(w,ws,pl,ac,days,!!p),brief=briefing(R,p,adj,pl,ac);
  const rest=!p||(p.t=='rest'||adj.mode=='rest'||adj.mode=='move');
