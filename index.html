@@ -227,9 +227,28 @@ nav.dock.six button{font-size:.66rem;min-height:60px}
 nav.dock.six button svg{width:22px}nav.dock.six button.on svg{width:40px}
 @media (max-width:360px){.pgrid{grid-template-columns:1fr 1fr}.pm b{font-size:1.7rem}}
 
+
+/* v28 */
+.rdw{margin-bottom:12px}.rdw .card{margin-bottom:0}
+.rdrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.rdc{padding:12px 10px;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center}
+.rdr .bhk{font-size:.68rem;font-weight:800;color:var(--mu);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.rdr .ring{margin:2px 0 6px}.rdr .bhl{font-size:1rem}.rdr .bhs{font-size:.76rem;color:var(--mu);margin-top:2px;line-height:1.25}
+.fvc{align-items:stretch;text-align:left}.fvh{display:flex;align-items:center;justify-content:space-between;gap:4px}
+.fvt{display:flex;gap:2px;background:var(--bg);padding:3px;border-radius:999px}
+.fvt button{border:0;background:none;border-radius:999px;padding:4px 9px;font-size:.7rem;font-weight:800;color:var(--mu);text-transform:uppercase;letter-spacing:.03em}
+.fvt button.on{background:var(--card);color:var(--tx);box-shadow:0 1px 3px rgba(0,0,0,.18)}.fvt button:disabled{opacity:.4}
+.fvb{display:block;width:100%;text-align:left;border:0;background:none;padding:10px 0 0;color:var(--tx);flex:1}
+.fvv b{font-size:2.1rem;line-height:1;color:var(--zc)}.fvv span{font-size:.72rem;color:var(--mu);margin-left:5px;font-weight:700}
+.fvs{font-size:.72rem;color:var(--mu);margin:4px 0 8px;line-height:1.25}
+.fvb .sp{color:var(--zc);width:100%;height:30px;display:block}
+.rdd{padding:12px}.fxh{display:flex;align-items:center;gap:8px;width:100%;border:0;background:none;padding:12px 0 0;color:var(--tx);text-align:left}
+.fxh .zs{margin-left:auto}.fxc{font-size:1.1rem;font-weight:800;color:var(--mu);transition:transform .2s;line-height:1}.fxc.on{transform:rotate(180deg)}
+.fxb[hidden]{display:none}.rdd .bwl{margin-top:8px}
+@media(max-width:360px){.fvt button{padding:4px 7px}.fvv b{font-size:1.8rem}}
 /* v9 */
 .ring .rg{animation:rgin .9s ease-out}@keyframes rgin{from{stroke-dashoffset:var(--c)}}
-.card.brief{padding-bottom:12px}.bsrc{font-size:.7rem;color:var(--mu);margin-top:3px}.tiles.rdy{margin:10px 0 4px}.tiles.rdy .tl{min-width:0}.tiles.rdy .tl small{display:block;font-size:.64rem;color:var(--mu);line-height:1.2;margin-top:1px}
+.card.brief{padding-bottom:12px}.bsrc{font-size:.7rem;color:var(--mu);margin-top:3px}.bfh{font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--mu)}.zfx{font-size:.68rem;font-weight:800;margin-top:3px}.zfx.neg,u.neg{color:#dc2626;text-decoration:none}.zfx.nul{color:var(--mu);font-weight:600}.tiles.rdy{margin:10px 0 4px}.tiles.rdy .tl{min-width:0}.tiles.rdy .tl small{display:block;font-size:.64rem;color:var(--mu);line-height:1.2;margin-top:1px}
 .bh{display:flex;align-items:center;gap:12px;margin-bottom:6px}.bhm{min-width:0}.bhm h3{margin:0;font-size:.74rem;color:var(--mu);text-transform:uppercase;letter-spacing:.06em}
 .bhl{font-size:1.25rem;font-weight:800;line-height:1.15}
 .bchips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.bchips span{background:var(--bg);border:1px solid var(--bd);border-radius:999px;padding:3px 10px;font-size:.78rem;font-weight:600}
@@ -617,27 +636,30 @@ const strip=p=>p.d.replace(/^[\d.,]+ km( gesamt)?:? ?/,'');
 const KRAFT={h:'Kraft (20–25 min, nach dem Lauf)',i:['3 × 8–10 je Bein: einbeinige Kniebeuge oder Bulgarian Split Squat (Rucksack als Gewicht).','3 × 12 einbeiniger Hip Thrust, 3 × 15 einbeiniges Wadenheben.','2 × 30–45 s Seitstütz je Seite und Plank.']};
 
 function readiness(){
- const R={pts:0,why:[],good:[],pain:0,m:{}};
+ const R={pts:0,why:[],good:[],pain:0,m:{},f:{}};
+ const fx=(k,n)=>{R.pts+=n;R.f[k]=(R.f[k]||0)+n};
  const H=[];for(let i=1;i<=28;i++){const d=addD(today,-i);const l=S.log[iso(d)];H.push({i,l:(l&&l.done)?l:null})}
  const W=S.well||{},wl=W[iso(today)]||{};
  {const v=+wl.rd;if(wl.rd!=null&&v>0){R.m.rdRaw=v;R.m.rd=Math.max(1,Math.min(100,Math.round(v<=10?v*10:v)))}}
  const sl=wl.sleep!=null?wl.sleep:null;R.m.sleep=sl;R.m.sleepSrc=wl.sleep!=null?'Intervals.icu':'';
- if(sl!=null){if(sl<5.5){R.pts+=2;R.why.push('Nur ca. '+r1(sl)+' h Schlaf.')}else if(sl<6.5){R.pts+=1;R.why.push('Eher kurze Nacht (ca. '+r1(sl)+' h).')}else if(sl>=7.5)R.good.push('Gut geschlafen (ca. '+r1(sl)+' h).')}
+ if(sl!=null){if(sl<5.5){fx('sleep',2);R.why.push('Nur ca. '+r1(sl)+' h Schlaf.')}else if(sl<6.5){fx('sleep',1);R.why.push('Eher kurze Nacht (ca. '+r1(sl)+' h).')}else if(sl>=7.5)R.good.push('Gut geschlafen (ca. '+r1(sl)+' h).')}
  const others=Object.keys(W).filter(k=>k!==iso(today)&&k>=iso(addD(today,-28))).map(k=>W[k]);
  const avg=f=>{const v=others.map(o=>o[f]).filter(x=>x>0);return v.length>=4?v.reduce((a,b)=>a+b)/v.length:null};
  const rb=avg('rhr'),hb=avg('hrv');
- if(wl.rhr>0){R.m.rhr=wl.rhr;R.m.rhrB=rb;if(rb&&wl.rhr-rb>=8){R.pts+=2;R.why.push('Ruhepuls '+Math.round(wl.rhr)+' (sonst Ø '+Math.round(rb)+').')}else if(rb&&wl.rhr-rb>=5){R.pts+=1;R.why.push('Ruhepuls erhöht: '+Math.round(wl.rhr)+' (sonst Ø '+Math.round(rb)+').')}}
- if(wl.hrv>0){R.m.hrv=wl.hrv;R.m.hrvB=hb;if(hb&&wl.hrv<hb*.75){R.pts+=2;R.why.push('HRV deutlich unter deinem Schnitt.')}else if(hb&&wl.hrv<hb*.85){R.pts+=1;R.why.push('HRV unter deinem Schnitt.')}}
+ if(wl.rhr>0){R.m.rhr=wl.rhr;R.m.rhrB=rb;if(rb&&wl.rhr-rb>=8){fx('rhr',2);R.why.push('Ruhepuls '+Math.round(wl.rhr)+' (sonst Ø '+Math.round(rb)+').')}else if(rb&&wl.rhr-rb>=5){fx('rhr',1);R.why.push('Ruhepuls erhöht: '+Math.round(wl.rhr)+' (sonst Ø '+Math.round(rb)+').')}}
+ if(wl.hrv>0){R.m.hrv=wl.hrv;R.m.hrvB=hb;if(hb&&wl.hrv<hb*.75){fx('hrv',2);R.why.push('HRV deutlich unter deinem Schnitt.')}else if(hb&&wl.hrv<hb*.85){fx('hrv',1);R.why.push('HRV unter deinem Schnitt.')}}
  const wf=W[iso(today)]||W[iso(addD(today,-1))]||{};
- if(wf.ctl!=null&&wf.atl!=null){R.m.form=wf.ctl-wf.atl;if(R.m.form<-30){R.pts+=1;R.why.push('Form stark negativ ('+Math.round(R.m.form)+'): viel aufgestaute Ermüdung.')}}
+ if(wf.ctl!=null&&wf.atl!=null){R.m.form=wf.ctl-wf.atl;if(R.m.form<-30){fx('form',1);R.why.push('Form stark negativ ('+Math.round(R.m.form)+'): viel aufgestaute Ermüdung.')}}
  const lr=H.filter(h=>h.l&&h.i<=5&&+h.l.rpe>0).slice(0,3);
- if(lr.length){const a=lr.reduce((s,h)=>s+(+h.l.rpe),0)/lr.length;R.m.rpe=a;if(a>=8){R.pts+=2;R.why.push('Die letzten Läufe waren sehr hart (RPE Ø '+a.toFixed(1)+').')}else if(a>=7){R.pts+=1;R.why.push('Die letzten Läufe waren hart (RPE Ø '+a.toFixed(1)+').')}}
- const y=H.find(h=>h.i==1&&h.l);if(y&&+y.l.rpe>=8){R.pts+=1;R.why.push('Gestern war sehr anstrengend.')}
+ if(lr.length){const a=lr.reduce((s,h)=>s+(+h.l.rpe),0)/lr.length;R.m.rpe=a;if(a>=8){fx('rpe',2);R.why.push('Die letzten Läufe waren sehr hart (RPE Ø '+a.toFixed(1)+').')}else if(a>=7){fx('rpe',1);R.why.push('Die letzten Läufe waren hart (RPE Ø '+a.toFixed(1)+').')}}
+ const y=H.find(h=>h.i==1&&h.l);if(y&&+y.l.rpe>=8){fx('rpe',1);R.why.push('Gestern war sehr anstrengend.')}
  let st=0;for(const h of H){if(h.l)st++;else break}R.m.streak=st;
- if(st>=7){R.pts+=2;R.why.push(st+' Lauftage in Folge: ein freier Tag ist überfällig.')}else if(st>=6){R.pts+=1;R.why.push(st+' Lauftage in Folge.')}
+ if(st>=7){fx('streak',2);R.why.push(st+' Lauftage in Folge: ein freier Tag ist überfällig.')}else if(st>=6){fx('streak',1);R.why.push(st+' Lauftage in Folge.')}
  const ac=H.filter(h=>h.i<=7&&h.l).reduce((s,h)=>s+(+h.l.km||0),0);R.m.acute=ac;
- const sp=Math.max(0,...H.filter(h=>h.l).map(h=>h.i));if(sp>=21){const ch=H.filter(h=>h.i>7&&h.l).reduce((s,h)=>s+(+h.l.km||0),0)/Math.min(3,(sp-7)/7);R.m.chronic=ch;if(ch>=10){const q=ac/ch;R.m.ratio=q;if(q>1.5){R.pts+=2;R.why.push('Der Umfang der letzten 7 Tage ist '+q.toFixed(1)+'× so hoch wie dein 4-Wochen-Schnitt.')}else if(q>1.3){R.pts+=1;R.why.push('Der Umfang steigt schnell ('+q.toFixed(1)+'× dein Schnitt).')}}}
- R.lvl=R.m.rd!=null?(R.m.rd>=75?0:R.m.rd>=50?1:2):(R.pts>=4?2:(R.pts>=2?1:0));
+ const sp=Math.max(0,...H.filter(h=>h.l).map(h=>h.i));if(sp>=21){const ch=H.filter(h=>h.i>7&&h.l).reduce((s,h)=>s+(+h.l.km||0),0)/Math.min(3,(sp-7)/7);R.m.chronic=ch;if(ch>=10){const q=ac/ch;R.m.ratio=q;if(q>1.5){fx('ratio',2);R.why.push('Der Umfang der letzten 7 Tage ist '+q.toFixed(1)+'× so hoch wie dein 4-Wochen-Schnitt.')}else if(q>1.3){fx('ratio',1);R.why.push('Der Umfang steigt schnell ('+q.toFixed(1)+'× dein Schnitt).')}}}
+ R.w=R.m.rd!=null?5:13;R.adj=-R.pts*R.w;
+ R.score=R.m.rd!=null?Math.max(1,Math.min(100,R.m.rd+R.adj)):Math.max(15,100-R.pts*13);
+ R.lvl=R.score>=75?0:R.score>=50?1:2;
  if(!R.why.length&&!R.good.length)R.good.push('Keine Warnsignale in deinen Daten.');
  return R}
 
@@ -740,6 +762,7 @@ const INFO={
  t_hrv:{t:'HRV',b:'<p>Herzratenvariabilität aus Intervals.icu (Wellness), gemessen von Uhr oder Tracker. Verglichen wird der aktuelle Wert mit dem Schnitt der 28 Tage davor.</p><p>Grün: mehr als 10 % darüber. Rot: mehr als 15 % darunter. Der Wert ist individuell, nur der Verlauf zählt.</p>'},
  t_sleep:{t:'Schlaf',b:'<p>Schlafdauer pro Nacht aus Intervals.icu (Wellness), Stunden. Der Pfeil vergleicht die letzte Nacht mit dem Schnitt der 2 Wochen davor.</p><p>Grün ab 7,5 h, rot unter 6,5 h.</p>'},
  t_ctl:{t:'Fitness (CTL)',b:'<p>Von Intervals.icu berechnet: gleitender Durchschnitt deiner Trainingslast über etwa 42 Tage. Höher bedeutet mehr aufgebaute Fitness.</p><p>Der Pfeil zeigt die Veränderung gegenüber dem Schnitt der ersten 7 Tage der letzten 6 Wochen.</p>'},
+ t_vo2:{t:'VO₂max',b:'<p>Geschätzte maximale Sauerstoffaufnahme (ml/kg/min) aus Intervals.icu (Wellness), meist von deiner Uhr berechnet. Sie ändert sich langsam; wichtig ist der Trend über Wochen, nicht der einzelne Tag.</p><p>Ein steigender Wert spricht für wachsende Ausdauerleistung. Er ist eine Schätzung und weicht je nach Gerät um einige Punkte ab.</p>'},
  t_form:{t:'Form (CTL − ATL)',b:'<p>Fitness (CTL, ~42 Tage) minus Ermüdung (ATL, ~7 Tage), beides aus Intervals.icu.</p><p>Über 5: frisch. −10 bis 5: neutral. −30 bis −10: produktiv ermüdet. Unter −30: hohe Ermüdung.</p>'},
  t_km:{t:'Wochenumfang',b:'<p>Summe deiner erledigten Läufe der letzten 7 Tage (Intervals.icu und manuelle Einträge). Der Pfeil vergleicht mit dem Schnitt der 5 Wochen davor (nur Wochen mit Läufen).</p><p>Rot, wenn der Umfang mehr als 30 % über diesem Schnitt liegt.</p>'},
  t_rpe:{t:'Anstrengung (RPE)',b:'<p>Dein subjektives Empfinden von 1 bis 10, aus Intervals.icu oder deinem Eintrag. Gezeigt wird der Schnitt der letzten bis zu 3 Läufe der letzten 28 Tage.</p><p>Grün bis 5, rot ab 8.</p>'},
@@ -783,7 +806,7 @@ const INFO={
  r_dur:{t:'Dauer',b:'<p>Bewegungszeit des Laufs ohne Pausen, aus Intervals.icu.</p>'},
  co:{t:'Coaching',b:'<p>Zeigt Daten eines Athleten, den du mit seiner Athlete-ID hinzufügst. Zugriff geht über Intervals.icu: Der Athlet erteilt dir Coach-Zugriff (dann reicht dein eigener API-Schlüssel) oder nennt dir seinen Schlüssel.</p><p>Alle Werte werden wie bei dir selbst berechnet (Läufe der letzten 26 Wochen, Wellness der letzten 84 Tage). Die Daten bleiben nur in diesem Browser. Hol dir vorher das Einverständnis des Athleten.</p>'},
  zones:{t:'Intensitätsverteilung',b:'<p>Anteile deiner Trainingszeit im gewählten Zeitraum.</p><p><b>Nach Laufart:</b> Locker und Longrun zählen als locker, Qualität und Wettkampf als Tempo. Die Art kommt aus dem Plan des Tages, sonst wird sie aus Tempo und Länge geschätzt.</p><p><b>Nach Herzfrequenz:</b> Ø-Puls je Lauf im Verhältnis zur höchsten gemessenen Frequenz: Zone 1 unter 80 %, Zone 2 80–88 %, Zone 3 darüber. Das ist eine Näherung, weil Intervalle im Durchschnittspuls verwässern.</p><p><b>Sollziel:</b> Standard 80/20 (80 % locker, 20 % Tempo). Über „Ziel“ stellst du es auf 50 bis 95 % locker ein. Der schwarze Strich im Balken markiert das Ziel.</p>'},
- bf_score:{t:'Training Readiness',b:'<p>Die Zahl (0 bis 100) ist der Readiness-Wert aus Intervals.icu von heute. Ist dort noch keiner eingetragen oder synchronisiert, schätzt M.oach sie aus deinen Daten: 100 minus 13 Punkte je Warnpunkt (Schlaf, Ruhepuls, HRV, Form, RPE, Lauftage in Folge, Umfangssprung), mindestens 15. Das steht dann unter der Überschrift.</p><p>Ab 75 ist der Ring grün, von 50 bis 74 gelb, darunter rot. Werte bis 10 behandelt M.oach als Skala von 1 bis 10 und rechnet sie auf 100 hoch.</p><p>Die Kacheln zeigen die Werte hinter der Zahl. Der Farbstreifen links zeigt, ob der Wert unauffällig (grün), leicht auffällig (gelb), deutlich auffällig (rot) oder neutral (grau) ist. Bei Ruhepuls und HRV zählt der Abstand zu deinem Ø der letzten 4 Wochen.</p>'},
+ bf_score:{t:'Training Readiness',b:'<p>Grundwert (0 bis 100) ist der Readiness-Wert von heute aus Intervals.icu. Werte bis 10 behandelt M.oach als Skala von 1 bis 10 und rechnet sie hoch.</p><p>Dazu kommen deine Faktoren: Schlaf, Ruhepuls und HRV (gegen deinen Ø der letzten 4 Wochen), Form, harte Läufe (RPE), Umfangssprung und Lauftage am Stück. Jeder Warnpunkt kostet 5 Punkte, im Faktorenfeld steht der Einfluss je Faktor. Fitness (CTL) zeigt nur die Entwicklung und verändert den Wert nicht.</p><p>Steht in Intervals.icu noch kein Wert, schätzt M.oach ihn allein aus den Faktoren: 100 minus 13 Punkte je Warnpunkt, mindestens 15.</p><p>Ab 75 ist der Ring grün, von 50 bis 74 gelb, darunter rot. Das bestimmt auch, ob das Training heute normal bleibt oder gekürzt wird.</p>'},
  f_kh:{t:'Mengenangaben',b:'<p>Kohlenhydrate vor dem Lauf: 1–2 g pro kg Körpergewicht (vor Wettkampf 2 g/kg). Nach dem Lauf: etwa 1 g/kg plus 20–30 g Eiweiß. Unterwegs: ab Minute 40 alle 20–30 min rund 25 g. Ohne Gewicht im Profil siehst du die Angaben pro kg.</p>'},
  f_drink:{t:'Trinkmenge',b:'<p>Richtwert 35 ml pro kg Körpergewicht pro Tag (aus deinem Profil), sonst 2–3 l. Beim Laufen kommen etwa 400–800 ml pro Stunde dazu, nach dem Lauf 500 ml je 0,5 kg Gewichtsverlust.</p>'},
  f_bed:{t:'Schlafzeit',b:'<p>Aufstehzeit aus deinem Profil minus 8 Stunden Schlaf minus 15 Minuten zum Einschlafen.</p>'},
@@ -1315,26 +1338,62 @@ function kpis(w,ws,pl,ac,days,has){
 const readyScore=R=>Math.max(15,Math.min(100,100-R.pts*13));
 function ringSvg(score,col){const r=27,c=2*Math.PI*r;
  return'<svg class="ring" viewBox="0 0 66 66" width="66" height="66" role="img" aria-label="Training Readiness '+score+' von 100"><circle cx="33" cy="33" r="'+r+'" fill="none" stroke="var(--bd)" stroke-width="7"/><circle class="rg" cx="33" cy="33" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="7" stroke-linecap="round" stroke-dasharray="'+c.toFixed(1)+'" stroke-dashoffset="'+(c*(1-score/100)).toFixed(1)+'" transform="rotate(-90 33 33)" style="--c:'+c.toFixed(1)+'"/><text x="33" y="38.5" text-anchor="middle" font-size="19" font-weight="800" fill="var(--tx)">'+score+'</text></svg>'}
-function briefing(R,p,adj,pl,ac){
- const M=R.m,col=['#16a34a','#f5b301','#ef4444'][R.lvl],sc=M.rd!=null?M.rd:readyScore(R);
+function briefing(R,p,adj,pl,ac,course){
+ const M=R.m,col=['#16a34a','#f5b301','#ef4444'][R.lvl],sc=R.score;
  const head=['Du bist bereit','Heute etwas defensiver','Erholung hat Vorrang'][R.lvl];
  const sub=!p?'Kein Plan für heute':adj.mode=='rest'||adj.mode=='move'?'Heute kein Lauftraining':p.t=='rest'?'Recovery-Tag':p.lab+(adj.km?' · '+adj.km+' km':'');
  const vd=['Du bist gut erholt, der Plan kann wie vorgesehen laufen.','Leichte Ermüdung: heute etwas kürzer oder lockerer laufen.','Deutliche Ermüdung: Erholung hat heute Vorrang.'][R.lvl];
- const G='#16a34a',Y='#f5b301',Rd='#ef4444',N='#64748b',T=[];
- const tile=(c,v,l,s2)=>T.push('<div class="tl ac" style="--ac:'+c+'"><b>'+v+'</b><span>'+l+'</span>'+(s2?'<small>'+s2+'</small>':'')+'</div>');
- if(M.sleep!=null)tile(M.sleep<5.5?Rd:M.sleep<6.5?Y:M.sleep>=7.5?G:N,r1(M.sleep)+' h','Schlaf',M.sleepSrc||'');
- if(M.rhr>0){const d=M.rhrB?M.rhr-M.rhrB:null;tile(d==null?N:d>=8?Rd:d>=5?Y:G,Math.round(M.rhr)+' bpm','Ruhepuls',M.rhrB?'Ø '+Math.round(M.rhrB)+' bpm':'')}
- if(M.hrv>0){const q=M.hrvB?M.hrv/M.hrvB:null;tile(q==null?N:q<.75?Rd:q<.85?Y:G,Math.round(M.hrv)+' ms','HRV',M.hrvB?'Ø '+Math.round(M.hrvB)+' ms':'')}
- if(M.form!=null)tile(M.form<-30?Y:G,(M.form>0?'+':M.form<0?'−':'')+Math.abs(Math.round(M.form)),'Form','Fitness − Ermüdung');
- if(M.rpe!=null)tile(M.rpe>=8?Rd:M.rpe>=7?Y:G,M.rpe.toFixed(1).replace('.',','),'Anstrengung','Ø letzte Läufe (RPE)');
- if(M.ratio!=null)tile(M.ratio>1.5?Rd:M.ratio>1.3?Y:G,M.ratio.toFixed(1).replace('.',',')+'×','Umfang','7 Tage zu 4-Wochen-Schnitt');
- if((M.streak||0)>=2)tile(M.streak>=7?Rd:M.streak>=6?Y:N,M.streak+' Tage','am Stück gelaufen','');
- const why=R.why.map(x=>'<div class="bw2"><span class="tdot warn"></span><span>'+x+'</span></div>').join(''),good=R.good.map(x=>'<div class="bw2"><span class="tdot good"></span><span>'+x+'</span></div>').join('');
+ const src=M.rd!=null?'Intervals.icu '+M.rd+(R.adj?' · Faktoren '+(R.adj<0?'−':'+')+Math.abs(R.adj):' · Faktoren ±0')+' = '+sc:'Von M.oach geschätzt: heute fehlt ein Readiness-Wert in Intervals.icu';
+ const T=trends(R),sel=ZT_HOME.map(k=>T.find(a=>a[0]==k)).filter(Boolean);
+ const FX=k=>{const n=(R.f[k]||0)*R.w;return n>0?'<div class="zfx neg">Einfluss −'+n+'</div>':'<div class="zfx nul">Einfluss ±0</div>'};
+ const tiles=sel.map(a=>{let h=ztile(a);if(['rhr','hrv','sleep','form'].includes(a[0]))h=h.replace(/<\/button>$/,()=>FX(a[0])+'</button>');return h}).join('');
+ const bad=sel.filter(a=>a[5]=='bad').length,good=sel.filter(a=>a[5]=='good').length;
+ const sum=!sel.length?'Noch keine Trenddaten':bad?bad+(bad>1?' Werte':' Wert')+' beachten':good?'Alles im grünen Bereich':'Alle Werte im normalen Bereich';
+ const sc2=!sel.length?'neu':bad?'bad':good?'good':'neu';
+ const T2=[],tile=(k,c,v,l,s2)=>{const n=(R.f[k]||0)*R.w;T2.push('<div class="tl ac" style="--ac:'+c+'"><b>'+v+'</b><span>'+l+'</span><small>'+s2+(n>0?' · <u class="neg">Einfluss −'+n+'</u>':' · Einfluss ±0')+'</small></div>')};
+ const G='#16a34a',Y='#f5b301',Rd='#ef4444',N='#64748b';
+ if(M.rpe!=null)tile('rpe',M.rpe>=8?Rd:M.rpe>=7?Y:G,M.rpe.toFixed(1).replace('.',','),'Anstrengung','Ø letzte Läufe');
+ if(M.ratio!=null)tile('ratio',M.ratio>1.5?Rd:M.ratio>1.3?Y:G,M.ratio.toFixed(1).replace('.',',')+'×','Umfang','7 Tage zu Ø');
+ if((M.streak||0)>=2)tile('streak',M.streak>=7?Rd:M.streak>=6?Y:N,M.streak+' Tage','am Stück','gelaufen');
+ const conn=ICU.key?'':'<div class="tips">Mit Intervals.icu siehst du hier Ruhepuls, HRV, Schlaf und Fitness, und deine Läufe kommen automatisch.<div class="b"><button class="pri goicu">Intervals.icu verbinden</button></div></div>';
+ const why=R.why.map(x=>'<div class="bw2"><span class="tdot warn"></span><span>'+x+'</span></div>').join(''),good_=R.good.map(x=>'<div class="bw2"><span class="tdot good"></span><span>'+x+'</span></div>').join('');
  const an=adj&&adj.note?'<div class="bt"><b>Training heute:</b> '+adj.note+'</div>':'';
- return'<div class="card brief"><div class="bh">'+ringSvg(sc,col)+'<div class="bhm"><div class="bhk">Training Readiness'+inf('bf_score')+'</div><div class="bhl" style="color:'+col+'">'+head+'</div><div class="bhs">'+sub+'</div><div class="bsrc">'+(M.rd!=null?'Wert aus Intervals.icu':'Von M.oach geschätzt: heute fehlt ein Readiness-Wert in Intervals.icu')+'</div></div></div>'
-  +(T.length?'<div class="tiles rdy">'+T.join('')+'</div>':'<div class="bt mu">Noch keine Werte. Mit Intervals.icu siehst du hier Schlaf, Ruhepuls, HRV und Form.</div>')
-  +'<div class="bcall" style="--bc:'+col+'">'+vd+'</div><div class="bwl">'+why+good+'</div>'+an+'</div>'}
-function wireBrief(el){}
+RDR={R,col,head,sub,sc};
+ const open=LS.get('moach_fx')=='1';
+ const fxn=sel.length+T2.length;
+ return'<div class="brief rdw"><div class="rdrow">'
+  +'<div class="card rdc rdr"><div class="bhk">Training Readiness'+inf('bf_score')+'</div>'+ringSvg(sc,col)+'<div class="bhl" style="color:'+col+'">'+head+'</div><div class="bhs">'+sub+'</div></div>'
+  +'<div class="card rdc fvc" id="fvc">'+fvInner(R)+'</div></div>'
+  +'<div class="card rdd"><div class="bsrc" style="margin:0 0 8px">'+src+'</div>'
+  +'<div class="bcall" style="--bc:'+col+'">'+vd+'</div>'
+  +'<button type="button" class="fxh" id="fxh" aria-expanded="'+open+'" aria-controls="fxb"><b class="bfh">Faktoren</b><span class="zs '+sc2+'">'+sum+'</span><span class="fxc'+(open?' on':'')+'" aria-hidden="true">⌄</span></button>'
+  +'<div class="fxb" id="fxb"'+(open?'':' hidden')+'>'
+  +(sel.length?'<div class="zgrid">'+tiles+'</div>':'<div class="mu" style="margin:6px 0">Noch keine Trenddaten.</div>')+conn
+  +(T2.length?'<div class="tiles rdy">'+T2.join('')+'</div>':'')
+  +'<div class="b"><button class="rngb" id="zall">Alle Trends im Detail ›</button></div></div>'
+  +'<div class="bwl">'+why+good_+'</div>'+an
+  +(p?'<div class="ln" style="color:var(--mu);margin-top:8px">🔄 '+AD.msg+course+inf('adapt')+'</div>':'')
+  +'</div></div>'}
+let RDR=null,FV=LS.get('moach_fv')||'form';
+function fvInner(R){
+ const T=trends(R),f=T.find(a=>a[0]=='form'),vs=wser('vo2',120);let vi=-1;for(let i=vs.length-1;i>=0;i--)if(vs[i]!=null){vi=i;break}
+ const hasV=vi>=0,mode=FV=='vo2'&&hasV?'vo2':'form';
+ const chips='<div class="fvt" role="tablist"><button type="button" role="tab" data-fv="form" class="'+(mode=='form'?'on':'')+'" aria-selected="'+(mode=='form')+'">Form</button><button type="button" role="tab" data-fv="vo2" class="'+(mode=='vo2'?'on':'')+'" aria-selected="'+(mode=='vo2')+'"'+(hasV?'':' disabled title="Noch kein VO₂max aus Intervals.icu"')+'>VO₂max</button></div>';
+ let key,val,lab,cls,vals,sub;
+ if(mode=='vo2'){key='vo2';const c=vs[vi];let ref=null;for(let i=Math.min(vi,vs.length-29);i>=0;i--)if(vs[i]!=null){ref=vs[i];break}
+  const d=ref!=null?Math.round((c-ref)*10)/10:null;val=dec(c,1);lab='ml/kg/min';cls=d==null?'neu':d>=.5?'good':d<=-1?'bad':'neu';
+  sub=d==null?'Verlauf der letzten Monate':(d>0?'▲ +':d<0?'▼ −':'● ')+dec(Math.abs(d),1)+' in 4 Wochen';vals=vs.slice(-90)}
+ else if(f){key='form';val=f[2];lab=f[6];cls=f[5];vals=f[7];sub='Fitness − Ermüdung'}
+ else{key='form';val='–';lab='';cls='neu';vals=[];sub=ICU.key?'Noch keine Daten':'Mit Intervals.icu'}
+ const col={good:'#16a34a',bad:'#ef4444',neu:'#3b82f6'}[cls];
+ return'<div class="fvh">'+chips+inf('t_'+key)+'</div><button type="button" class="fvb" '+(val=='–'?'disabled':'data-ch="'+key+'"')+' style="--zc:'+col+'"><div class="fvv"><b>'+val+'</b><span>'+(mode=='vo2'?lab:(f?lab:''))+'</span></div><div class="fvs">'+sub+'</div>'+(vals&&vals.length?spark(vals):'')+'</button>'}
+function wireBrief(el){
+ const h=el.querySelector('#fxh');
+ if(h)h.onclick=()=>{const b=el.querySelector('#fxb'),o=b.hidden;b.hidden=!o;h.setAttribute('aria-expanded',o);h.querySelector('.fxc').classList.toggle('on',o);LS.set('moach_fx',o?'1':'0')};
+ const wf=()=>{const c=el.querySelector('#fvc');if(!c||!RDR)return;
+  c.querySelectorAll('[data-fv]').forEach(b=>b.onclick=()=>{if(b.disabled)return;FV=b.dataset.fv;LS.set('moach_fv',FV);c.innerHTML=fvInner(RDR.R);wf()});
+  c.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>openChart(b.dataset.ch))};
+ wf()}
 
 /* ===== Dein Zustand (kompakt) ===== */
 const ZT_HOME=['rhr','hrv','sleep','ctl','form'];
@@ -1468,7 +1527,7 @@ function rToday(){
   el.querySelectorAll('.gocal').forEach(b=>b.onclick=()=>showTab('cal'));
   el.querySelectorAll('.wr').forEach(b=>b.onclick=()=>openM(b.dataset.d));wireBrief(el);wireInbox(el);wireNew(el);nrunChart();const za=el.querySelector('#zall');if(za)za.onclick=()=>showTab('perf');};
  const R=readiness(),adj=p?adjust(p,R):{mode:'plan',km:0,title:null,note:''},nx=plan(addD(today,1));
- const kp=kpis(w,ws,pl,ac,days,!!p),brief=briefing(R,p,adj,pl,ac);
+ const kp=kpis(w,ws,pl,ac,days,!!p);
  const rest=!p||(p.t=='rest'||adj.mode=='rest'||adj.mode=='move');
  const e=fp(z.e1)+'–'+fp(z.e2)+' /km',ep=(z.e1+z.e2)/2,min=Math.round(adj.km*ep/60);
  const lg=S.log[k0],done=!!(lg&&lg.done);
@@ -1495,14 +1554,14 @@ function rToday(){
   return '<div class="wr '+(+d==+today?'tod ':'')+(dn?'dn':'')+'" data-d="'+iso(d)+'"><div class="wd"><b>'+DOW[i]+'</b><span>'+d.getDate()+'.</span></div><span class="dot t-'+(q?q.t:'rest')+'"></span><div class="wt"><div>'+lab+'</div>'+(s2?'<small>'+s2+'</small>':'')+'</div><div class="wk2">'+(dn?'<span class="ck">✓ '+r1(+l.km||0)+' km</span>':'')+'</div></div>'}).join('');
  const week='<div class="card"><h3>Diese Woche'+inf('week')+(p&&deload(w)?'<span class="tag">Entlastungswoche</span>':'')+'</h3><div class="sub">'+dshort(ws)+' – '+dshort(addD(ws,6))+' · '+(pl>0?Math.round(ac)+' von '+Math.round(pl)+' km':Math.round(ac)+' km gelaufen')+'</div>'+weekRows+(pl>0?'<div class="bar" style="margin-top:8px"><i style="width:'+Math.min(100,ac/pl*100)+'%;background:var(--ok)"></i></div><small>Nächste Woche: '+Math.round(nxw)+' km geplant. Tippe auf einen Tag, um Details zu sehen oder einen Lauf einzutragen.</small>':'<small>Tippe auf einen Tag, um einen Lauf einzutragen oder Details zu sehen.</small>')+'</div>';
  let course='';const M0=progn()[42.195];if(M0&&p&&CF().mode!='maintain'&&RD()>=40){const diff=M0.sec-expP(today)*42.195;course=diff<=0?' Prognose liegt '+fp(-diff)+' min vor dem Plan-Verlauf.':' Prognose liegt '+fp(diff)+' min hinter dem Plan-Verlauf'+(diff>600?' – ein Zwischenziel (z. B. 2:50) wäre realistischer':'')+'.'}
- const state=zustandCard(R,p,course);
+ const brief=briefing(R,p,adj,pl,ac,course);
  let T;
  if(p)T=trainBlock(p,adj,z);
  else{const after=!S.noPlan&&today>=START;
   T={meta:'Kein Plan für heute',rows:[['Heute','Locker laufen oder bewegen, ganz nach Gefühl. Achte auf deine Training Readiness und deinen Zustand.']].concat(after?[['Erholung','Nach einem Rennen: 1–2 Wochen nur locker oder frei, dann wieder aufbauen.']]:[]).concat([['Plan','Für konkrete Einheiten erstellst du im Kalender einen Plan: für ein Rennen oder zum Erhalten deiner Ausdauer.']]),tips:[],btn:true}}
  const trH='<div class="htr"><div class="htt">Dein Training heute'+inf('train')+'<span>'+T.meta+(done?' · ✓ erledigt':'')+'</span></div>'+rowsH(T.rows)+(T.tips.length?'<div class="tips">'+T.tips.map(t=>'<div>💡 '+t+'</div>').join('')+'</div>':'')+(T.btn?'<div class="b"><button class="pri gocal">Zum Trainingsplan</button></div>':'')+'</div>';
  const heroFull=hero.replace(/<\/section>$/,()=>trH+'</section>');
- el.innerHTML=inboxHtml()+heroFull+repairHtml()+brief+newRunCard()+kp+state;wire()}
+ el.innerHTML=inboxHtml()+heroFull+repairHtml()+brief+newRunCard()+kp;wire()}
 
 /* ===== Diagramme & Trends ===== */
 const DAYMS=864e5,ts=s=>Date.parse(s+'T00:00:00Z'),tsl=t=>{const d=new Date(t);return pad(d.getUTCDate())+'.'+pad(d.getUTCMonth()+1)+'.'};
@@ -1512,6 +1571,7 @@ const CH={
  sleep:{t:'Schlaf',u:'h',f:v=>dec(v,1),sub:'Pro Nacht · Intervals.icu'},
  ctl:{t:'Fitness (CTL)',u:'',f:v=>Math.round(v),sub:'Pro Tag · Intervals.icu'},
  form:{t:'Form (CTL − ATL)',u:'',f:v=>Math.round(v),sub:'Pro Tag · Intervals.icu'},
+ vo2:{t:'VO₂max',u:'',f:v=>dec(v,1),sub:'Pro Tag · Intervals.icu'},
  km:{t:'Wochenumfang',u:'km',f:v=>Math.round(v),sub:'Kilometer pro Woche (Mo–So)'},
  pace:{t:'Lauftempo',u:'/km',f:v=>fp(v),inv:true,sub:'Ø Pace pro Lauf (ab 3 km)'},
  hr:{t:'Ø Puls im Lauf',u:'bpm',f:v=>Math.round(v),sub:'Pro Lauf · Intervals.icu'},
@@ -1524,6 +1584,7 @@ function series(key){
  else if(key=='sleep')wl(x=>x.sleep>0?x.sleep:null);
  else if(key=='ctl')wl(x=>x.ctl!=null?x.ctl:null);
  else if(key=='form')wl(x=>x.ctl!=null&&x.atl!=null?x.ctl-x.atl:null);
+ else if(key=='vo2')wl(x=>x.vo2>0?x.vo2:null);
  else if(key=='km'){let started=false;for(let i=25;i>=0;i--){const ws=addD(mon(today),-7*i);let t=0;for(let j=0;j<7;j++){const l=S.log[iso(addD(ws,j))];if(l&&l.done)t+=+l.km||0}
    if(t>0)started=true;if(started)o.push({d:iso(ws),t:ts(iso(ws))+3.5*DAYMS,v:t})}}
  else{const R=allRuns().slice().reverse();
@@ -1540,7 +1601,7 @@ function trendText(key,pts){
  else if(key=='pace'||key=='hr'||key=='rpe'){last=pts.slice(-3);prev=pts.slice(-8,-3);win='letzten '+last.length+' Läufen';if(last.length<3||prev.length<2)return{t:'Noch zu wenige Läufe für einen Trend.',c:'neu'}}
  else{const a=iso(addD(today,-6)),b=iso(addD(today,-27));last=pts.filter(p=>p.d>=a);prev=pts.filter(p=>p.d<a&&p.d>=b);win='letzten 7 Tagen';if(last.length<2||prev.length<3)return{t:'Noch zu wenige Tage mit Daten für einen Trend.',c:'neu'}}
  const A=mn(last),B=mn(prev),d=A-B,pc=B?d/Math.abs(B)*100:0;
- const thr={rhr:1.5,hrv:null,sleep:.2,ctl:1.5,form:4,km:null,pace:4,hr:2,rpe:.4}[key];
+ const thr={rhr:1.5,hrv:null,sleep:.2,ctl:1.5,form:4,vo2:.5,km:null,pace:4,hr:2,rpe:.4}[key];
  const flat=key=='hrv'?Math.abs(pc)<5:key=='km'?Math.abs(pc)<10:Math.abs(d)<thr,up=!flat&&d>0,dn=!flat&&d<0;
  const ab=Math.abs(d),amt=key=='pace'?Math.round(ab)+' s/km':key=='km'?Math.round(ab)+' km':key=='sleep'?dec(ab,1)+' h':key=='rpe'?dec(ab,1):Math.round(ab)+(m.u?' '+m.u:'');
  const cmp=key=='pace'?(dn?'schneller':'langsamer'):(dn?'niedriger':'höher');
@@ -1550,6 +1611,7 @@ function trendText(key,pts){
   hrv:()=>up?(c='good','Eine höhere HRV spricht für gute Erholung. Du verträgst die Belastung derzeit gut.'):dn?(c='bad','Eine sinkende HRV zeigt hohe Gesamtbelastung. Achte auf Schlaf und halte lockere Läufe wirklich locker.'):'Stabil, deine Erholung ist gleichbleibend.',
   sleep:()=>(A<7?(c='bad','Das liegt unter 7 h. Für 100+ km pro Woche sind 8 h das Ziel.'):up?(c='good','Mehr Schlaf unterstützt die Erholung.'):dn?'Etwas weniger Schlaf als zuvor, halte 8 h im Blick.':'Gleichbleibender Schlaf.'),
   ctl:()=>up?(c='good','Deine Fitness wächst: Das Training zahlt sich aus.'):dn?'Deine Fitness sinkt, weil du weniger trainierst als zuvor. In Entlastungswochen ist das normal.':'Deine Fitness bleibt stabil.',
+  vo2:()=>up?(c='good','Deine geschätzte Ausdauerleistung steigt, das Training zahlt sich aus.'):dn?'Der Schätzwert ist etwas gesunken. Das schwankt mit Wetter, Pace und Gerät; wichtig ist der Trend über Wochen.':'Dein VO₂max ist stabil.',
   form:()=>{const x=pts[pts.length-1].v;return x>5?'Aktuell bist du frisch (Form '+Math.round(x)+'), gut für Tests und Wettkämpfe.':x>=-10?'Aktuell neutral (Form '+Math.round(x)+').':x>=-30?'Aktuell produktiv ermüdet (Form '+Math.round(x)+'), das ist im Aufbau normal.':(c='bad','Aktuell hohe Ermüdung (Form '+Math.round(x)+'). Plane eine Entlastung ein.')},
   km:()=>pc>30?(c='bad','Das ist eine schnelle Steigerung. Vorsicht, das Verletzungsrisiko steigt. Bleibe bei etwa +10 % pro Woche.'):pc<-30?'Deutlich weniger als zuvor, passt zu einer Entlastungswoche.':'Gleichmäßiger Umfang.',
   pace:()=>dn?(c='good','Du läufst im Schnitt schneller. Beachte, dass sich lockere und harte Läufe mischen.'):up?'Du läufst im Schnitt langsamer. Bei lockeren Läufen ist das gewollt, sonst kann es Ermüdung zeigen.':'Dein Tempo ist stabil.',
@@ -2168,7 +2230,7 @@ async function coachSync(a){
  const acts=await r.json();if(!Array.isArray(acts))throw new Error('Unerwartete Antwort von Intervals.icu');
  a.runs=mapActs(acts);
  try{const wr=await fetch(base+'/wellness?oldest='+iso(addD(today,-84))+'&newest='+iso(today),{headers:hd});
-  if(wr.ok){const arr=await wr.json(),W={};for(const x of arr){const id=String(x.id||'').slice(0,10);if(!id)continue;W[id]={rhr:x.restingHR||null,hrv:x.hrv||null,sleep:x.sleepSecs?x.sleepSecs/3600:null,ctl:x.ctl!=null?x.ctl:null,atl:x.atl!=null?x.atl:null,rd:x.readiness>0?x.readiness:null}}a.well=W}}catch(e){}
+  if(wr.ok){const arr=await wr.json(),W={};for(const x of arr){const id=String(x.id||'').slice(0,10);if(!id)continue;W[id]={rhr:x.restingHR||null,hrv:x.hrv||null,sleep:x.sleepSecs?x.sleepSecs/3600:null,ctl:x.ctl!=null?x.ctl:null,atl:x.atl!=null?x.atl:null,rd:x.readiness>0?x.readiness:null,vo2:x.vo2max>0?x.vo2max:null}}a.well=W}}catch(e){}
  a.at=Date.now();store(true)}
 const wsr=(W,f,n,z)=>{const o=[];for(let i=n-1;i>=0;i--){const v=(W[iso(addD(today,-i))]||{})[f];o.push(v!=null&&(z||v>0)?+v:null)}return o};
 function coachInsights(a){
@@ -2641,7 +2703,7 @@ async function icuSync(){
    S.log[k]={done:true,km:r1(b.km),min:Math.round(b.sec/60),rpe:o.rpe||(b.rpe?String(b.rpe):''),note:o.note||'Intervals.icu',src:'icu'}}
   if(acts.length)for(const k of Object.keys(S.log)){if(k>=from&&k<=to&&!(k in by)&&fromIcu(S.log[k]))delete S.log[k]}
   try{const wr=await fetch(base+'/wellness?oldest='+iso(addD(today,-84))+'&newest='+iso(today),{headers:hd});
-   if(wr.ok){const arr=await wr.json(),W={};for(const x of arr){const id=String(x.id||'').slice(0,10);if(!id)continue;W[id]={rhr:x.restingHR||null,hrv:x.hrv||null,sleep:x.sleepSecs?x.sleepSecs/3600:null,ctl:x.ctl!=null?x.ctl:null,atl:x.atl!=null?x.atl:null,rd:x.readiness>0?x.readiness:null}}S.well=W}}catch(e){}
+   if(wr.ok){const arr=await wr.json(),W={};for(const x of arr){const id=String(x.id||'').slice(0,10);if(!id)continue;W[id]={rhr:x.restingHR||null,hrv:x.hrv||null,sleep:x.sleepSecs?x.sleepSecs/3600:null,ctl:x.ctl!=null?x.ctl:null,atl:x.atl!=null?x.atl:null,rd:x.readiness>0?x.readiness:null,vo2:x.vo2max>0?x.vo2max:null}}S.well=W}}catch(e){}
   try{await icuYear(base,hd,from)}catch(e){}
   icuLast=Date.now();S.syncAt=icuLast;store(true);render();
   setSync('✅ '+(fresh==0?'aktuell':fresh==1?'1 neuer Lauftag':fresh+' neue Lauftage')+' · '+new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}));
