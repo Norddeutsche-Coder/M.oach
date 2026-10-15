@@ -318,7 +318,8 @@ nav.dock button.badge::after{content:"";position:absolute;top:8px;left:calc(50% 
 
 label.ck{display:flex;flex-direction:row;gap:9px;align-items:flex-start;margin:10px 0 4px;font-size:.8rem;font-weight:400;color:var(--mu);line-height:1.35}label.ck span{font-weight:400;font-size:.8rem;text-transform:none;letter-spacing:0}label.ck input{margin-top:2px;flex:none;width:18px;height:18px}
 .chs{width:100%;height:auto;display:block;margin:6px 0 2px}
-.rexp{font-size:.88rem;margin-top:8px;padding:8px 10px;background:var(--bg);border-radius:10px}.card.nrun{border-top:4px solid var(--kc)}.nrh{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.nrk{font-size:.74rem;color:var(--mu);font-weight:700}.nrn{font-size:1.05rem;font-weight:800;margin-top:2px}.nrb{font-size:2.3rem;font-weight:800;line-height:1.1;margin:6px 0 2px}.nrb small{font-size:.9rem;margin-left:5px;color:var(--mu)}.nrp{font-size:.86rem;margin:2px 0 6px}.card.nrun .tiles{grid-template-columns:repeat(auto-fit,minmax(92px,1fr))}
+.rexp{font-size:.88rem;margin-top:8px;padding:8px 10px;background:var(--bg);border-radius:10px}.atabs{display:flex;background:var(--bg);border:1px solid var(--bd);border-radius:999px;padding:3px;margin:0 0 12px}.atabs button{flex:1;border:0;background:none;color:var(--mu);font:inherit;font-weight:700;padding:9px 10px;border-radius:999px}.atabs button.on{background:var(--pri);color:var(--pri-tx)}
+.card.nrun{border-top:4px solid var(--kc)}.nrh{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.nrk{font-size:.74rem;color:var(--mu);font-weight:700}.nrn{font-size:1.05rem;font-weight:800;margin-top:2px}.nrb{font-size:2.3rem;font-weight:800;line-height:1.1;margin:6px 0 2px}.nrb small{font-size:.9rem;margin-left:5px;color:var(--mu)}.nrp{font-size:.86rem;margin:2px 0 6px}.card.nrun .tiles{grid-template-columns:repeat(auto-fit,minmax(92px,1fr))}
 .card.ins,.box.ins{border-top:4px solid #f59e0b}.card.ins.warn,.box.ins.warn{border-top-color:#ef4444}.card.ins.good,.box.ins.good{border-top-color:#22c55e}
 .inh{display:flex;align-items:center;gap:7px;font-size:.82rem;font-weight:600;color:var(--mu)}
 .card.ins h3,.box.ins h3{margin:4px 0 2px;font-size:1.1rem;line-height:1.25}.inb{font-size:.92rem;margin:4px 0}
@@ -592,7 +593,7 @@ function rSet(){
  ${(S.cfg||S.noPlan||RD()<40)?`<div class="card"><h3>Plan &amp; Ziel</h3><div class="mu" style="font-size:.9rem">${planSummary()}</div><div class="b"><button class="pri" id="gocal">Im Kalender anpassen</button><button id="ss">Speichern</button></div></div>`:`<div class="card"><h3>Marathon-Ziel</h3><div class="f"><label>Renndatum<input id="sr" type="date" value="${S.race}"></label><label>Ziel Std<input id="gh" type="number" value="${Math.floor(g/3600)}"></label><label>Ziel Min<input id="gm" type="number" value="${Math.floor(g%3600/60)}"></label><label>Bisher Std<input id="bh" type="number" value="${Math.floor(b/3600)}"></label><label>Bisher Min<input id="bm" type="number" value="${Math.floor(b%3600/60)}"></label></div><small>„Bisher“ ist deine letzte Marathonzeit, Ausgangspunkt für Prognose und Trainingstempo. Ändere das Renndatum, falls du in Berlin keinen Startplatz bekommst – der Plan verschiebt sich mit.</small><div class="b"><button class="pri" id="ss">Speichern</button></div></div>`}
  <div class="card"><h3>Intervals.icu</h3><div class="sub">${ICU.key?'Verbunden':'Nicht verbunden'}</div><div class="f"><label>API-Schlüssel<input id="ik" type="password" autocomplete="off" value="${esc(ICU.key)}"></label><label>Athlete-ID (optional)<input id="ia" placeholder="leer = eigenes Konto" value="${esc(ICU.id)}"></label></div><div class="b"><button class="pri" id="isv">Verbinden &amp; synchronisieren</button></div><div id="icust" class="mu" style="margin-top:8px"></div><div id="icc" class="mu" style="margin-top:6px"></div><p class="mu">M.oach lädt deine Läufe der letzten 12 Wochen sowie Ruhepuls, HRV, Schlaf und Fitness aus Intervals.icu und aktualisiert sich alle 10 Minuten, solange die App offen ist. Den API-Schlüssel findest du in Intervals.icu unter Einstellungen → „Developer Settings“. Die Athlete-ID (z. B. i12345) steht in der Adresszeile und kann leer bleiben. Schlüssel und ID liegen in diesem Browser. Mit einem Cloud-Konto werden sie zusätzlich verschlüsselt gesichert (Schlüssel aus deinem Passwort, der Betreiber kann sie nicht lesen). Sie stehen nie im Repository. Behandle den Schlüssel wie ein Passwort.</p></div>
  ${cloudCard()}${coachCard()}<div class="card"><h3>Coach-Zugang</h3>${isAdm()?'<div class="sub">Freigeschaltet: Du siehst den Reiter „Coaching“.</div><div class="b"><button id="admo">Coach-Zugang sperren</button></div>':'<div class="sub">Nur für Coaches mit Admin-Code.</div><div class="f"><label>Admin-Code<input id="admc" type="password" autocomplete="off"></label></div><div id="admr" class="aerr" hidden></div><div class="b"><button id="admg">Freischalten</button></div>'}</div>
- <div class="card"><h3>Konto</h3><div class="sub">Angemeldet als <b>${esc(P.name||'Läufer')}</b>. Jedes Konto hat eigene Daten auf diesem Gerät.</div><div class="b"><button class="pri" id="lo">Abmelden / Konto wechseln</button></div><div class="b"><button id="rs2">Trainingsdaten zurücksetzen</button><button id="del">Konto löschen</button></div></div>`;
+ <div class="card"><h3>Konto</h3><div class="sub">Angemeldet als <b>${esc(P.name||'Läufer')}</b>. Die Anmeldung läuft über dein Cloud-Konto.</div><div class="b"><button class="pri" id="lo">Abmelden</button></div><div class="b"><button id="rs2">Trainingsdaten zurücksetzen</button><button id="del">Konto löschen</button></div></div>`;
  {const st0=$('#sy'),ic=$('#icust');if(st0&&ic)ic.textContent=st0.textContent}
 
  wireCoachCard();wireCloud();const ag=$('#admg');if(ag)ag.onclick=()=>{const c=($('#admc').value||'').trim().toLowerCase();if(sha256('moach|'+c)===ADM_HASH){LS.set('moach_adm_'+UID,'1');navCoach();render();showTab('coach')}else{const r=$('#admr');r.textContent='Code nicht korrekt.';r.hidden=false}};
@@ -601,7 +602,7 @@ function rSet(){
  icuStatusHtml().then(h=>{const c=$('#icc');if(c){c.innerHTML=h;const b=$('#icb');if(b)b.onclick=()=>icuPush().catch(()=>{})}}).catch(()=>{});
  const gc=$('#gocal');if(gc)gc.onclick=()=>showTab('cal');
  $('#ss').onclick=()=>{if($('#sr')){S.race=$('#sr').value||S.race;S.goal=(+$('#gh').value*60+ +$('#gm').value)*60;S.base=(+$('#bh').value*60+ +$('#bm').value)*60}S.prof={name:$('#pn').value.trim(),weight:$('#pw').value,wake:$('#pu').value||'06:30'};{const u=USERS.find(x=>x.id===UID);if(u&&S.prof.name){u.name=S.prof.name;LS.set('moach_users',JSON.stringify(USERS))}}save();if(CL.ses&&CL.pulled)cloudProfile().catch(()=>{});render();showTab('set');const t=$('#ss');if(t){t.textContent='✓ Gespeichert';setTimeout(()=>{const u=$('#ss');if(u)u.textContent='Speichern'},1500)}};
- $('#lo').onclick=()=>{LS.del('moach_cur');location.reload()};
+ $('#lo').onclick=()=>{if(!(CL.ses&&sbOn())&&!confirm('Dieses Konto ist nicht mit der Cloud verbunden. Die Anmeldung geht nur noch über ein Cloud-Konto, deine Daten auf diesem Gerät wären danach nicht mehr erreichbar. Bitte verbinde zuerst die Cloud unter Profil. Trotzdem abmelden?'))return;LS.del('moach_cur');location.reload()};
  let armed=0;$('#rs2').onclick=e=>{if(!armed){armed=1;e.target.textContent='Wirklich löschen? Nochmal tippen'}else{const k={start:S.start,prof:S.prof,coach:S.coach};S=Object.assign(DEF(),k);save();render()}};
  let ad=0;$('#del').onclick=e=>{if(!ad){ad=1;e.target.textContent='Wirklich löschen? Nochmal tippen'}else{LS.del('mplan2_'+UID);LS.del('mplan_icu_'+UID);LS.del('moach_sbs_'+UID);LS.del('moach_ck_'+UID);USERS=USERS.filter(u=>u.id!==UID);LS.set('moach_users',JSON.stringify(USERS));LS.del('moach_cur');location.reload()}}}
 /* ===== M.oach: Startseite / Tagesbriefing ===== */
@@ -1593,24 +1594,37 @@ function allRuns(){
 const dur=s=>s>=3600?ft(s):fp(s);
 /* ===== Anmeldung ===== */
 const idHeaders=k=>({Authorization:'Basic '+btoa('API_KEY:'+k)});
-function showAuth(){
+let AUM='in';
+const AUTH_TXT='Ich stimme zu, dass M.oach meinen Namen, meine E-Mail-Adresse und mein Backup (Plan, Läufe, Wellness-Daten) auf dem Supabase-Server des Betreibers speichert. Ein Coach sieht nur etwas, wenn ich es ausdrücklich bestätige. Mein Intervals.icu-Zugang wird nur verschlüsselt gespeichert; der Schlüssel dafür entsteht aus meinem Passwort, der Betreiber kann ihn nicht lesen.';
+async function authNewKey(pw){if(!HASC)return null;const s0=B64(crypto.getRandomValues(new Uint8Array(16)));return{s:s0,k:await icuDerive(pw,s0)}}
+function showAuth(info){
  const a=$('#auth');a.hidden=false;document.body.classList.add('noscroll');
  const lg=document.querySelector('.logo').outerHTML.replace('class="logo"','class="logo big"');
- const list=USERS.length?'<div class="card"><h3>Konto wählen</h3>'+USERS.map(u=>'<button class="acc" data-u="'+esc(u.id)+'"><span>'+esc(u.name||'Läufer')+'</span><i>›</i></button>').join('')+'</div><div class="mu" style="text-align:center;margin:4px 0 10px">oder neues Konto</div>':'';
- a.innerHTML='<div class="abox"><div class="ahd">'+lg+'<div>Dein Marathon-Coach</div></div>'+list
-  +(sbOn()?'<div class="card"><h3>Mit Cloud-Konto anmelden</h3><div class="sub">Du hast schon ein M.oach-Cloud-Konto? Dann lädt M.oach deinen Stand auf dieses Gerät.</div><div class="f"><label>E-Mail<input id="aue" type="email" autocomplete="email" inputmode="email"></label><label>Passwort<input id="aup" type="password" autocomplete="current-password"></label></div><div id="aur" class="aerr" hidden></div><div class="b"><button class="pri" id="aug">Anmelden</button><button id="auf">Passwort vergessen?</button></div></div><div class="mu" style="text-align:center;margin:4px 0 10px">oder neu starten</div>':'')
-  +'<div class="card"><h3>'+(USERS.length?'Neues Konto':'Willkommen!')+'</h3><div class="sub">Melde dich mit deinem Intervals.icu-Zugang an. Danach lädt M.oach deine Läufe automatisch.</div>'
-  +'<div class="f"><label>Name<input id="an" autocomplete="given-name" placeholder="z. B. Lukas"></label></div>'
-  +'<div class="f"><label>Intervals.icu API-Schlüssel<input id="ak" type="password" autocomplete="off"></label><label>Athlete-ID (optional)<input id="ai" placeholder="leer = eigenes Konto"></label></div>'
-  +'<div class="sub" style="margin-top:6px">Dein Ziel</div><div class="f"><label>Renndatum<input id="ar" type="date" value="2027-09-26"></label><label>Zielzeit Std<input id="agh" type="number" value="2"></label><label>Zielzeit Min<input id="agm" type="number" value="45"></label><label>Letzter Marathon Std<input id="abh" type="number" value="3"></label><label>Letzter Marathon Min<input id="abm" type="number" value="10"></label></div>'
-  +'<div id="aerr" class="aerr" hidden></div><div class="b"><button class="pri" id="ago" style="width:100%;padding:12px">Anmelden &amp; loslegen</button></div>'
-  +'<p class="mu" style="font-size:.8rem">Den API-Schlüssel findest du in Intervals.icu unter Einstellungen → „Developer Settings“. Er liegt in diesem Browser und wird mit einem Cloud-Konto verschlüsselt gesichert. Jedes Konto hat eigene Daten auf diesem Gerät.</p></div></div>';
- a.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{LS.set('moach_cur',b.dataset.u);location.reload()});
- const err=m=>{const e=$('#aerr');e.textContent=m;e.hidden=!m};
- const ag=$('#aug'),af=$('#auf');
- if(af)af.onclick=async()=>{const e=$('#aur');const ok=await cloudRun(af,()=>cloudRecover($('#aue').value),e);if(ok){e.textContent='Wenn die Adresse registriert ist, haben wir dir einen Link zum Zurücksetzen geschickt.';e.hidden=false}};
- if(ag)ag.onclick=async()=>{const e=$('#aur');e.hidden=true;const em=($('#aue').value||'').trim(),pw=$('#aup').value||'';
-  if(!em||!pw){e.textContent='Bitte E-Mail und Passwort eingeben.';e.hidden=false;return}
+ const up=AUM=='up';
+ const tabs='<div class="atabs"><button type="button" class="'+(up?'':'on')+'" data-am="in">Anmelden</button><button type="button" class="'+(up?'on':'')+'" data-am="up">Registrieren</button></div>';
+ let body;
+ if(!sbOn())body='<div class="card"><h3>Cloud nicht eingerichtet</h3><div class="sub">Die Anmeldung läuft über das M.oach-Cloud-Konto. Trage dafür einmalig die Projekt-URL und den Publishable-Schlüssel des Betreibers ein (siehe supabase/ANLEITUNG.md).</div><div class="f"><label>Projekt-URL<input id="sbu" placeholder="https://abcd.supabase.co" autocomplete="off"></label><label>Anon-Schlüssel<input id="sbk" type="password" autocomplete="off" placeholder="sb_publishable_…"></label></div><div id="aerr" class="aerr" hidden></div><div class="b"><button class="pri" id="sbs">Speichern</button></div></div>';
+ else if(!up)body='<div class="card"><h3>Willkommen zurück</h3><div class="sub">Melde dich mit deinem M.oach-Cloud-Konto an. Dein Stand und dein Intervals.icu-Zugang werden auf dieses Gerät geladen.</div>'+(info?'<div class="an a-g">'+info+'</div>':'')
+  +'<div class="f"><label>E-Mail<input id="aue" type="email" autocomplete="email" inputmode="email"></label><label>Passwort<input id="aup" type="password" autocomplete="current-password"></label></div><div id="aerr" class="aerr" hidden></div><div class="b"><button class="pri" id="aug" style="width:100%;padding:12px">Anmelden</button></div><div class="b"><button id="auf">Passwort vergessen?</button></div></div>';
+ else body='<div class="card"><h3>Neues Konto</h3><div class="sub">Dein Konto liegt in der Cloud, so bist du auf jedem Gerät sofort angemeldet. Rennen und Ziel legst du später bei der Planerstellung fest.</div>'
+  +'<div class="f" style="grid-template-columns:1fr"><label>Name<input id="an" autocomplete="given-name" placeholder="z. B. Lukas"></label><label>E-Mail<input id="aue" type="email" autocomplete="email" inputmode="email"></label><label>Passwort<input id="aup" type="password" autocomplete="new-password" placeholder="mind. 8 Zeichen"></label></div>'
+  +'<div class="sub" style="margin-top:8px">Intervals.icu</div><div class="f"><label>Athlete-ID (optional)<input id="ai" placeholder="leer = eigenes Konto"></label><label>API-Schlüssel<input id="ak" type="password" autocomplete="off"></label></div>'
+  +'<label class="ck"><input type="checkbox" id="aco"><span>'+AUTH_TXT+'</span></label>'
+  +'<div id="aerr" class="aerr" hidden></div><div class="b"><button class="pri" id="ago" style="width:100%;padding:12px">Konto erstellen &amp; loslegen</button></div>'
+  +'<p class="mu" style="font-size:.8rem">Den API-Schlüssel findest du in Intervals.icu unter Einstellungen → „Developer Settings“.</p></div>';
+ a.innerHTML='<div class="abox"><div class="ahd">'+lg+'<div>Dein Marathon-Coach</div></div>'+(sbOn()?tabs:'')+body+'</div>';
+ a.querySelectorAll('[data-am]').forEach(b=>b.onclick=()=>{AUM=b.dataset.am;showAuth()});
+ const err=m=>{const e=$('#aerr');if(!e)return;e.textContent=m;e.hidden=!m};
+ const sbs=$('#sbs');
+ if(sbs)sbs.onclick=()=>{const u=sbNorm($('#sbu').value),k=($('#sbk').value||'').trim();
+  if(!u||k.length<=20)return err('Bitte gib eine Adresse wie https://abcd.supabase.co und den Publishable-Schlüssel ein.');
+  if(/^sb_secret_/.test(k))return err('Das ist ein geheimer Schlüssel (secret). Bitte nimm den Publishable Key (sb_publishable_…).');
+  LS.set('moach_sb',JSON.stringify({url:u,key:k}));location.reload()};
+ const af=$('#auf');
+ if(af)af.onclick=async()=>{const ok=await cloudRun(af,()=>cloudRecover($('#aue').value),$('#aerr'));if(ok){const e=$('#aerr');e.textContent='Wenn die Adresse registriert ist, haben wir dir einen Link zum Zurücksetzen geschickt.';e.hidden=false}};
+ const ag=$('#aug');
+ if(ag)ag.onclick=async()=>{err('');const em=($('#aue').value||'').trim(),pw=$('#aup').value||'';
+  if(!em||!pw)return err('Bitte E-Mail und Passwort eingeben.');
   ag.disabled=true;
   try{
    const j=await sbCall('/auth/v1/token?grant_type=password',{m:'POST',b:{email:em,password:pw}}),ses=sbFromAuth(j);
@@ -1622,28 +1636,35 @@ function showAuth(){
    const uid='u'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
    let icu0={id:'',key:''},ck0=null;
    try{const bl=row&&row.state&&row.state.icuc;if(bl&&bl.c&&HASC){const c=await icuLogin0(pw,bl);if(c){icu0=c.o;ck0=c.ck}}}catch(_){}
-   const nm=(row&&row.state&&row.state.prof&&row.state.prof.name)||(prof&&prof.name)||em.split('@')[0];
-   const st=Object.assign(DEF(),row?row.state:{start:iso(mon(today)),prof:{name:nm}});if(!st.prof)st.prof={};if(!st.prof.name)st.prof.name=nm;delete st.coach;if(row)st._m=+row.modified||0;
+   let pend=null;try{pend=JSON.parse(LS.get('moach_pend')||'null')}catch(_){}
+   if(!icu0.key&&pend&&pend.email===em.toLowerCase()&&pend.key){icu0={id:pend.id||'',key:pend.key};ck0=await authNewKey(pw)}
+   if(pend&&pend.email===em.toLowerCase())LS.del('moach_pend');
+   const nm=(row&&row.state&&row.state.prof&&row.state.prof.name)||(prof&&prof.name)||(pend&&pend.email===em.toLowerCase()&&pend.name)||em.split('@')[0];
+   const st=Object.assign(DEF(),row?row.state:{start:iso(mon(today)),prof:{name:nm},noPlan:true});if(!st.prof)st.prof={};if(!st.prof.name)st.prof.name=nm;delete st.coach;if(row)st._m=+row.modified||0;
    LS.set('mplan2_'+uid,JSON.stringify(st));LS.set('mplan_icu_'+uid,JSON.stringify(icu0));if(ck0)LS.set('moach_ck_'+uid,JSON.stringify(ck0));LS.set('moach_sbs_'+uid,JSON.stringify(ses));
    USERS.push({id:uid,name:nm});LS.set('moach_users',JSON.stringify(USERS));LS.set('moach_cur',uid);location.reload()
-  }catch(x){e.textContent=x.message;e.hidden=false;ag.disabled=false}};
- $('#ago').onclick=async()=>{
-  err('');const nm=$('#an').value.trim(),key=$('#ak').value.trim(),id=$('#ai').value.trim(),race=$('#ar').value;
-  const goal=(+$('#agh').value*60+ +$('#agm').value)*60,base=(+$('#abh').value*60+ +$('#abm').value)*60;
+  }catch(x){err(x.message);ag.disabled=false}};
+ const go=$('#ago');
+ if(go)go.onclick=async()=>{
+  err('');const nm=$('#an').value.trim(),em=($('#aue').value||'').trim(),pw=$('#aup').value||'',key=$('#ak').value.trim(),id=$('#ai').value.trim();
   if(!nm)return err('Bitte gib einen Namen ein.');
+  if(!em)return err('Bitte gib deine E-Mail-Adresse ein.');
+  if(pw.length<8)return err('Das Passwort braucht mindestens 8 Zeichen.');
   if(!key)return err('Bitte gib deinen Intervals.icu API-Schlüssel ein.');
-  if(!race||parse(race)<=today)return err('Das Rennen muss in der Zukunft liegen.');
-  if(!(goal>=5400&&goal<=21600)||!(base>=5400&&base<=21600))return err('Bitte gib sinnvolle Marathonzeiten ein (zwischen 1:30 und 6:00 h).');
-  const btn=$('#ago');btn.disabled=true;btn.textContent='Prüfe Zugang…';
+  if(!$('#aco').checked)return err('Bitte stimme der Speicherung in der Cloud zu.');
+  const btn=go;btn.disabled=true;btn.textContent='Prüfe Zugang…';
   try{
    let r;try{r=await fetch('https://intervals.icu/api/v1/athlete/'+encodeURIComponent(id||'0'),{headers:idHeaders(key)})}catch(e){throw new Error(navigator.onLine===false?'Du bist offline. Bitte verbinde dich mit dem Internet.':'Keine Verbindung zu Intervals.icu. Bitte später erneut versuchen.')}
    if(r.status==401||r.status==403)throw new Error('Zugang abgelehnt: Bitte API-Schlüssel (und ggf. Athlete-ID) prüfen.');
    if(!r.ok)throw new Error('Intervals.icu meldet Fehler '+r.status+'.');
-   const uid='u'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
-   const S0=Object.assign(DEF(),{race,goal,base,start:iso(mon(today)),prof:{name:nm}});
-   LS.set('mplan2_'+uid,JSON.stringify(S0));LS.set('mplan_icu_'+uid,JSON.stringify({id,key}));
+   btn.textContent='Erstelle Konto…';
+   const j=await sbCall('/auth/v1/signup',{m:'POST',b:{email:em,password:pw,data:{name:nm}}});
+   if(!j||!j.access_token){LS.set('moach_pend',JSON.stringify({email:em.toLowerCase(),name:nm,id,key}));AUM='in';showAuth('Fast geschafft: Wir haben dir eine E-Mail geschickt. Bestätige die Adresse und melde dich dann hier an. Deinen Intervals.icu-Zugang habe ich vorgemerkt.');const e=$('#aue');if(e)e.value=em;return}
+   const ses=sbFromAuth(j),uid='u'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),ck=await authNewKey(pw);
+   const S0=Object.assign(DEF(),{start:iso(mon(today)),noPlan:true,prof:{name:nm}});
+   LS.set('mplan2_'+uid,JSON.stringify(S0));LS.set('mplan_icu_'+uid,JSON.stringify({id,key}));if(ck)LS.set('moach_ck_'+uid,JSON.stringify(ck));LS.set('moach_sbs_'+uid,JSON.stringify(ses));
    USERS.push({id:uid,name:nm});LS.set('moach_users',JSON.stringify(USERS));LS.set('moach_cur',uid);location.reload();
-  }catch(e){err(e.message);btn.disabled=false;btn.textContent='Anmelden & loslegen'}}}
+  }catch(e){err(e.message);btn.disabled=false;btn.textContent='Konto erstellen & loslegen'}}}
 
 /* ===== Plan-Assistent ===== */
 const WDL=['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
@@ -2362,7 +2383,7 @@ async function cloudInit(){
  try{
   await cloudProfile();
   const row=await cloudRow();
-  if(!row){CL.pulled=true;await cloudPush(true)}
+  if(!row){CL.pulled=true;await icuSyncState(false).catch(()=>{});await cloudPush(true)}
   else{const cm=+row.modified||0,lm=+S._m||0;CL.bak=cm;CL.bakAt=Date.parse(row.updated_at)||0;if(cm>lm)cloudAdopt(row.state,cm);CL.pulled=true;if(cm<=lm)await icuSyncState(false).catch(()=>{});if(cm<lm)await cloudPush(true)}
   await cloudReqs();await cloudShare(false);CL.err=''}
  catch(e){CL.err=e.message}
