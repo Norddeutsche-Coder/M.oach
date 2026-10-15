@@ -246,6 +246,17 @@ nav.dock.six button svg{width:22px}nav.dock.six button.on svg{width:40px}
 .fxh .zs{margin-left:auto}.fxc{font-size:1.1rem;font-weight:800;color:var(--mu);transition:transform .2s;line-height:1}.fxc.on{transform:rotate(180deg)}
 .fxb[hidden]{display:none}.rdd .bwl{margin-top:8px}
 @media(max-width:360px){.fvt button{padding:4px 7px}.fvv b{font-size:1.8rem}}
+
+/* v29 */
+.rdrow{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.rdc{padding:10px 6px}
+.rdc .bhk{text-transform:uppercase;font-weight:800;color:var(--mu);font-size:.58rem;letter-spacing:.03em;line-height:1.2;min-height:2.4em;display:flex;align-items:flex-start;justify-content:center;flex-wrap:wrap;gap:3px;margin-bottom:4px;text-align:center}
+.rdc .bhk .inf{transform:scale(.85)}
+.rdr .ring{width:58px;height:58px;margin:0 0 6px}.rdr .bhl{font-size:.8rem;line-height:1.15}.rdr .bhs{font-size:.66rem;margin-top:3px}
+.fvc{align-items:center;text-align:center}.fvb{padding:2px 0 0;text-align:center}
+.fvv b{font-size:1.9rem}.fvl{font-size:.62rem;font-weight:700;color:var(--mu);min-height:1.2em;margin-top:2px}.fvs{font-size:.66rem;margin:2px 0 6px}
+.fvb .sp{width:100%;max-width:70px;height:24px;margin:0 auto}
+@media(max-width:360px){.fvv b{font-size:1.6rem}.rdc{padding:10px 4px}}
 /* v9 */
 .ring .rg{animation:rgin .9s ease-out}@keyframes rgin{from{stroke-dashoffset:var(--c)}}
 .card.brief{padding-bottom:12px}.bsrc{font-size:.7rem;color:var(--mu);margin-top:3px}.bfh{font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--mu)}.zfx{font-size:.68rem;font-weight:800;margin-top:3px}.zfx.neg,u.neg{color:#dc2626;text-decoration:none}.zfx.nul{color:var(--mu);font-weight:600}.tiles.rdy{margin:10px 0 4px}.tiles.rdy .tl{min-width:0}.tiles.rdy .tl small{display:block;font-size:.64rem;color:var(--mu);line-height:1.2;margin-top:1px}
@@ -1363,7 +1374,7 @@ RDR={R,col,head,sub,sc};
  const fxn=sel.length+T2.length;
  return'<div class="brief rdw"><div class="rdrow">'
   +'<div class="card rdc rdr"><div class="bhk">Training Readiness'+inf('bf_score')+'</div>'+ringSvg(sc,col)+'<div class="bhl" style="color:'+col+'">'+head+'</div><div class="bhs">'+sub+'</div></div>'
-  +'<div class="card rdc fvc" id="fvc">'+fvInner(R)+'</div></div>'
+  +fvTile(R,'form')+fvTile(R,'vo2')+'</div>'
   +'<div class="card rdd"><div class="bsrc" style="margin:0 0 8px">'+src+'</div>'
   +'<div class="bcall" style="--bc:'+col+'">'+vd+'</div>'
   +'<button type="button" class="fxh" id="fxh" aria-expanded="'+open+'" aria-controls="fxb"><b class="bfh">Faktoren</b><span class="zs '+sc2+'">'+sum+'</span><span class="fxc'+(open?' on':'')+'" aria-hidden="true">⌄</span></button>'
@@ -1374,26 +1385,22 @@ RDR={R,col,head,sub,sc};
   +'<div class="bwl">'+why+good_+'</div>'+an
   +(p?'<div class="ln" style="color:var(--mu);margin-top:8px">🔄 '+AD.msg+course+inf('adapt')+'</div>':'')
   +'</div></div>'}
-let RDR=null,FV=LS.get('moach_fv')||'form';
-function fvInner(R){
- const T=trends(R),f=T.find(a=>a[0]=='form'),vs=wser('vo2',120);let vi=-1;for(let i=vs.length-1;i>=0;i--)if(vs[i]!=null){vi=i;break}
- const hasV=vi>=0,mode=FV=='vo2'&&hasV?'vo2':'form';
- const chips='<div class="fvt" role="tablist"><button type="button" role="tab" data-fv="form" class="'+(mode=='form'?'on':'')+'" aria-selected="'+(mode=='form')+'">Form</button><button type="button" role="tab" data-fv="vo2" class="'+(mode=='vo2'?'on':'')+'" aria-selected="'+(mode=='vo2')+'"'+(hasV?'':' disabled title="Noch kein VO₂max aus Intervals.icu"')+'>VO₂max</button></div>';
- let key,val,lab,cls,vals,sub;
- if(mode=='vo2'){key='vo2';const c=vs[vi];let ref=null;for(let i=Math.min(vi,vs.length-29);i>=0;i--)if(vs[i]!=null){ref=vs[i];break}
-  const d=ref!=null?Math.round((c-ref)*10)/10:null;val=dec(c,1);lab='ml/kg/min';cls=d==null?'neu':d>=.5?'good':d<=-1?'bad':'neu';
-  sub=d==null?'Verlauf der letzten Monate':(d>0?'▲ +':d<0?'▼ −':'● ')+dec(Math.abs(d),1)+' in 4 Wochen';vals=vs.slice(-90)}
- else if(f){key='form';val=f[2];lab=f[6];cls=f[5];vals=f[7];sub='Fitness − Ermüdung'}
- else{key='form';val='–';lab='';cls='neu';vals=[];sub=ICU.key?'Noch keine Daten':'Mit Intervals.icu'}
+let RDR=null;
+function fvTile(R,key){
+ let val='–',lab='',cls='neu',vals=[],sub='',nm=key=='vo2'?'VO₂max':'Form';
+ if(key=='vo2'){const vs=wser('vo2',120);let vi=-1;for(let i=vs.length-1;i>=0;i--)if(vs[i]!=null){vi=i;break}
+  if(vi>=0){const c=vs[vi];let ref=null;for(let i=Math.min(vi,vs.length-29);i>=0;i--)if(vs[i]!=null){ref=vs[i];break}
+   const d=ref!=null?Math.round((c-ref)*10)/10:null;val=dec(c,1);lab='ml/kg/min';cls=d==null?'neu':d>=.5?'good':d<=-1?'bad':'neu';
+   sub=d==null?'Verlauf der letzten Monate':(d>0?'▲ +':d<0?'▼ −':'● ')+dec(Math.abs(d),1)+' in 4 Wo.';vals=vs.slice(-90)}
+  else sub=ICU.key?'Noch keine Daten':'Mit Intervals.icu'}
+ else{const f=trends(R).find(a=>a[0]=='form');
+  if(f){val=f[2];lab=f[6];cls=f[5];vals=f[7];sub='Fitness − Ermüdung'}else sub=ICU.key?'Noch keine Daten':'Mit Intervals.icu'}
  const col={good:'#16a34a',bad:'#ef4444',neu:'#3b82f6'}[cls];
- return'<div class="fvh">'+chips+inf('t_'+key)+'</div><button type="button" class="fvb" '+(val=='–'?'disabled':'data-ch="'+key+'"')+' style="--zc:'+col+'"><div class="fvv"><b>'+val+'</b><span>'+(mode=='vo2'?lab:(f?lab:''))+'</span></div><div class="fvs">'+sub+'</div>'+(vals&&vals.length?spark(vals):'')+'</button>'}
+ return'<div class="card rdc fvc"><div class="bhk">'+nm+inf('t_'+key)+'</div><button type="button" class="fvb" '+(val=='–'?'disabled':'data-ch="'+key+'"')+' style="--zc:'+col+'"><div class="fvv"><b>'+val+'</b></div><div class="fvl">'+lab+'</div><div class="fvs">'+sub+'</div>'+(vals.length?spark(vals):'')+'</button></div>'}
 function wireBrief(el){
  const h=el.querySelector('#fxh');
  if(h)h.onclick=()=>{const b=el.querySelector('#fxb'),o=b.hidden;b.hidden=!o;h.setAttribute('aria-expanded',o);h.querySelector('.fxc').classList.toggle('on',o);LS.set('moach_fx',o?'1':'0')};
- const wf=()=>{const c=el.querySelector('#fvc');if(!c||!RDR)return;
-  c.querySelectorAll('[data-fv]').forEach(b=>b.onclick=()=>{if(b.disabled)return;FV=b.dataset.fv;LS.set('moach_fv',FV);c.innerHTML=fvInner(RDR.R);wf()});
-  c.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>openChart(b.dataset.ch))};
- wf()}
+ el.querySelectorAll('.fvc [data-ch]').forEach(b=>b.onclick=()=>openChart(b.dataset.ch))}
 
 /* ===== Dein Zustand (kompakt) ===== */
 const ZT_HOME=['rhr','hrv','sleep','ctl','form'];
