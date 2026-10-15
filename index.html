@@ -481,6 +481,7 @@ body.rvo{overflow:hidden}
 .rdcv{font-size:.82rem;color:var(--mu);font-weight:600;font-variant-numeric:tabular-nums}.rdcv.sel{color:var(--tx);font-weight:800}
 .rdcs{touch-action:pan-y;cursor:crosshair;user-select:none;-webkit-user-select:none}.rdcs svg{width:100%;height:auto;display:block}
 .rdg{stroke:var(--bd);stroke-width:1}.rdt{font-size:9.5px;fill:var(--mu)}.rdl{stroke:var(--mu);stroke-width:1;stroke-dasharray:3 3}.rdna{font-size:.84rem;padding:6px 0}
+.rlh{margin:14px 2px 8px}.rlh h3{margin:0}#runs .card.nrc2{margin-bottom:10px}
 </style></head><body>
 <header class="top"><div class="in"><svg class="logo" viewBox="-2 -4 497.5 108.0" role="img" aria-label="M.oach"><path d="M0.00,100.00 L15.84,0.00 L38.95,0.00 L54.39,47.00 L84.73,0.00 L107.84,0.00 L92.00,100.00 L68.89,100.00 L77.37,46.50 L47.03,93.50 L31.58,46.50 L23.11,100.00Z" fill="#FFFFFF"/><circle cx="121.31" cy="85.67" r="14.33" fill="#C6F135"/><path d="M157.46 62.30Q159.30 50.68 165.84 41.82Q172.38 32.97 182.04 28.24Q191.71 23.51 202.79 23.51Q213.88 23.51 222.04 28.24Q230.21 32.97 233.95 41.82Q237.68 50.68 235.84 62.30Q234.00 73.92 227.40 82.77Q220.79 91.62 211.05 96.35Q201.32 101.08 190.24 101.08Q179.16 101.08 171.05 96.35Q162.95 91.62 159.28 82.84Q155.60 74.05 157.46 62.30ZM212.33 62.30Q213.76 53.24 210.00 48.38Q206.25 43.51 199.63 43.51Q192.87 43.51 187.65 48.31Q182.43 53.11 180.98 62.30Q179.54 71.35 183.16 76.22Q186.78 81.08 193.41 81.08Q200.03 81.08 205.46 76.22Q210.89 71.35 212.33 62.30Z M281.31 23.51Q289.28 23.51 294.78 26.76Q300.28 30.00 302.69 35.27L304.38 24.59H327.49L315.54 100.00H292.44L294.13 89.32Q289.91 94.59 283.39 97.84Q276.86 101.08 268.89 101.08Q259.70 101.08 252.89 96.28Q246.08 91.49 243.09 82.64Q240.10 73.78 241.94 62.16Q243.78 50.54 249.57 41.76Q255.35 32.97 263.67 28.24Q271.98 23.51 281.31 23.51ZM284.88 43.65Q277.98 43.65 272.40 48.58Q266.83 53.51 265.46 62.16Q264.09 70.81 268.08 75.88Q272.08 80.95 278.97 80.95Q285.86 80.95 291.45 75.95Q297.04 70.95 298.41 62.30Q299.78 53.65 295.77 48.65Q291.77 43.65 284.88 43.65Z M376.04 23.51Q390.23 23.51 398.58 30.95Q406.93 38.38 407.76 51.89H383.16Q381.43 43.24 372.51 43.24Q366.16 43.24 361.59 48.18Q357.03 53.11 355.57 62.30Q354.11 71.49 357.12 76.42Q360.12 81.35 366.47 81.35Q375.39 81.35 379.87 72.70H404.46Q399.39 85.95 388.60 93.51Q377.81 101.08 363.75 101.08Q352.67 101.08 344.84 96.35Q337.01 91.62 333.60 82.84Q330.19 74.05 332.06 62.30Q333.92 50.54 340.11 41.76Q346.30 32.97 355.63 28.24Q364.96 23.51 376.04 23.51Z M492.79 55.95 485.81 100.00H462.84L469.33 59.05Q470.53 51.49 467.27 47.30Q464.01 43.11 457.39 43.11Q450.77 43.11 446.19 47.30Q441.61 51.49 440.41 59.05L433.92 100.00H410.81L426.65 0.00H449.76L444.26 34.73Q448.57 29.73 455.12 26.76Q461.67 23.78 469.24 23.78Q482.21 23.78 488.69 32.36Q495.17 40.95 492.79 55.95Z" fill="#FFFFFF"/></svg><div class="r"><div class="meta"><div id="cd"></div><div id="sy" role="button">…</div></div><button id="pf" aria-label="Profil"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg></button></div></div></header>
 <div class="wrap">
@@ -1481,14 +1482,16 @@ async function nrunChart(){
  if(d)rsDraw(b2,d);else b2.innerHTML='<div class="mu rsl">Für diesen Lauf liefert Intervals.icu keinen Verlauf.</div>'}
 
 /* ---- Neuer Lauf auf Heute ---- */
+function runCardH(r,k,when){
+ const pc=r.sec>0&&r.km>0?r.sec/r.km:null,t=(v,l)=>v==null||v===''?'':'<div class="tl"><b>'+v+'</b><span>'+l+'</span></div>';
+ return'<div class="card nrun nrc2" data-orun="'+esc(r.id)+'" role="button" tabindex="0" aria-label="Lauf öffnen: '+esc(r.n||'Lauf')+'" style="--kc:'+KCOL[k]+'"><div class="nrk"><span class="kt" style="background:'+KCOL[k]+'">'+KIND[k]+'</span> '+when+'</div><div class="nrh"><div class="nrn">'+esc(r.n||'Lauf')+'</div><span class="nrgo" aria-hidden="true">›</span></div>'
+  +'<div class="nrb">'+dec(r.km,2)+'<small>km</small></div><div class="tiles">'+t(r.sec?dur(r.sec):null,'Dauer')+t(pc?fp(pc)+' /km':null,'Pace')+'</div></div>'}
 function newRunCard(){
  const R=allRuns(),r=R[0];NRUN=null;if(!r||!(r.km>0))return'';
  const age=Math.round((today-parse(r.d))/D);if(age!==0)return'';
  NRUN=r;
  let k='easy';try{k=analyzeRun(r,rctx(R,d=>plan(d,1),true)).kind||'easy'}catch(e){}
- const pc=r.sec>0?r.sec/r.km:null,t=(v,l)=>v==null||v===''?'':'<div class="tl"><b>'+v+'</b><span>'+l+'</span></div>';
- return'<div class="card nrun nrc2" data-orun="'+esc(r.id)+'" role="button" tabindex="0" aria-label="Lauf öffnen: '+esc(r.n||'Lauf')+'" style="--kc:'+KCOL[k]+'"><div class="nrk"><span class="kt" style="background:'+KCOL[k]+'">'+KIND[k]+'</span> Heute'+(r.t?', '+esc(String(r.t).slice(0,5))+' Uhr':'')+'</div><div class="nrh"><div class="nrn">'+esc(r.n||'Lauf')+'</div><span class="nrgo" aria-hidden="true">›</span></div>'
-  +'<div class="nrb">'+dec(r.km,2)+'<small>km</small></div><div class="tiles">'+t(r.sec?dur(r.sec):null,'Dauer')+t(pc?fp(pc)+' /km':null,'Pace')+'</div></div>'}
+ return runCardH(r,k,'Heute'+(r.t?', '+esc(String(r.t).slice(0,5))+' Uhr':''))}
 
 /* ===== Lauf-Detail: eigene Karte (ohne Fremdbibliothek) ===== */
 const mmP=(la,ln,z)=>{const s=256*Math.pow(2,z),sn=Math.sin(la*Math.PI/180);return[(ln+180)/360*s,(.5-Math.log((1+sn)/(1-sn))/(4*Math.PI))*s]};
@@ -1659,10 +1662,13 @@ function rvHtml(r,d,state){
   const av={pace:pc?'Ø '+fp(pc)+' /km':'',hr:(f.mx||s.ah)?'Ø '+(s.ah||'–')+' bpm':'',cad:f.cad?'Ø '+f.cad+' spm':'',alt:f.eg!=null?'+'+f.eg+' m':''};
   h+=RDC.map(c=>rdChart(c,s,av[c.k])).join('')}
  else if(state=='ok')h+='<div class="card"><div class="mu">Für diesen Lauf liefert Intervals.icu keinen Verlauf.</div></div>';
+ h+='<div class="card"><h3 class="rvs">Analyse</h3><div class="an a-g"><b>Das lief gut</b><ul>'+(a.good||[]).map(x=>'<li>'+x+'</li>').join('')+'</ul></div>'
+  +((a.bad||[]).length?'<div class="an a-y"><b>Weniger gut</b><ul>'+a.bad.map(x=>'<li>'+x.t+'</li>').join('')+'</ul></div>':'<div class="an a-n"><b>Weniger gut</b>Nichts Auffälliges in den Daten.</div>')
+  +((a.nxt||[]).length?'<div class="an nx"><b>Nächstes Mal</b><ul>'+a.nxt.map(x=>'<li>'+x+'</li>').join('')+'</ul></div>':'')+'<div class="b"><button type="button" id="rve" data-d="'+r.d+'">Eintrag bearbeiten</button></div></div>';
  return h+'<div class="rvf">Quelle: Intervals.icu. Werte, die dein Gerät nicht aufzeichnet, erscheinen als –.</div></div>'}
 function rvPaint(state){
  const v=$('#rv'),keep=v.scrollTop;v.innerHTML=rvHtml(RVR,RVD,state);v.scrollTop=keep;
- $('#rvx').onclick=rvClose;const rr=$('#rvr');if(rr)rr.onclick=()=>openRun(RVR.id,1);
+ $('#rvx').onclick=rvClose;const re_=$('#rve');if(re_)re_.onclick=()=>{const k=re_.dataset.d;rvClose();openM(k)};const rr=$('#rvr');if(rr)rr.onclick=()=>openRun(RVR.id,1);
  const s=RVD&&RVD.s;
  if(RVM){RVM=null}
  const el=$('#rvm');if(el&&s&&s.rt)RVM=miniMap(el,s.rt);
@@ -2762,18 +2768,10 @@ function rRuns(){
  R.slice(0,RUNMAX).forEach((r,i)=>{
   const mk=r.d.slice(0,7);
   if(mk!=cur){cur=mk;const[y,mo]=mk.split('-');h+='<div class="mh2"><b>'+new Date(+y,+mo-1,1).toLocaleDateString('de-DE',{month:'long',year:'numeric'})+'</b><span>'+Math.round(mt[mk])+' km</span></div>'}
-  const d=parse(r.d),pc=r.km>0&&r.sec>0?r.sec/r.km:null,a=analyzeRun(r,cx);
-  const t=(v,l,k)=>v==null||v===''||v===0?'':'<div class="tl"><b>'+v+'</b><span>'+l+inf(k)+'</span></div>';
-  h+='<details class="run" style="--kc:'+KCOL[a.kind]+'"'+(i==0?' open':'')+'><summary><div class="rd"><b>'+DOW[(d.getDay()+6)%7]+'</b><span>'+d.getDate()+'.</span></div><div class="rm"><div class="rn">'+esc(r.n)+'</div><small><span class="kt" style="background:'+KCOL[a.kind]+'">'+KIND[a.kind]+'</span> '+(r.sec?dur(r.sec):'–')+(pc?' · '+fp(pc)+' /km':'')+(r.hr?' · '+r.hr+' bpm':'')+'</small></div><span class="vd v-'+a.v.c+'">'+a.v.t+'</span><div class="rk"><b>'+dec(r.km,1)+'</b><span>km</span></div></summary>'
-   +'<div class="tiles">'+t(r.sec?dur(r.sec):null,'Dauer','r_dur')+t(pc?fp(pc)+' /km':null,'Pace','r_pace')+t(r.hr?r.hr+' bpm':null,'Ø Puls','r_hr')+t(r.mx?r.mx+' bpm':null,'Max. Puls','r_mx')+t(r.el?r.el+' m':null,'Höhenmeter','r_el')+t(r.ld,'Trainingslast','r_ld')+t(r.rpe?dec(r.rpe,0)+' / 10':null,'Anstrengung','r_rpe')+'</div>'
-   +'<div class="an a-g"><b>Das lief gut</b><ul>'+a.good.map(x=>'<li>'+x+'</li>').join('')+'</ul></div>'
-   +(a.bad.length?'<div class="an a-y"><b>Weniger gut</b><ul>'+a.bad.map(x=>'<li>'+x.t+'</li>').join('')+'</ul></div>':'<div class="an a-n"><b>Weniger gut</b>Nichts Auffälliges in den Daten.</div>')
-   +'<div class="an nx"><b>Nächstes Mal</b><ul>'+a.nxt.map(x=>'<li>'+x+'</li>').join('')+'</ul></div>'
-   +(a.note.length?'<small>'+a.note.join(' ')+'</small>':'')
-   +(r.manual?'<small>Manuell eingetragen, nicht aus Intervals.icu.</small>':'')+'<div class="b">'+(r.id?'<button class="pri" data-orun="'+esc(r.id)+'">Lauf-Details ›</button>':'')+'<button data-d="'+r.d+'">Eintrag bearbeiten</button></div></details>'});
- el.innerHTML=sum+zone+chart+focus+'<div class="card" style="padding-top:6px"><h3>Läufe im Zeitraum</h3><div class="sub">Tippe auf einen Lauf für die Analyse</div>'+(h||'<div class="mu" style="padding:8px 0">Keine Läufe im gewählten Zeitraum.</div>')+(R.length>RUNMAX?'<div class="b"><button id="rmore">Mehr anzeigen ('+(R.length-RUNMAX)+')</button></div>':'')+'</div>';
+  const d=parse(r.d),a=analyzeRun(r,cx);
+  h+=runCardH(r,a.kind,DOW[(d.getDay()+6)%7]+', '+d.getDate()+'.'+(d.getMonth()+1)+'.'+(r.t?', '+esc(String(r.t).slice(0,5))+' Uhr':''))});
+ el.innerHTML=sum+zone+chart+focus+'<div class="rlh"><h3>Läufe im Zeitraum</h3><div class="sub">Tippe auf einen Lauf für alle Details</div></div>'+(h||'<div class="card mu">Keine Läufe im gewählten Zeitraum.</div>')+(R.length>RUNMAX?'<div class="b"><button id="rmore">Mehr anzeigen ('+(R.length-RUNMAX)+')</button></div>':'');
  el.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>openChart(b.dataset.ch));
- el.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>openM(b.dataset.d));
  const rb=$('#rrb');if(rb)rb.onclick=openRRange;const tb=$('#tzb');if(tb)tb.onclick=openTarget;
  const mo=$('#rmore');if(mo)mo.onclick=()=>{RUNMAX+=30;rRuns()}}
 
