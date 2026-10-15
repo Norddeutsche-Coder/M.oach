@@ -228,7 +228,7 @@ nav.dock.six button svg{width:22px}nav.dock.six button.on svg{width:40px}
 
 /* v9 */
 .ring .rg{animation:rgin .9s ease-out}@keyframes rgin{from{stroke-dashoffset:var(--c)}}
-.card.brief{padding-bottom:12px}.tiles.rdy{margin:10px 0 4px}.tiles.rdy .tl{min-width:0}.tiles.rdy .tl small{display:block;font-size:.64rem;color:var(--mu);line-height:1.2;margin-top:1px}
+.card.brief{padding-bottom:12px}.bsrc{font-size:.7rem;color:var(--mu);margin-top:3px}.tiles.rdy{margin:10px 0 4px}.tiles.rdy .tl{min-width:0}.tiles.rdy .tl small{display:block;font-size:.64rem;color:var(--mu);line-height:1.2;margin-top:1px}
 .bh{display:flex;align-items:center;gap:12px;margin-bottom:6px}.bhm{min-width:0}.bhm h3{margin:0;font-size:.74rem;color:var(--mu);text-transform:uppercase;letter-spacing:.06em}
 .bhl{font-size:1.25rem;font-weight:800;line-height:1.15}
 .bchips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.bchips span{background:var(--bg);border:1px solid var(--bd);border-radius:999px;padding:3px 10px;font-size:.78rem;font-weight:600}
@@ -616,12 +616,9 @@ const KRAFT={h:'Kraft (20–25 min, nach dem Lauf)',i:['3 × 8–10 je Bein: ein
 function readiness(){
  const R={pts:0,why:[],good:[],pain:0,m:{}};
  const H=[];for(let i=1;i<=28;i++){const d=addD(today,-i);const l=S.log[iso(d)];H.push({i,l:(l&&l.done)?l:null})}
- const ck=S.chk[iso(today)]||{},W=S.well||{},wl=W[iso(today)]||{};
- if(ck.pain==2){R.pts+=4;R.pain=2;R.why.push('Du meldest deutliche Schmerzen.')}
- else if(ck.pain==1){R.pts+=2;R.pain=1;R.why.push('Leichtes Ziehen oder Schmerz gemeldet.')}
- if(ck.en==1){R.pts+=1;R.why.push('Du fühlst dich müde.')}else if(ck.en==3)R.good.push('Du fühlst dich frisch.');
- if(ck.leg==1){R.pts+=1;R.why.push('Die Beine fühlen sich schwer an.')}else if(ck.leg==3)R.good.push('Die Beine fühlen sich leicht an.');
- const sl=ck.sleep!=null?ck.sleep:(wl.sleep!=null?wl.sleep:null);R.m.sleep=sl;R.m.sleepSrc=ck.sleep!=null?'Check-in':(wl.sleep!=null?'Intervals.icu':'');
+ const W=S.well||{},wl=W[iso(today)]||{};
+ {const v=+wl.rd;if(wl.rd!=null&&v>0){R.m.rdRaw=v;R.m.rd=Math.max(1,Math.min(100,Math.round(v<=10?v*10:v)))}}
+ const sl=wl.sleep!=null?wl.sleep:null;R.m.sleep=sl;R.m.sleepSrc=wl.sleep!=null?'Intervals.icu':'';
  if(sl!=null){if(sl<5.5){R.pts+=2;R.why.push('Nur ca. '+r1(sl)+' h Schlaf.')}else if(sl<6.5){R.pts+=1;R.why.push('Eher kurze Nacht (ca. '+r1(sl)+' h).')}else if(sl>=7.5)R.good.push('Gut geschlafen (ca. '+r1(sl)+' h).')}
  const others=Object.keys(W).filter(k=>k!==iso(today)&&k>=iso(addD(today,-28))).map(k=>W[k]);
  const avg=f=>{const v=others.map(o=>o[f]).filter(x=>x>0);return v.length>=4?v.reduce((a,b)=>a+b)/v.length:null};
@@ -637,7 +634,7 @@ function readiness(){
  if(st>=7){R.pts+=2;R.why.push(st+' Lauftage in Folge: ein freier Tag ist überfällig.')}else if(st>=6){R.pts+=1;R.why.push(st+' Lauftage in Folge.')}
  const ac=H.filter(h=>h.i<=7&&h.l).reduce((s,h)=>s+(+h.l.km||0),0);R.m.acute=ac;
  const sp=Math.max(0,...H.filter(h=>h.l).map(h=>h.i));if(sp>=21){const ch=H.filter(h=>h.i>7&&h.l).reduce((s,h)=>s+(+h.l.km||0),0)/Math.min(3,(sp-7)/7);R.m.chronic=ch;if(ch>=10){const q=ac/ch;R.m.ratio=q;if(q>1.5){R.pts+=2;R.why.push('Der Umfang der letzten 7 Tage ist '+q.toFixed(1)+'× so hoch wie dein 4-Wochen-Schnitt.')}else if(q>1.3){R.pts+=1;R.why.push('Der Umfang steigt schnell ('+q.toFixed(1)+'× dein Schnitt).')}}}
- R.lvl=(R.pain==2||R.pts>=4)?2:(R.pts>=2?1:0);
+ R.lvl=R.m.rd!=null?(R.m.rd>=75?0:R.m.rd>=50?1:2):(R.pts>=4?2:(R.pts>=2?1:0));
  if(!R.why.length&&!R.good.length)R.good.push('Keine Warnsignale in deinen Daten.');
  return R}
 
@@ -783,7 +780,7 @@ const INFO={
  r_dur:{t:'Dauer',b:'<p>Bewegungszeit des Laufs ohne Pausen, aus Intervals.icu.</p>'},
  co:{t:'Coaching',b:'<p>Zeigt Daten eines Athleten, den du mit seiner Athlete-ID hinzufügst. Zugriff geht über Intervals.icu: Der Athlet erteilt dir Coach-Zugriff (dann reicht dein eigener API-Schlüssel) oder nennt dir seinen Schlüssel.</p><p>Alle Werte werden wie bei dir selbst berechnet (Läufe der letzten 26 Wochen, Wellness der letzten 84 Tage). Die Daten bleiben nur in diesem Browser. Hol dir vorher das Einverständnis des Athleten.</p>'},
  zones:{t:'Intensitätsverteilung',b:'<p>Anteile deiner Trainingszeit im gewählten Zeitraum.</p><p><b>Nach Laufart:</b> Locker und Longrun zählen als locker, Qualität und Wettkampf als Tempo. Die Art kommt aus dem Plan des Tages, sonst wird sie aus Tempo und Länge geschätzt.</p><p><b>Nach Herzfrequenz:</b> Ø-Puls je Lauf im Verhältnis zur höchsten gemessenen Frequenz: Zone 1 unter 80 %, Zone 2 80–88 %, Zone 3 darüber. Das ist eine Näherung, weil Intervalle im Durchschnittspuls verwässern.</p><p><b>Sollziel:</b> Standard 80/20 (80 % locker, 20 % Tempo). Über „Ziel“ stellst du es auf 50 bis 95 % locker ein. Der schwarze Strich im Balken markiert das Ziel.</p>'},
- bf_score:{t:'Training Readiness',b:'<p>Zahl von 0 bis 100: 100 minus 13 Punkte je Warnpunkt (Schlaf, Ruhepuls, HRV, Form, RPE, Lauftage in Folge, Umfangssprung), mindestens 15. Der Ring färbt sich grün, gelb oder rot.</p><p>Die Kacheln zeigen die Werte hinter der Zahl. Der Farbstreifen links zeigt, ob der Wert unauffällig (grün), leicht auffällig (gelb), deutlich auffällig (rot) oder neutral (grau) ist. Bei Ruhepuls und HRV zählt der Abstand zu deinem Ø der letzten 4 Wochen.</p>'},
+ bf_score:{t:'Training Readiness',b:'<p>Die Zahl (0 bis 100) ist der Readiness-Wert aus Intervals.icu von heute. Ist dort noch keiner eingetragen oder synchronisiert, schätzt M.oach sie aus deinen Daten: 100 minus 13 Punkte je Warnpunkt (Schlaf, Ruhepuls, HRV, Form, RPE, Lauftage in Folge, Umfangssprung), mindestens 15. Das steht dann unter der Überschrift.</p><p>Ab 75 ist der Ring grün, von 50 bis 74 gelb, darunter rot. Werte bis 10 behandelt M.oach als Skala von 1 bis 10 und rechnet sie auf 100 hoch.</p><p>Die Kacheln zeigen die Werte hinter der Zahl. Der Farbstreifen links zeigt, ob der Wert unauffällig (grün), leicht auffällig (gelb), deutlich auffällig (rot) oder neutral (grau) ist. Bei Ruhepuls und HRV zählt der Abstand zu deinem Ø der letzten 4 Wochen.</p>'},
  f_kh:{t:'Mengenangaben',b:'<p>Kohlenhydrate vor dem Lauf: 1–2 g pro kg Körpergewicht (vor Wettkampf 2 g/kg). Nach dem Lauf: etwa 1 g/kg plus 20–30 g Eiweiß. Unterwegs: ab Minute 40 alle 20–30 min rund 25 g. Ohne Gewicht im Profil siehst du die Angaben pro kg.</p>'},
  f_drink:{t:'Trinkmenge',b:'<p>Richtwert 35 ml pro kg Körpergewicht pro Tag (aus deinem Profil), sonst 2–3 l. Beim Laufen kommen etwa 400–800 ml pro Stunde dazu, nach dem Lauf 500 ml je 0,5 kg Gewichtsverlust.</p>'},
  f_bed:{t:'Schlafzeit',b:'<p>Aufstehzeit aus deinem Profil minus 8 Stunden Schlaf minus 15 Minuten zum Einschlafen.</p>'},
@@ -1235,7 +1232,7 @@ const readyScore=R=>Math.max(15,Math.min(100,100-R.pts*13));
 function ringSvg(score,col){const r=27,c=2*Math.PI*r;
  return'<svg class="ring" viewBox="0 0 66 66" width="66" height="66" role="img" aria-label="Training Readiness '+score+' von 100"><circle cx="33" cy="33" r="'+r+'" fill="none" stroke="var(--bd)" stroke-width="7"/><circle class="rg" cx="33" cy="33" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="7" stroke-linecap="round" stroke-dasharray="'+c.toFixed(1)+'" stroke-dashoffset="'+(c*(1-score/100)).toFixed(1)+'" transform="rotate(-90 33 33)" style="--c:'+c.toFixed(1)+'"/><text x="33" y="38.5" text-anchor="middle" font-size="19" font-weight="800" fill="var(--tx)">'+score+'</text></svg>'}
 function briefing(R,p,adj,pl,ac){
- const M=R.m,col=['#16a34a','#f5b301','#ef4444'][R.lvl],sc=readyScore(R);
+ const M=R.m,col=['#16a34a','#f5b301','#ef4444'][R.lvl],sc=M.rd!=null?M.rd:readyScore(R);
  const head=['Du bist bereit','Heute etwas defensiver','Erholung hat Vorrang'][R.lvl];
  const sub=!p?'Kein Plan für heute':adj.mode=='rest'||adj.mode=='move'?'Heute kein Lauftraining':p.t=='rest'?'Recovery-Tag':p.lab+(adj.km?' · '+adj.km+' km':'');
  const vd=['Du bist gut erholt, der Plan kann wie vorgesehen laufen.','Leichte Ermüdung: heute etwas kürzer oder lockerer laufen.','Deutliche Ermüdung: Erholung hat heute Vorrang.'][R.lvl];
@@ -1250,7 +1247,7 @@ function briefing(R,p,adj,pl,ac){
  if((M.streak||0)>=2)tile(M.streak>=7?Rd:M.streak>=6?Y:N,M.streak+' Tage','am Stück gelaufen','');
  const why=R.why.map(x=>'<div class="bw2"><span class="tdot warn"></span><span>'+x+'</span></div>').join(''),good=R.good.map(x=>'<div class="bw2"><span class="tdot good"></span><span>'+x+'</span></div>').join('');
  const an=adj&&adj.note?'<div class="bt"><b>Training heute:</b> '+adj.note+'</div>':'';
- return'<div class="card brief"><div class="bh">'+ringSvg(sc,col)+'<div class="bhm"><div class="bhk">Training Readiness'+inf('bf_score')+'</div><div class="bhl" style="color:'+col+'">'+head+'</div><div class="bhs">'+sub+'</div></div></div>'
+ return'<div class="card brief"><div class="bh">'+ringSvg(sc,col)+'<div class="bhm"><div class="bhk">Training Readiness'+inf('bf_score')+'</div><div class="bhl" style="color:'+col+'">'+head+'</div><div class="bhs">'+sub+'</div><div class="bsrc">'+(M.rd!=null?'Wert aus Intervals.icu':'Von M.oach geschätzt: heute fehlt ein Readiness-Wert in Intervals.icu')+'</div></div></div>'
   +(T.length?'<div class="tiles rdy">'+T.join('')+'</div>':'<div class="bt mu">Noch keine Werte. Mit Intervals.icu siehst du hier Schlaf, Ruhepuls, HRV und Form.</div>')
   +'<div class="bcall" style="--bc:'+col+'">'+vd+'</div><div class="bwl">'+why+good+'</div>'+an+'</div>'}
 function wireBrief(el){}
@@ -2086,7 +2083,7 @@ async function coachSync(a){
  const acts=await r.json();if(!Array.isArray(acts))throw new Error('Unerwartete Antwort von Intervals.icu');
  a.runs=mapActs(acts);
  try{const wr=await fetch(base+'/wellness?oldest='+iso(addD(today,-84))+'&newest='+iso(today),{headers:hd});
-  if(wr.ok){const arr=await wr.json(),W={};for(const x of arr){const id=String(x.id||'').slice(0,10);if(!id)continue;W[id]={rhr:x.restingHR||null,hrv:x.hrv||null,sleep:x.sleepSecs?x.sleepSecs/3600:null,ctl:x.ctl!=null?x.ctl:null,atl:x.atl!=null?x.atl:null}}a.well=W}}catch(e){}
+  if(wr.ok){const arr=await wr.json(),W={};for(const x of arr){const id=String(x.id||'').slice(0,10);if(!id)continue;W[id]={rhr:x.restingHR||null,hrv:x.hrv||null,sleep:x.sleepSecs?x.sleepSecs/3600:null,ctl:x.ctl!=null?x.ctl:null,atl:x.atl!=null?x.atl:null,rd:x.readiness>0?x.readiness:null}}a.well=W}}catch(e){}
  a.at=Date.now();store(true)}
 const wsr=(W,f,n,z)=>{const o=[];for(let i=n-1;i>=0;i--){const v=(W[iso(addD(today,-i))]||{})[f];o.push(v!=null&&(z||v>0)?+v:null)}return o};
 function coachInsights(a){
@@ -2559,7 +2556,7 @@ async function icuSync(){
    S.log[k]={done:true,km:r1(b.km),min:Math.round(b.sec/60),rpe:o.rpe||(b.rpe?String(b.rpe):''),note:o.note||'Intervals.icu',src:'icu'}}
   if(acts.length)for(const k of Object.keys(S.log)){if(k>=from&&k<=to&&!(k in by)&&fromIcu(S.log[k]))delete S.log[k]}
   try{const wr=await fetch(base+'/wellness?oldest='+iso(addD(today,-84))+'&newest='+iso(today),{headers:hd});
-   if(wr.ok){const arr=await wr.json(),W={};for(const x of arr){const id=String(x.id||'').slice(0,10);if(!id)continue;W[id]={rhr:x.restingHR||null,hrv:x.hrv||null,sleep:x.sleepSecs?x.sleepSecs/3600:null,ctl:x.ctl!=null?x.ctl:null,atl:x.atl!=null?x.atl:null}}S.well=W}}catch(e){}
+   if(wr.ok){const arr=await wr.json(),W={};for(const x of arr){const id=String(x.id||'').slice(0,10);if(!id)continue;W[id]={rhr:x.restingHR||null,hrv:x.hrv||null,sleep:x.sleepSecs?x.sleepSecs/3600:null,ctl:x.ctl!=null?x.ctl:null,atl:x.atl!=null?x.atl:null,rd:x.readiness>0?x.readiness:null}}S.well=W}}catch(e){}
   try{await icuYear(base,hd,from)}catch(e){}
   icuLast=Date.now();S.syncAt=icuLast;store(true);render();
   setSync('✅ '+(fresh==0?'aktuell':fresh==1?'1 neuer Lauftag':fresh+' neue Lauftage')+' · '+new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'}));
