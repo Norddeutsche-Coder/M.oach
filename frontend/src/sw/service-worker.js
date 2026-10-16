@@ -3,13 +3,14 @@ const VERSION = __BUILD_VERSION__;
 const FILES = __PRECACHE_FILES__;
 const PREFIX = 'moach-vite-' + encodeURIComponent(self.registration.scope) + '-';
 const CACHE = PREFIX + VERSION;
+const LEGACY_CACHE = 'moach-v61';
 const url = path => new URL(path, self.registration.scope).href;
 const assets = new Set(FILES.map(url));
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(FILES.map(url))).then(() => self.skipWaiting()));
 });
 self.addEventListener('activate', event => {
-  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith(PREFIX) && key !== CACHE)
+  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key === LEGACY_CACHE || (key.startsWith(PREFIX) && key !== CACHE))
     .map(key => caches.delete(key)))).then(() => self.clients.claim()));
 });
 self.addEventListener('fetch', event => {
