@@ -60,7 +60,8 @@ Der Build braucht `VITE_SUPABASE_URL` und `VITE_SUPABASE_PUBLISHABLE_KEY`. Lokal
 
 ## Git, PRs und Deployment
 
-- `main` ist geschützt: Änderungen nur über einen Branch und einen Pull Request, die CI muss grün sein. Nie direkt auf `main` pushen, nie force-pushen.
+- **Vor jeder Änderung einen eigenen Branch vom aktuellen `origin/main` anlegen** (`git fetch origin`, dann `git switch -c <branch> origin/main`). Nie auf `main` committen, auch nicht lokal.
+- `main` ist geschützt: Änderungen kommen nur über einen Pull Request nach `main`, die CI muss grün sein. Nie direkt auf `main` pushen, nie force-pushen.
 - Branch-Namen: `<typ>/tg-<story>-<kurztitel>`, z. B. `fix/tg-17-race-day-advice`. Ohne Story: `<typ>/<kurztitel>`.
 - Commit-Nachrichten im Stil Conventional Commits auf Englisch (`feat:`, `fix:`, `chore:`, `docs:`, `test:`, `ci:`). Gehört der Commit zu einer Taiga-Story, endet er mit `TG-<nr>`, **ohne** `#status`. Den Status pflegen Mensch und Skills selbst, sonst setzt der Taiga-Webhook ihn zu früh.
 - PR-Titel: `<Story-Titel> (TG-<nr>)`. Die Beschreibung auf Deutsch: Worum es geht, Änderungen, Acceptance Criteria als Checkliste, Risiken.
