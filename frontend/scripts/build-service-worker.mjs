@@ -11,7 +11,7 @@ async function collect(directory) {
   return files.flat()
 }
 const paths = (await collect(output)).filter(path => relative(output, path) !== 'sw.js').sort()
-const template = await readFile(new URL('../service-worker.js', import.meta.url), 'utf8')
+const template = await readFile(new URL('../src/sw/service-worker.js', import.meta.url), 'utf8')
 const hash = createHash('sha256').update(template)
 for (const path of paths) { hash.update(relative(output, path)); hash.update(await readFile(path)) }
 const files = paths.map(path => relative(output, path).split('\\').join('/'))
