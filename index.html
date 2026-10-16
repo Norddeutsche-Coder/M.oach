@@ -781,6 +781,7 @@ function detailHtml(R){
   +(R.abc?'<div class="ddn">Lauf-ABC gehört in das Aufwärmen dieser Einheit: kurze Technikübungen, keine Zusatzbelastung.<br>'+ABCB+'</div>':'')
   +(R.notes.length?R.notes.map(n=>'<div class="ddn">'+esc(n)+'</div>').join(''):'')
   +(R.tips.length?R.tips.map(n=>'<div class="ddn">'+esc(n)+'</div>').join(''):'')
+  +'<div class="ddn">Nach dem Lauf: 10 min Mobility (Hüftbeuger, Waden, Gesäß).<br>'+MOBB('post')+'</div>'
   +'<small class="mu">Distanz, Pace und Zeit sind Schätzungen aus deinen aktuellen Plan-Paces. Die Trabpausen laufen etwas langsamer als dein lockeres Tempo.</small></div>'}
 
 /* ---- Verschieben ---- */
@@ -894,7 +895,7 @@ function openM(k){
  const ranH=runs.map(r=>{const diff=p&&p.km?r.km-p.km:null;return'<div class="ddr"><b>Gelaufen</b> '+km1(r.km)+' km'+(r.sec>0&&r.km>0?' · '+fp(r.sec/r.km)+' /km · '+dur(r.sec):'')+(r.hr>0?' · Ø '+Math.round(r.hr)+' bpm':'')+(diff!=null&&Math.abs(diff)>=.3?'<small>'+(diff>0?'+':'−')+km1(Math.abs(diff))+' km gegenüber dem Plan</small>':'')+'</div>'}).join('');
  const opts=[];for(let i=0;i<=21;i++){const x=addD(today,i),xk=iso(x);if(xk==k)continue;if(mvInfo(x).drop){const q=plan(x);opts.push('<option value="'+xk+'">'+DOW[(x.getDay()+6)%7]+' '+dshort(x)+' · '+(q&&q.t!='rest'?esc(q.lab)+(q.km?' '+r1(q.km)+' km':''):'frei')+'</option>')}}
  const mvH=info.drag&&opts.length?'<div class="ddm"><label>Auf anderen Tag verschieben<select id="mvs">'+opts.join('')+'</select></label><button type="button" id="mvg">Verschieben</button><small class="mu">Ist der Zieltag belegt, tauschen beide Einheiten die Plätze.</small></div>':'';
- m.innerHTML=`<div class="box"><h3>${d.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'})}</h3><div class="mu">${ph(wtr(d))} · ${Math.max(0,wtr(d))} Wochen bis zur Rennwoche</div>${p?`<div class="pl t-${p.t}"><b>${esc(p.ttl||p.lab)}${p.km?' · '+r1(p.km)+' km':''}</b><br>${p.d}${p.str?'<br><b>Kraft:</b> '+esc(p.str)+(p.kr?'<br><button type="button" class="krb" data-kr="'+p.kr+'" data-ks="'+p.krs+'">Übungen &amp; Anleitung ›</button>':''):''}</div>`:'<p>Kein Plan für diesen Tag.</p>'}
+ m.innerHTML=`<div class="box"><h3>${d.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'})}</h3><div class="mu">${ph(wtr(d))} · ${Math.max(0,wtr(d))} Wochen bis zur Rennwoche</div>${p?`<div class="pl t-${p.t}"><b>${esc(p.ttl||p.lab)}${p.km?' · '+r1(p.km)+' km':''}</b><br>${p.d}${p.t=='rest'?'<br>'+MOBB('rest'):''}${p.str?'<br><b>Kraft:</b> '+esc(p.str)+(p.kr?'<br><button type="button" class="krb" data-kr="'+p.kr+'" data-ks="'+p.krs+'">Übungen &amp; Anleitung ›</button>':''):''}</div>`:'<p>Kein Plan für diesen Tag.</p>'}
  ${p&&p.mv?'<div class="mvi">↔ Verschoben von '+DOW[(parse(p.mv).getDay()+6)%7]+' '+dshort(p.mv)+'</div>':''}${R?detailHtml(R):''}${ranH}${mvH}
  <div class="f"><label>Distanz (km)<input id="fk" type="number" step="0.1" placeholder="${p&&p.km?r1(p.km):''}" value="${l.km!=null?esc(l.km):''}"></label><label>Dauer (min)<input id="fm" type="number" value="${esc(l.min)}"></label><label>Anstrengung 1–10<input id="fr" type="number" min="1" max="10" value="${esc(l.rpe)}"></label></div>
  <label>Notiz<input id="fn" value="${esc(l.note)}"></label>
@@ -1044,7 +1045,7 @@ function xFig(q,pr,x0){
   +Arm(an,0)
   +'<circle class="xr" cx="'+hc[0].toFixed(1)+'" cy="'+hc[1].toFixed(1)+'" r="6.4"/><circle class="xs" cx="'+fc[0].toFixed(1)+'" cy="'+fc[1].toFixed(1)+'" r="5.6"/></g>'}
 function exSvg(id,big){
- const e=EX[id];
+ const e=EX[id]||MX[id];
  return'<svg class="'+(big?'exb':'exs')+'" viewBox="0 -6 244 96" role="img" aria-label="'+esc(e.n)+': '+esc(e.cap[0])+', dann '+esc(e.cap[1])+'">'
   +xFig(e.p[0],e.pr,0)+xFig(e.p[1],e.pr,124)+'</svg>'}
 const KSET={side:[2,2],plank:[2,2],bird:[2,2]},KSD={A:'Beine & Hüfte',B:'Stabilität & Rumpf'};
@@ -1075,6 +1076,57 @@ function openEx(id){
   +'<div class="exv"><div><b>Zu schwer?</b>'+(z?'<br><button type="button" class="chip" data-ex="'+e.ez+'">'+esc(z.n)+' ›</button>':'<br><span>Weniger Dauer oder Bereich verkleinern, die Haltung bleibt sauber.</span>')+'</div><div><b>Zu leicht?</b><br><span>'+esc(e.hd)+'</span></div></div>'
   +'<div class="b"><button id="krb2" type="button">‹ Zur Einheit</button><button class="pri" id="krx">Schließen</button></div>');
  $('#krb2').onclick=()=>openKr(KRX.s,KRX.n)}
+/* ===== Mobility (Dehn- und Mobilisationsübungen) ===== */
+const MXW='<line class="xw" x1="96" x2="96" y1="4" y2="84"/>';
+const MX={
+ hfl:{n:'Hüftbeuger-Dehnung (kniend)',m:'Hüftbeuger, vorderer Oberschenkel',r:'2 × 45 s je Seite',cap:['Einstieg','Dehnposition'],pr:XG,
+  p:[{P:[54,60],T:0,ln:[78,81],lf:[30,80],fb:0,an:[56,56],af:[56,56],kn:'f',kf:'d',en:'b',ef:'b'},{P:[62,61],T:0,ln:[78,81],lf:[30,80],fb:0,an:[64,56],af:[64,56],kn:'f',kf:'d',en:'b',ef:'b'}],
+  st:['Knie auf eine weiche Unterlage (Handtuch oder Matte) legen, den anderen Fuß flach vor dir aufstellen. Das vordere Knie steht über dem Knöchel.','Oberkörper aufrecht, Hände an den Hüften. Spanne das Gesäß des hinteren Beins an und kippe das Becken leicht nach hinten (Bauchnabel Richtung Brust).','Schiebe das Becken langsam nach vorn, bis du vorne an der Hüfte des hinteren Beins eine deutliche, aber angenehme Dehnung spürst.','Halte 45 Sekunden, atme ruhig weiter und wechsle dann die Seite.'],
+  fe:['Hohlkreuz: Die Rippen bleiben unten, sonst dehnt der Rücken statt der Hüfte.','Das vordere Knie schiebt weit über die Zehen.','Der Oberkörper kippt nach vorn.'],
+  wh:'Beim Laufen streckt sich die Hüfte hinter dem Körper. Verkürzte Hüftbeuger ziehen ins Hohlkreuz und verkürzen die Schrittlänge.'},
+ calfs:{n:'Wadendehnung an der Wand',m:'Waden, Achillessehne',r:'2 × 45 s je Seite',cap:['Einstieg','Dehnposition'],pr:XG+MXW,
+  p:[{P:[60,46],T:14,ln:[72,81],lf:[40,81],fb:0,an:[94,28],af:[94,28],kn:'f',kf:'b',en:'d',ef:'d'},{P:[64,48],T:22,ln:[76,81],lf:[42,81],fb:0,an:[95,32],af:[95,32],kn:'f',kf:'b',en:'d',ef:'d'}],
+  st:['Stelle dich etwa eine Armlänge vor eine Wand und stütze die Hände auf Brusthöhe ab.','Ein Bein geht einen großen Schritt zurück. Die Ferse bleibt am Boden, das Bein ist gestreckt, die Zehen zeigen nach vorn.','Beuge das vordere Knie und schiebe die Hüfte Richtung Wand, bis du die Dehnung in der Wade des hinteren Beins spürst.','Halte 45 Sekunden. Beuge dann das hintere Knie leicht, das dehnt den tiefen Wadenmuskel und die Achillessehne. Wechsle die Seite.'],
+  fe:['Die Ferse hebt ab.','Der Fuß dreht nach außen.','Hohlkreuz, statt den ganzen Körper in einer Linie zu halten.'],
+  wh:'Waden und Achillessehne tragen bei jedem Schritt ein Mehrfaches deines Körpergewichts. Beweglichkeit hier schützt vor Waden- und Achillessehnenbeschwerden.'},
+ glu:{n:'Gesäßdehnung (Rückenlage)',m:'Gesäß, tiefe Hüftmuskeln',r:'2 × 45 s je Seite',cap:['Einstieg','Dehnposition'],pr:XG,
+  p:[{P:[52,78],T:-90,ln:[72,81],lf:[72,81],an:[50,81],af:[50,81],kn:'u',kf:'u',en:'d',ef:'d'},{P:[52,78],T:-90,ln:[44,56],lf:[72,81],an:[40,62],af:[40,62],kn:'u',kf:'u',en:'u',ef:'u'}],
+  st:['Lege dich auf den Rücken und stelle beide Füße auf.','Hebe ein Bein an, umfasse das Knie mit beiden Händen und ziehe es langsam zur gegenüberliegenden Schulter, bis du die Dehnung im Gesäß spürst. Das andere Bein bleibt aufgestellt.','Halte 45 Sekunden. Kopf und Schultern bleiben entspannt am Boden.','Wechsle die Seite. Für mehr Dehnung legst du den Knöchel des gehobenen Beins auf das Knie des aufgestellten Beins und ziehst dieses zur Brust.'],
+  fe:['Das Becken hebt auf einer Seite vom Boden ab.','Zu schnell und mit Kraft ziehen, statt langsam zu steigern.','Nacken und Schultern verspannen.'],
+  wh:'Gesäß und tiefe Hüftmuskeln stabilisieren Becken und Knie bei jedem Schritt. Verspannungen hier hängen oft mit Knie- und Rückenbeschwerden zusammen.'},
+ quad:{n:'Vordere Oberschenkel (stehend)',m:'Oberschenkelvorderseite',r:'2 × 45 s je Seite',cap:['Einstieg','Dehnposition'],pr:XG,
+  p:[{P:[56,42],T:0,ln:[56,81],lf:[50,68],lfa:90,an:[60,36],af:[60,36],kn:'f',kf:'d',en:'f',ef:'f'},{P:[56,44],T:0,ln:[56,81],lf:[44,48],lfa:100,an:[58,46],af:[46,44],kn:'f',kf:'d',en:'f',ef:'b'}],
+  st:['Stelle dich aufrecht hin. Bei Bedarf hältst du dich mit einer Hand an einer Wand oder Stuhllehne fest.','Beuge ein Knie und greife den Fuß oder Knöchel hinter dir.','Ziehe die Ferse zum Gesäß. Die Knie bleiben dicht beieinander, das Becken kippt leicht nach vorn (Gesäß anspannen).','Halte 45 Sekunden und wechsle dann die Seite.'],
+  fe:['Hohlkreuz: Das Gesäß bleibt angespannt, die Rippen unten.','Das Knie driftet nach vorn oder zur Seite.','Das Standbein ist durchgedrückt, es bleibt locker.'],
+  wh:'Der vordere Oberschenkel bremst bei jeder Landung. Besonders bei langen Läufen und Bergab wird er stark beansprucht.'},
+ ham:{n:'Hintere Oberschenkel (Rückenlage)',m:'Hintere Oberschenkel',r:'2 × 45 s je Seite',cap:['Einstieg','Dehnposition'],pr:XG,
+  p:[{P:[52,78],T:-90,ln:[58,39],lf:[93,81],an:[58,60],af:[58,60],kn:'u',kf:'u',en:'u',ef:'u'},{P:[52,78],T:-90,ln:[44,43],lf:[93,81],an:[46,58],af:[46,58],kn:'u',kf:'u',en:'u',ef:'u'}],
+  st:['Lege dich auf den Rücken. Ein Bein liegt gestreckt oder aufgestellt am Boden.','Strecke das andere Bein nach oben und greife mit beiden Händen (oder einem Handtuch um den Fuß) hinter den Oberschenkel.','Ziehe das Bein sanft zu dir, bis du hinten am Oberschenkel eine Dehnung spürst. Das Knie darf leicht gebeugt bleiben.','Halte 45 Sekunden, das Becken bleibt am Boden. Wechsle die Seite.'],
+  fe:['Das Becken kippt mit und hebt vom Boden ab.','Ruckartig ziehen, statt langsam zu steigern.','Die Schultern ziehen zu den Ohren.'],
+  wh:'Die hinteren Oberschenkel bremsen das Bein beim Vorschwung und sind bei Tempoeinheiten besonders beansprucht.'},
+ gbm:Object.assign({},EX.gb,{n:'Glute Bridge',r:'2 × 12',m:'Gesäß, hintere Oberschenkel',
+  st:['Lege dich auf den Rücken, die Füße stehen hüftbreit nah am Gesäß, die Arme liegen neben dem Körper.','Spanne das Gesäß an und hebe die Hüfte, bis Schultern, Hüfte und Knie eine Linie bilden.','Halte oben 1–2 s und senke die Hüfte langsam wieder ab.'],
+  fe:['Hohlkreuz: Die Rippen bleiben unten.','Die Hüfte kippt zur Seite.','Du drückst über die Zehen statt über die Fersen.'],
+  wh:'Die Übung aktiviert das Gesäß. Es streckt beim Laufen die Hüfte und hält das Becken stabil.'})
+};
+const MOBS={post:['hfl','calfs','glu'],rest:['hfl','calfs','quad','ham','gbm']};
+const MOBB=k=>'<button type="button" class="krb" data-mob="'+k+'">Übungen ansehen ›</button>';
+function openMob(k){
+ const L=MOBS[k]||MOBS.post,rest=k=='rest';
+ krModal('<h3>'+(rest?'Mobility am Ruhetag':'Mobility nach dem Lauf')+'</h3><div class="mu">'+L.length+' Übungen · ca. '+(rest?'15':'10')+' min · ohne Geräte, eine Wand und eine Matte genügen</div>'
+  +'<div class="krl">'+L.map(id=>{const e=MX[id];return'<button type="button" class="kri" data-mx="'+id+'" data-mk="'+k+'"><span class="krt"><b>'+esc(e.n)+'</b><small>'+esc(e.r)+'</small><small>'+esc(e.m)+'</small></span><span class="krp">'+exSvg(id,0)+'</span></button>'}).join('')+'</div>'
+  +'<div class="krn"><b>So gehst du vor</b><ul><li>Dehne nach dem Lauf, wenn die Muskeln warm sind. Vor Tempoabschnitten ist Dehnen nicht nötig, dafür gibt es das Lauf-ABC.</li><li>Steigere die Dehnung langsam, bis ein deutliches, aber angenehmes Ziehen entsteht. Schmerz ist das Signal zum Nachlassen.</li><li>Atme ruhig weiter und halte die Position, ohne zu wippen.</li><li>Faszienrolle optional: je Muskelgruppe 1–2 min, langsam rollen, auf Schmerzpunkten kurz verweilen.</li></ul></div>'
+  +'<div class="b"><button class="pri" id="krx">Schließen</button></div>')}
+function openMobEx(id,k){
+ const e=MX[id];if(!e)return;
+ krModal('<h3>'+esc(e.n)+'</h3><div class="mu">'+esc(e.m)+' · '+esc(e.r)+'</div>'
+  +'<div class="exw">'+exSvg(id,1)+'<div class="exc"><span>'+esc(e.cap[0])+'</span><span>'+esc(e.cap[1])+'</span></div></div>'
+  +'<h4>Ausführung</h4><ol class="exo">'+e.st.map(t=>'<li>'+esc(t)+'</li>').join('')+'</ol>'
+  +'<h4>Häufige Fehler</h4><ul class="exo">'+e.fe.map(t=>'<li>'+esc(t)+'</li>').join('')+'</ul>'
+  +'<h4>Warum für Läufer</h4><p class="exo">'+esc(e.wh)+'</p>'
+  +'<div class="b"><button id="mxb" type="button">‹ Zur Übersicht</button><button class="pri" id="krx">Schließen</button></div>');
+ $('#mxb').onclick=()=>openMob(k||'post')}
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-mob],[data-mx]');if(!t)return;e.preventDefault();e.stopPropagation();if(t.dataset.mx)openMobEx(t.dataset.mx,t.dataset.mk);else openMob(t.dataset.mob)},true);
 /* ===== Lauf-ABC (Technikübungen im Aufwärmen) ===== */
 const ABC=[
  {n:'Fußgelenksarbeit',r:'2 × 20 m',s:'Kleine, schnelle Schritte allein aus dem Fußgelenk. Die Fußspitze zieht nach oben, die Ferse bleibt knapp über dem Boden, die Knie sind fast gestreckt.',f:'Kurzer, elastischer Bodenkontakt'},
@@ -2145,14 +2197,14 @@ function zustandCard(R,p,course,chips,ck){
   +(p?'<div class="ln" style="color:var(--mu);margin-top:8px">'+AD.msg+course+inf('adapt')+'</div>':'')
   +'<div class="b"><button class="rngb" id="zall">Alle Trends im Detail ›</button></div></div>'}
 
-const REG=p=>['Regeneration','<b>10 min Mobility</b> nach dem Lauf: Hüftbeuger, Waden und Gesäß je 2 × 45 s'+(p.t=='long'||p.t=='race'?', danach Beine 10 min hochlegen':p.t=='q'?', danach Faszienrolle für Waden und Oberschenkel':'')+'.'];
+const REG=p=>['Regeneration','<b>10 min Mobility</b> nach dem Lauf: Hüftbeuger, Waden und Gesäß je 2 × 45 s'+(p.t=='long'||p.t=='race'?', danach Beine 10 min hochlegen':p.t=='q'?', danach Faszienrolle für Waden und Oberschenkel':'')+'.<br>'+MOBB('post')];
 function trainBlock(p,adj,z){
  const e=fp(z.e1)+'–'+fp(z.e2)+' /km',ep=(z.e1+z.e2)/2,k=adj.km,min=Math.round(k*ep/60),rows=[],tips=[];
  const kind=(adj.mode=='swap'&&p.t=='q')?'easy':p.t;
  const kraft=krRow(p);
  if(p.t=='rest'||adj.mode=='rest'){
   rows.push(['Bewegung','20–30 min Spaziergang oder lockeres Radeln (RPE ≤ 3), nur wenn es sich gut anfühlt']);
-  rows.push(['Regeneration','<b>15 min Mobility:</b> Hüftbeuger 2 × 45 s je Seite, Waden an der Wand, Glute Bridge 2 × 12, danach Faszienrolle für Waden und Oberschenkel']);
+  rows.push(['Regeneration','<b>15 min Mobility:</b> Hüftbeuger, Waden sowie vordere und hintere Oberschenkel je 2 × 45 s je Seite, Glute Bridge 2 × 12, danach Faszienrolle für Waden und Oberschenkel<br>'+MOBB('rest')]);
   tips.push('Kein Training mit Pulsanstieg: Die Anpassung passiert in der Ruhe.');
   return{meta:'Ruhetag',rows,tips}}
  if(adj.mode=='move'){
