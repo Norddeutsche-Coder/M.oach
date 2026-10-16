@@ -43,7 +43,7 @@ Der Build braucht `VITE_SUPABASE_URL` und `VITE_SUPABASE_PUBLISHABLE_KEY`. Lokal
 
 1. **Repository ist öffentlich.** Keine Zugangsdaten, Tokens, Service-Role- oder Secret-Keys in Code, Commits, Tests, PRs oder Doku. In `VITE_*`-Variablen gehören nur öffentliche Werte, denn sie landen im ausgelieferten JavaScript.
 2. **localStorage-Schlüssel nie umbenennen oder entfernen** ohne Migration bestehender Daten (`moach_*`, `mplan2_*`). Die Daten der Nutzer liegen dort.
-3. **Live-URL und Service-Worker-Pfad bleiben unverändert:** `https://norddeutsche-coder.github.io/M.oach/` und `sw.js` im Wurzelverzeichnis des Builds. Sonst verlieren Nutzer ihre lokalen Daten bzw. den Offline-Betrieb.
+3. **Live-URL und Service-Worker-Pfad bleiben unverändert:** `https://norddeutsche-coder.github.io/m.oach/` und `sw.js` im Wurzelverzeichnis des Builds. Der Pfad der URL ist der Repository-Name (Groß- und Kleinschreibung zählt). Das Repository deshalb nicht umbenennen: GitHub leitet die alte Pages-Adresse nicht weiter, Lesezeichen und zum Home-Bildschirm hinzugefügte Apps landen dann auf einer 404-Seite. Ändert sich die Domain, verlieren Nutzer zusätzlich ihre lokal gespeicherten Daten.
 4. **`frontend/legacy-app/` nie ändern.** **`src/legacy/app.js` nur gezielt ändern.** Statt Logik dort zu reparieren, die betroffene Funktion bevorzugt nach TypeScript (`src/features/…` oder `src/lib/…`) übertragen und mit Unit-Tests absichern.
 5. **Datumslogik mit lokalen Kalendertagen:** `iso`, `parse`, `addD` und `mon` aus `src/lib/format.ts` verwenden, nie `toISOString()` oder UTC-Arithmetik für Trainingstage. Unit-Tests mit festem Datum (`vi.setSystemTime`) und zeitzonenunabhängig.
 6. **Kein `innerHTML` mit Nutzerdaten ohne Escaping.** In React normal rendern. Im Legacy-Modul `esc()` verwenden.
@@ -86,6 +86,7 @@ Der Workflow `.github/workflows/secret-scan.yml` prüft jeden PR mit gitleaks un
   - `<kurztitel>` englisch, kleingeschrieben, mit Bindestrichen, höchstens 5 Wörter.
 - `main` ist geschützt: Änderungen kommen nur über einen Pull Request nach `main`, die CI muss grün sein. Nie direkt auf `main` pushen, nie force-pushen.
 - Commit-Nachrichten im Stil Conventional Commits auf Englisch (`feat:`, `fix:`, `chore:`, `docs:`, `test:`, `ci:`). Gehört der Commit zu einer Taiga-Story, endet er mit `TG-<nr>`, **ohne** `#status`. Den Status pflegen Mensch und Skills selbst, sonst setzt der Taiga-Webhook ihn zu früh.
+- **Keine KI-Co-Autoren:** Commits enthalten keine Zeile `Co-Authored-By:` für KI-Agenten (z. B. `Co-Authored-By: Claude … <noreply@anthropic.com>`). Sie würden den Agenten auf GitHub als Contributor anzeigen. Beim Squash-Merge solche Zeilen aus der vorgeschlagenen Commit-Nachricht löschen.
 - PR-Titel: `<Story-Titel> (TG-<nr>)`. Die Beschreibung auf Deutsch: Worum es geht, Änderungen, Acceptance Criteria als Checkliste, Risiken.
 - Merge per Squash. Ein Push auf `main` startet automatisch das Deployment auf GitHub Pages.
 

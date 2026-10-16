@@ -3,7 +3,7 @@
 # Zeigt keine Zugangsdaten an. Ändert nichts.
 set -u
 
-REPO="Norddeutsche-Coder/M.oach"
+REPO="Norddeutsche-Coder/m.oach"
 TAIGA_PROJECT="fynndow-moach"
 fails=0
 ok()   { printf '  \033[32m✓\033[0m %s\n' "$1"; }
@@ -79,7 +79,7 @@ if s == 200: print(f"OK Token gültig (angemeldet als {me['login']})")
 elif s == 0: print("FAIL GitHub nicht erreichbar|Internetverbindung prüfen")
 else: print(f"FAIL Token ungültig oder abgelaufen (HTTP {s})|Neuen Token anlegen (docs/agent-setup.md, Abschnitt 2)")
 if s == 200:
-    for path, label, hint in [(f"/repos/{repo}", "Repository", "Token auf das Repository M.oach beschränken, Resource owner Norddeutsche-Coder, ggf. Freigabe durch Admin"),
+    for path, label, hint in [(f"/repos/{repo}", "Repository", "Token auf das Repository m.oach beschränken, Resource owner Norddeutsche-Coder, ggf. Freigabe durch Admin"),
                               (f"/repos/{repo}/pulls?per_page=1", "Pull Requests", "Recht Pull requests: Read and write"),
                               (f"/repos/{repo}/actions/runs?per_page=1", "Actions", "Recht Actions: Read-only")]:
         c, _ = get(path)
