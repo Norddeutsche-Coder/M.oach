@@ -837,7 +837,7 @@ function monthHtml(){
   for(let i=0;i<7;i++){const d=addD(ws,i),p=plan(d),l=S.log[iso(d)],dn=l&&l.done;if(p)pl+=p.km;if(dn)ac+=+l.km||0;
    c+=`<div class="c ${p?'t-'+p.t:''} ${dn?'dn':''} ${d.getMonth()!=M.getMonth()?'out':''} ${+d==+today?'tod':''}" data-d="${iso(d)}"${mvAttr(d)}><span class="n">${d.getDate()}</span>${p?`<span class="l">${p.mv?'↔ ':''}${p.lab}</span><span class="k">${p.km?r1(p.km)+' km':''}</span>`:''}${dn?`<span class="ck">✓ ${esc(l.km)}</span>`:''}</div>`}
   h+=c+(pl>0||ac>0?`<div class="sm" data-w="${iso(ws)}"><b>${Math.round(pl)}</b><span class="u">km</span>${pl>0?`<span class="pb"><i style="width:${Math.min(100,ac/pl*100)}%"></i></span>`:''}<small>${ac?Math.round(ac)+' ✓':''}</small></div>`:`<div class="sm" data-w="${iso(ws)}"><b>–</b></div>`)}
- return h+`</div><div class="leg"><span><i style="background:var(--easy)"></i>Locker</span><span><i style="background:var(--q)"></i>Qualität</span><span><i style="background:var(--long)"></i>Longrun</span><span><i style="background:var(--race)"></i>Wettkampf</span><span>Tippe auf einen Tag für Details, auf die Wochensumme zum Anpassen. Zum Verschieben eine Einheit gedrückt halten und auf einen anderen Tag ziehen.</span></div>`}
+ return h+`</div><div class="leg"><span><i style="background:var(--easy)"></i>Locker</span><span><i style="background:var(--q)"></i>Qualität</span><span><i style="background:var(--long)"></i>Longrun</span><span><i style="background:var(--race)"></i>Wettkampf</span><span>Tippe auf einen Tag für Details (gelaufene Tage öffnen den Lauf im Reiter Läufe), auf die Wochensumme zum Anpassen. Zum Verschieben eine Einheit gedrückt halten und auf einen anderen Tag ziehen.</span></div>`}
 function weekHtml(){
  const ws=WS,we=addD(ws,6);let pl=0,ac=0,rows='';
  for(let i=0;i<7;i++){const d=addD(ws,i),k=iso(d),p=plan(d),runs=allRuns().filter(r=>r.d==k),ran=runs.reduce((a,r)=>a+(+r.km||0),0),l=S.log[k],dn=ran>0||(l&&l.done);
@@ -849,7 +849,7 @@ function weekHtml(){
   rows+='<div class="wi k-'+t+(rest?' rest':'')+(+d==+today?' tod':'')+(dn?' dn':'')+(pst?' pst':'')+'" data-d="'+k+'"'+mvAttr(d)+'><div class="wd"><b>'+DOW[i]+'</b><span>'+d.getDate()+'.</span></div><div class="wb"><div class="wl">'+(p&&p.mv?'<span class="mvb" title="verschoben">↔</span>':'')+esc(title)+'</div>'+(sub?'<div class="ws">'+esc(sub)+'</div>':'')+meta+'</div>'+(R?profSvg(R,1):'')+(mvInfo(d).drag?'<span class="wg" aria-hidden="true">⋮⋮</span>':'')+'</div>'}
  const w=wtr(ws),cur=iso(mon(today))==iso(ws);
  return'<div class="wvs"><div><b>'+Math.round(pl)+' km</b><span>geplant'+(ac?' · '+Math.round(ac)+' km gelaufen':'')+'</span></div><div class="wvp">'+(S.noPlan?'Ohne Plan':esc(ph(w)))+'</div><button type="button" class="rngb" data-w="'+iso(ws)+'" id="wad">Woche anpassen ›</button></div>'
-  +'<div class="wv">'+rows+'</div><div class="leg"><span>Tippe auf eine Einheit für Details und Diagramm. Zum Verschieben gedrückt halten und auf einen anderen Tag ziehen (am Computer einfach ziehen).</span></div>'}
+  +'<div class="wv">'+rows+'</div><div class="leg"><span>Tippe auf eine Einheit für Details und Diagramm (gelaufene Tage öffnen den Lauf im Reiter Läufe). Zum Verschieben gedrückt halten und auf einen anderen Tag ziehen (am Computer einfach ziehen).</span></div>'}
 function rCal(){
  const we=addD(WS,6),mvN=Object.keys(S.mv||{}).filter(k=>k>=iso(today)).length;
  const title=CV=='m'?M.toLocaleDateString('de-DE',{month:'long',year:'numeric'}):(WS.getMonth()==we.getMonth()?WS.getDate()+'.–'+we.getDate()+'. '+WS.toLocaleDateString('de-DE',{month:'long',year:'numeric'}):WS.getDate()+'. '+MON3[WS.getMonth()]+' – '+we.getDate()+'. '+MON3[we.getMonth()]+' '+we.getFullYear());
@@ -861,7 +861,7 @@ function rCal(){
  $('#cal').querySelectorAll('[data-calv]').forEach(b=>b.onclick=()=>{const v=b.dataset.calv;if(v==CV)return;
   if(v=='m')M=new Date(addD(WS,3).getFullYear(),addD(WS,3).getMonth(),1);else{const t=new Date(today.getFullYear(),today.getMonth(),1);WS=+M==+t?mon(today):mon(M)}
   CV=v;LS.set('moach_cv',v);rCal()});
- $('#cal').querySelectorAll('.c[data-d],.wi[data-d]').forEach(e=>e.onclick=()=>openM(e.dataset.d));
+ $('#cal').querySelectorAll('.c[data-d],.wi[data-d]').forEach(e=>e.onclick=()=>openDay(e.dataset.d));
  $('#cal').querySelectorAll('.sm[data-w],#wad').forEach(e=>e.onclick=()=>openWeek(parse(e.dataset.w)));
  const mr=$('#mvr');if(mr)mr.onclick=()=>{const snap=JSON.stringify(S.mv||null);Object.keys(S.mv||{}).forEach(k=>{if(k>=iso(today))delete S.mv[k]});if(S.mv&&!Object.keys(S.mv).length)S.mv=null;save();render();toast('Verschiebungen zurückgesetzt.',()=>{S.mv=JSON.parse(snap);save();render()})};
  const ovz=(ph,w,sc)=>{OZ={ph:ph||null,w:w||null,fresh:true,open:OZ.open};rCal();if(sc!==false){const c=document.querySelector('#cal .ovc');if(c&&c.scrollIntoView)try{c.scrollIntoView({block:'start',behavior:'smooth'})}catch(e){}}};
@@ -875,6 +875,9 @@ function rCal(){
   oc.querySelectorAll('[data-wadz]').forEach(b=>b.onclick=()=>openWeek(parse(b.dataset.w)))}
  const ov=$('#ovr');if(ov)ov.onclick=openRange;
  const aw=$('#allw');if(aw)aw.ontoggle=()=>{if(aw.open){const c=aw.querySelector('tr.cur'),bx=aw.querySelector('.ovw');if(c&&bx)bx.scrollTop=Math.max(0,c.offsetTop-bx.offsetTop-60)}}}
+function openDay(k){
+ const rs=k<=iso(today)?allRuns().filter(r=>r.d==k):[];
+ if(rs.length){const r=rs.slice().sort((a,b)=>(+b.km||0)-(+a.km||0))[0],m=$('#md');if(m)m.hidden=true;showTab('runs');openRun(r.id)}else openM(k)}
 function openM(k){
  const d=parse(k),p=plan(d),l=S.log[k]||{},m=$('#md'),R=wkSegs(p,d),info=mvInfo(d);m.hidden=false;
  const runs=allRuns().filter(r=>r.d==k&&!r.manual);
@@ -1703,7 +1706,7 @@ function rvHtml(r,d,state){
  else if(state=='ok')h+='<div class="card"><div class="mu">Für diesen Lauf liefert Intervals.icu keinen Verlauf.</div></div>';
  h+='<div class="card"><h3 class="rvs">Analyse</h3><div class="an a-g"><b>Das lief gut</b><ul>'+(a.good||[]).map(x=>'<li>'+x+'</li>').join('')+'</ul></div>'
   +((a.bad||[]).length?'<div class="an a-y"><b>Weniger gut</b><ul>'+a.bad.map(x=>'<li>'+x.t+'</li>').join('')+'</ul></div>':'<div class="an a-n"><b>Weniger gut</b>Nichts Auffälliges in den Daten.</div>')
-  +((a.nxt||[]).length?'<div class="an nx"><b>Nächstes Mal</b><ul>'+a.nxt.map(x=>'<li>'+x+'</li>').join('')+'</ul></div>':'')+'<div class="b"><button type="button" id="rve" data-d="'+r.d+'">Eintrag bearbeiten</button></div></div>';
+  +((a.nxt||[]).length?'<div class="an nx"><b>Nächstes Mal</b><ul>'+a.nxt.map(x=>'<li>'+x+'</li>').join('')+'</ul></div>':'')+''+(r.manual||String(r.id).startsWith('m')?'<div class="b"><button type="button" id="rve" data-d="'+r.d+'">Eintrag bearbeiten</button></div>':'')+'</div>';
  return h+'<div class="rvf">Quelle: Intervals.icu. Werte, die dein Gerät nicht aufzeichnet, erscheinen als –.</div></div>'}
 function rvPaint(state){
  const v=$('#rv'),keep=v.scrollTop;v.innerHTML=rvHtml(RVR,RVD,state);v.scrollTop=keep;
@@ -2224,7 +2227,7 @@ function rToday(){
   el.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>openChart(b.dataset.ch));
   el.querySelectorAll('.goicu').forEach(b=>b.onclick=()=>showTab('set'));
   el.querySelectorAll('.gocal').forEach(b=>b.onclick=()=>showTab('cal'));
-  el.querySelectorAll('.wr').forEach(b=>b.onclick=()=>openM(b.dataset.d));wireBrief(el);wireInbox(el);wireNew(el);nrunChart();hmInit();const za=el.querySelector('#zall');if(za)za.onclick=()=>showTab('perf');};
+  el.querySelectorAll('.wr').forEach(b=>b.onclick=()=>openDay(b.dataset.d));wireBrief(el);wireInbox(el);wireNew(el);nrunChart();hmInit();const za=el.querySelector('#zall');if(za)za.onclick=()=>showTab('perf');};
  const R=readiness(),adj=p?adjust(p,R):{mode:'plan',km:0,title:null,note:''},nx=plan(addD(today,1));
  const kp=kpis(w,ws,pl,ac,days,!!p);
  const rest=!p||(p.t=='rest'||adj.mode=='rest'||adj.mode=='move');
@@ -2664,12 +2667,12 @@ function openWeek(ws){
     +'<small id="fw">'+(taper?'In den letzten Wochen vor dem Rennen ist nur Kürzen sinnvoll.':racew?'Rennwoche: Mehr ist nicht sinnvoll.':'Longrun und Qualitätseinheiten werden anteilig mitgekürzt.')+'</small></div>'
     +'<div class="b"><button class="pri" id="wsv">Übernehmen</button><button id="wsr">Zurücksetzen</button><button id="wsc">Schließen</button></div>'
     :'<small class="chint">'+(past?'Vergangene Wochen lassen sich nicht mehr ändern.':'Für diese Woche gibt es keinen Plan.')+'</small><div class="b"><button id="wsc">Schließen</button></div>')+'</div>';
-  m.querySelectorAll('.wr').forEach(e=>e.onclick=()=>openM(e.dataset.dd));
+  m.querySelectorAll('.wr').forEach(e=>e.onclick=()=>openDay(e.dataset.dd));
   $('#wsc').onclick=()=>{m.hidden=true};
   const rg=$('#fr2');
   if(rg){
    const upd=()=>{f=+rg.value/100;const b2=body();$('#fv').textContent=Math.round(f*100)+' %';$('#fk').textContent=Math.round(b2.cur.pl)+' km';$('#wkd').innerHTML=b2.html;m.querySelector('.tiles').outerHTML=b2.tiles;
-    $('#wkd').querySelectorAll('.wr').forEach(e=>e.onclick=()=>openM(e.dataset.dd));
+    $('#wkd').querySelectorAll('.wr').forEach(e=>e.onclick=()=>openDay(e.dataset.dd));
     const w2=$('#fw');if(f<=.5)w2.textContent='Stark gekürzt: Das Training bleibt trotzdem sinnvoll. In der nächsten Woche wieder in den Plan einsteigen, nicht nachholen.'};
    rg.oninput=upd;
    m.querySelectorAll('[data-f]').forEach(bt=>bt.onclick=()=>{rg.value=Math.min(fmax,+bt.dataset.f)*100;upd()});
