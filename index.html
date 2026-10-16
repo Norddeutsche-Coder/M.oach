@@ -331,6 +331,10 @@ nav.dock.six button svg{width:22px}nav.dock.six button.on svg{width:40px}
 .zv b{font-size:1.45rem;line-height:1.1}.zv span{font-size:.72rem;color:var(--mu);margin-left:3px}
 .zt .sp{color:var(--zc);width:58px;height:24px;flex:none}
 .zt .za{font-size:.76rem;font-weight:700;color:var(--zc)}.zt small{display:block;font-size:.68rem;color:var(--mu);margin-top:2px;line-height:1.25}
+#fxb .zgrid{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:10px 0 2px}#fxb .zgrid>:last-child:nth-child(odd){grid-column:auto}
+#fxb .zt{padding:8px 5px 6px;border-radius:12px;text-align:center}#fxb .zt .zl{font-size:.56rem;letter-spacing:0;white-space:normal;line-height:1.2;min-height:2.4em;display:flex;align-items:flex-start;justify-content:center}#fxb .zt .zl .inf,#fxb .zt .zl button,#fxb .zt .zl i{display:none}
+#fxb .zt .zm{flex-direction:column;align-items:center;gap:2px;margin-top:4px}#fxb .zt .zv b{font-size:1.2rem}#fxb .zt .zv span{display:block;margin:0;font-size:.62rem}#fxb .zt .sp{width:100%;max-width:64px;height:22px}
+#fxb .zt .za{font-size:.62rem;margin-top:3px}#fxb .zt>small{display:none}#fxb .zt .zfx{font-size:.58rem;margin-top:4px}
 .ci2{margin-top:12px;border-top:1px solid var(--bd);padding-top:8px}
 .ci2>summary{display:flex;flex-direction:column;gap:1px;padding-right:18px;position:relative}
 .ci2>summary::after{position:absolute;right:0;top:4px;float:none}
@@ -2160,8 +2164,7 @@ RDR={R,col,head,sub,sc};
   +'<div class="bcall" style="--bc:'+col+'">'+vd+'</div>'
   +'<button type="button" class="fxh" id="fxh" aria-expanded="'+open+'" aria-controls="fxb"><b class="bfh">Faktoren</b><span class="zs '+sc2+'">'+sum+'</span><span class="fxc'+(open?' on':'')+'" aria-hidden="true">⌄</span></button>'
   +'<div class="fxb" id="fxb"'+(open?'':' hidden')+'>'
-  +(sel.length?'<div class="zgrid">'+tiles+'</div>':'<div class="mu" style="margin:6px 0">Noch keine Trenddaten.</div>')+conn
-  +'<div class="b"><button class="rngb" id="zall">Alle Trends im Detail ›</button></div></div>'
+  +(sel.length?'<div class="zgrid">'+tiles+'</div>':'<div class="mu" style="margin:6px 0">Noch keine Trenddaten.</div>')+conn+'</div>'
   +an
   +(p?'<div class="ln" style="color:var(--mu);margin-top:8px">'+AD.msg+course+inf('adapt')+'</div>':'')
   +'</div></div>'}
@@ -3456,7 +3459,7 @@ function render(){
  $('#cd').innerHTML=S.noPlan?'Kein Plan aktiv':CF().mode=='maintain'?(days>=0?'Plan noch <b>'+days+'</b> Tage':'Plan beendet'):(days>=0?'Rennen in <b>'+days+'</b> Tagen':'Rennen vorbei');
  rToday();rCal();rRuns();rPerf();rRace();rSet();rCoach();badges();
  window.scrollTo(0,y)}
-function showTab(t){document.querySelectorAll('nav.dock button').forEach(x=>x.classList.toggle('on',x.dataset.t==t));['today','cal','runs','perf','race','set','coach'].forEach(id=>{const e=$('#'+id);if(e)e.hidden=id!=t});document.querySelectorAll('nav.dock button').forEach(x=>{if(x.dataset.t==t)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});window.scrollTo(0,0);const pf=$('#pf');if(pf)pf.classList.toggle('on',t=='set')}
+function showTab(t){document.querySelectorAll('nav.dock button').forEach(x=>x.classList.toggle('on',x.dataset.t==t));['today','cal','runs','perf','race','set','coach'].forEach(id=>{const e=$('#'+id);if(e)e.hidden=id!=t});document.querySelectorAll('nav.dock button').forEach(x=>{if(x.dataset.t==t)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});window.scrollTo(0,0);const pf=$('#pf');if(pf)pf.classList.toggle('on',t=='set');LS.set('moach_tab_'+UID,t)}
 function navCoach(){const nv=document.querySelector('nav.dock'),ex=nv.querySelector('[data-t="coach"]');
  if(canCoach()&&!ex){const b=document.createElement('button');b.dataset.t='coach';b.innerHTML='<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5M17 5.5a3 3 0 0 1 0 5.8M18.5 14.8c1.8.7 3 2.4 3.4 5.2"/></svg><span>Coaching</span>';nv.appendChild(b)}
  if(!canCoach()&&ex)ex.remove();
@@ -3464,6 +3467,7 @@ function navCoach(){const nv=document.querySelector('nav.dock'),ex=nv.querySelec
  nv.querySelectorAll('button').forEach(b=>b.onclick=()=>{try{navigator.vibrate&&navigator.vibrate(8)}catch(e){}showTab(b.dataset.t)})}
 navCoach();
 render();
+{const t0=LS.get('moach_tab_'+UID);if(t0&&t0!='today'&&['cal','runs','perf','race','set'].concat(canCoach()?['coach']:[]).includes(t0))showTab(t0)}
 
 const ICU_WEEKS=26;
 let icuBusy=false,icuLast=0;
