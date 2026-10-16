@@ -1,0 +1,7 @@
+dist/
+legacy-app/
+src/legacy/
+node_modules/
+playwright-report/
+test-results/
+package-lock.json
