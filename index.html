@@ -470,7 +470,7 @@ body.rvo{overflow:hidden}
 .rvmc{padding:0;overflow:hidden}
 .rvm{position:relative;height:280px;background:var(--bg);overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
 .rvm0{display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center;height:110px;color:var(--mu);font-size:.88rem;text-align:center;padding:10px;cursor:default;touch-action:auto}
-.mmt{position:absolute;inset:0;overflow:hidden}.mmi{position:absolute;left:0;top:0;max-width:none;user-select:none;pointer-events:none;will-change:transform}
+.mmt{position:absolute;inset:0;overflow:hidden}.mmd .mmt{filter:invert(1) hue-rotate(180deg) brightness(.9) contrast(.88) saturate(.7)}.mmi{position:absolute;left:0;top:0;max-width:none;user-select:none;pointer-events:none;will-change:transform}
 .mmo{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .mml{fill:none;stroke:#2563eb;stroke-width:4;stroke-linejoin:round;stroke-linecap:round;paint-order:stroke}
 .mms{fill:#16a34a;stroke:#fff;stroke-width:2.5}.mme{fill:#ef4444;stroke:#fff;stroke-width:2.5}.mmk{fill:#f59e0b;stroke:#fff;stroke-width:3}
@@ -1498,12 +1498,12 @@ const mmP=(la,ln,z)=>{const s=256*Math.pow(2,z),sn=Math.sin(la*Math.PI/180);retu
 const mmU=(x,y,z)=>{const s=256*Math.pow(2,z);return[Math.atan(Math.sinh(Math.PI*(1-2*y/s)))*180/Math.PI,x/s*360-180]};
 const isDarkUI=()=>{const t=document.documentElement.getAttribute('data-theme');return t=='dark'||(t!='light'&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)};
 function miniMap(el,pts){
- const st={z:12,la:0,ln:0,W:0,H:0},tl=new Map(),dark=isDarkUI(),sty=dark?'dark_all':'rastertiles/voyager',pp=new Map();
- el.innerHTML='<div class="mmt"></div><svg class="mmo" aria-hidden="true"><path class="mml"/><circle class="mms" r="5.5"/><circle class="mme" r="5.5"/><circle class="mmk" r="6.5" hidden/></svg><div class="mmz"><button type="button" data-z="1" aria-label="Vergrößern">+</button><button type="button" data-z="-1" aria-label="Verkleinern">−</button><button type="button" data-z="0" aria-label="Route zentrieren">⌖</button></div><div class="mma">© OpenStreetMap · © CARTO</div>';
+ const st={z:12,la:0,ln:0,W:0,H:0},tl=new Map(),dark=isDarkUI();el.classList.toggle('mmd',dark);
+ el.innerHTML='<div class="mmt"></div><svg class="mmo" aria-hidden="true"><path class="mml"/><circle class="mms" r="5.5"/><circle class="mme" r="5.5"/><circle class="mmk" r="6.5" hidden/></svg><div class="mmz"><button type="button" data-z="1" aria-label="Vergrößern">+</button><button type="button" data-z="-1" aria-label="Verkleinern">−</button><button type="button" data-z="0" aria-label="Route zentrieren">⌖</button></div><div class="mma">© OpenStreetMap-Mitwirkende</div>';
  const T=el.querySelector('.mmt'),O=el.querySelector('.mmo'),L=O.querySelector('.mml'),S0=O.querySelector('.mms'),E0=O.querySelector('.mme'),MK=O.querySelector('.mmk');
  let mk=null;
  const meas=()=>{st.W=el.clientWidth;st.H=el.clientHeight;O.setAttribute('viewBox','0 0 '+st.W+' '+st.H)};
- const tileUrl=(z,x,y)=>'https://'+'abcd'[(x+y)%4]+'.basemaps.cartocdn.com/'+sty+'/'+z+'/'+x+'/'+y+((window.devicePixelRatio||1)>1.4?'@2x':'')+'.png';
+ const tileUrl=(z,x,y)=>'https://tile.openstreetmap.org/'+z+'/'+x+'/'+y+'.png';
  function render(){
   if(!st.W)return;
   const zt=Math.max(0,Math.min(19,Math.round(st.z))),sc=Math.pow(2,st.z-zt),[cx,cy]=mmP(st.la,st.ln,zt),n=Math.pow(2,zt);
