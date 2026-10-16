@@ -79,6 +79,7 @@ Projekt `fynndow-moach` auf tree.taiga.io, Scrum mit Sprints à 2 Wochen. 1 Stor
 - Story-Status: New → In progress → In Review (PR offen) → Done (gemergt, live geprüft).
 - Die **Definition of Done** steht im Taiga-Wiki (Seite `definition-of-done`).
 - Zugriff für Agenten über den MCP-Server in `.mcp.json` (Zugangsdaten aus der Umgebung: `TAIGA_USERNAME`, `TAIGA_PASSWORD`).
+- **Einrichtung von GitHub und Taiga für Agenten:** [docs/agent-setup.md](docs/agent-setup.md). Prüfen mit `./scripts/check-agent-setup.sh`. Schlägt ein Zugriff auf GitHub oder Taiga fehl, zuerst dieses Skript laufen lassen.
 
 ## Wenn etwas unklar ist
 
