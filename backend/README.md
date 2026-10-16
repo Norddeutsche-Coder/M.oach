@@ -1,17 +1,6 @@
 # Backend – Supabase
 
-Dieser Ordner enthält künftig das versionierte Supabase-Backend:
-
-```text
-backend/
-  supabase/
-    config.toml    # lokale Supabase-Konfiguration
-    migrations/    # SQL-Schema und Row Level Security
-    functions/     # Edge Functions
-    seed.sql       # ausschließlich lokale Testdaten
-```
-
-Die Supabase-CLI wird aus `backend/` ausgeführt. Die gezeigten Dateien werden erst beim Einrichten des lokalen Backends angelegt.
+Dieser Ordner enthält künftig das versionierte Supabase-Backend. Beim Einrichten des lokalen Backends kommen die lokale Supabase-Konfiguration, SQL-Migrationen mit Row Level Security, Edge Functions und ausschließlich lokale Testdaten hinzu. Die Supabase-CLI wird dann aus `backend/` ausgeführt.
 
 Zuerst müssen Schema, Auth-Konfiguration, RLS-Regeln und Edge Functions des bestehenden Projekts erfasst werden. Die bisherige App unter `frontend/legacy-app/` enthält bereits Supabase-Zugriffe, aber das Repository enthält bisher keine Backend-Implementierung. Aus Client-Code allein lässt sich das bestehende Schema nicht zuverlässig rekonstruieren.
 
