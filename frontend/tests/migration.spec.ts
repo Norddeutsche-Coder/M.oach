@@ -1,6 +1,16 @@
 import { test, expect, type Page } from '@playwright/test'
 
+async function seedSupabaseConfig(page: Page) {
+  await page.addInitScript(() => {
+    localStorage.setItem('moach_sb', JSON.stringify({
+      url: 'https://test-project.supabase.co',
+      key: 'sb_publishable_test_only_000000000000',
+    }))
+  })
+}
+
 async function seedLocalAccount(page: Page) {
+  await seedSupabaseConfig(page)
   await page.addInitScript(() => {
     if (localStorage.getItem('migration-seeded')) return
     localStorage.setItem('moach_users', JSON.stringify([{ id: 'migration-test', name: 'Testläufer' }]))
@@ -20,7 +30,14 @@ test.beforeEach(async ({ context, page }) => {
   page.on('pageerror', error => { throw error })
 })
 
-test('login, validation and registration render', async ({ page }) => {
+test('missing Supabase configuration shows setup guidance', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.getByRole('alert')).toContainText('Supabase-Konfiguration fehlt')
+  await expect(page.getByRole('alert')).toContainText('.env.example')
+})
+
+test('stored moach_sb configuration starts login, validation and registration', async ({ page }) => {
+  await seedSupabaseConfig(page)
   await page.goto('/')
   await expect(page.getByText('Willkommen zurück')).toBeVisible()
   await page.locator('#aug').click()

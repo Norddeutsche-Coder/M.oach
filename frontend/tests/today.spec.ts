@@ -6,6 +6,10 @@ async function seed(page: Page, overrides: Record<string, unknown> = {}, date = 
   await page.addInitScript(({ state }) => {
     if (localStorage.getItem('today-test-seeded')) return
     localStorage.setItem('today-test-seeded', '1')
+    localStorage.setItem('moach_sb', JSON.stringify({
+      url: 'https://test-project.supabase.co',
+      key: 'sb_publishable_test_only_000000000000',
+    }))
     localStorage.setItem('moach_users', JSON.stringify([{ id: 'test', name: 'Testläufer' }, { id: 'coach', name: 'Coach Test' }]))
     localStorage.setItem('moach_cur', 'test')
     localStorage.setItem('mplan2_test', JSON.stringify(state))

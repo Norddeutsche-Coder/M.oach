@@ -28,7 +28,7 @@ Für die Installation wird npm 11 verwendet. Die Browserprüfungen starten den P
 - `src/legacy/app.js`: Übergangsmodul mit bestehender Fachlogik, API-Zugriffen und DOM-Rendering für die übrigen Ansichten.
 - `legacy-app/`: unveränderte ursprüngliche Single-File-App als Migrationsreferenz; sie wird nach Abschluss der Migration gelöscht.
 - `public/`: Manifest und Bilder der neuen App.
-- `service-worker.js` und `scripts/build-service-worker.mjs`: Offline- und Push-Unterstützung für die tatsächlichen Vite-Build-Dateien.
+- `src/sw/service-worker.js` und `scripts/build-service-worker.mjs`: Offline- und Push-Unterstützung für die tatsächlichen Vite-Build-Dateien.
 
 Die Migration zu React und TypeScript ist noch nicht vollständig. Das JavaScript-Übergangsmodul ist von der Typprüfung ausgenommen; seine Schnittstelle zu React ist typisiert. Kalender, Läufe, Leistung, Race, Profil, Coaching und Anmeldung rendern weiterhin imperativ in leere Hosts aus `src/App.tsx`. Die Tagesansicht unter `src/features/today/` ist bereits migriert und erhält ihre Daten über eine typisierte Schnittstelle aus dem Übergangsmodul. React besitzt die Navigation und Sichtbarkeit der Ansichten.
 
@@ -36,9 +36,9 @@ Bestehende localStorage-Schlüssel bleiben während der Migration erhalten. Brow
 
 ## Supabase
 
-Ohne `.env.local` verwendet die App derzeit die bisherigen öffentlichen Projektwerte. Abweichende Werte können aus `.env.example` in `.env.local` übernommen werden. `VITE_SUPABASE_URL` und `VITE_SUPABASE_PUBLISHABLE_KEY` werden beim Build eingebunden. Bereits lokal gespeicherte Betreiber-Einstellungen unter `moach_sb` haben aus Kompatibilitätsgründen weiterhin Vorrang.
+Lege für die lokale Entwicklung `.env.local` als Kopie von `.env.example` an und trage dort `VITE_SUPABASE_URL` und `VITE_SUPABASE_PUBLISHABLE_KEY` ein. Für CI und Hosting müssen beide Werte als Build-Variablen gesetzt werden. Fehlen sie und ist auch keine gültige Betreiber-Einstellung unter `moach_sb` im Browser gespeichert, zeigt die App einen Konfigurationsfehler. Bereits lokal gespeicherte Werte unter `moach_sb` haben aus Kompatibilitätsgründen weiterhin Vorrang.
 
-Service-Role- und Secret-Schlüssel gehören niemals in `VITE_*`-Variablen. Anmeldung, Cloud-Synchronisierung und Intervals.icu verwenden vorerst die vorhandenen Adapter im Übergangsmodul. Ein zentraler Supabase-Service und die Backend-Migrationen folgen separat.
+Der Publishable Key ist öffentlich; der Schutz der Daten erfolgt ausschließlich über Row Level Security (RLS). Service-Role- und Secret-Schlüssel gehören niemals in `VITE_*`-Variablen. Anmeldung, Cloud-Synchronisierung und Intervals.icu verwenden vorerst die vorhandenen Adapter im Übergangsmodul. Ein zentraler Supabase-Service und die Backend-Migrationen folgen separat.
 
 ## Offline und Veröffentlichung
 
