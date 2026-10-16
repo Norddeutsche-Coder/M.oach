@@ -1,8 +1,5 @@
-import { readFileSync } from 'node:fs'
 import { test, expect, type Page } from '@playwright/test'
-
-const source = readFileSync(new URL('../legacy-app/index.html', import.meta.url), 'utf8')
-  .replace("if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});", '')
+import { todayScenarios } from './fixtures/today'
 const fixedDate = '2026-10-16'
 async function seed(page: Page, overrides: Record<string, unknown> = {}, date = fixedDate) {
   await page.clock.setFixedTime(new Date(`${date}T10:00:00+02:00`))
@@ -20,36 +17,13 @@ test.beforeEach(async ({ context, page }) => {
   page.on('pageerror', error => { throw error })
 })
 
-const scenarios = [
-  { name: 'regular training', state: {}, date: fixedDate },
-  { name: 'recovery day', state: {}, date: '2026-10-19' },
-  { name: 'quality training and strength', state: {}, date: '2026-12-15' },
-  { name: 'long run', state: {}, date: '2026-12-20' },
-  { name: 'no plan', state: { noPlan: true }, date: fixedDate },
-  { name: 'future plan', state: { start: '2026-11-01' }, date: fixedDate },
-  { name: 'finished plan', state: { race: '2026-10-01', start: '2026-01-01' }, date: fixedDate },
-  { name: 'race day', state: { race: fixedDate, start: '2026-01-01' }, date: fixedDate },
-  { name: 'reduced readiness', state: { well: { [fixedDate]: { sleep: 4, rd: 40, ctl: 30, atl: 75 } } }, date: fixedDate },
-]
-for (const scenario of scenarios) {
+for (const scenario of todayScenarios) {
   test(`today preserves original content: ${scenario.name}`, async ({ page }) => {
     await seed(page, scenario.state, scenario.date)
-    await page.route('**/reference', route => route.fulfill({ contentType: 'text/html', body: source }))
-    await page.goto('/reference')
-    const reference = await page.locator('#today').evaluate(element => {
-      const normalize = (s: string | null) => (s || '').replace(/\s+/g, ' ').trim()
-      return {
-        title: normalize(element.querySelector('.ht')?.textContent || ''),
-        subtitle: normalize(element.querySelector('.hs')?.textContent || ''),
-        training: [...element.querySelectorAll('.sr')].map(row => normalize(row.textContent)),
-        readiness: element.querySelector('.ring')?.getAttribute('aria-label'),
-        stats: [...element.querySelectorAll('.st')].map(row => normalize(row.textContent)),
-      }
-    })
     await page.goto('/')
-    await expect(page.locator('#today .ht')).toHaveText(reference.title)
-    await expect(page.locator('#today .hs')).toHaveText(reference.subtitle)
-    await expect(page.locator('#today .ring')).toHaveAttribute('aria-label', reference.readiness!)
+    await expect(page.locator('#today .ht')).toHaveText(scenario.expected.title)
+    await expect(page.locator('#today .hs')).toHaveText(scenario.expected.subtitle)
+    await expect(page.locator('#today .ring')).toHaveAttribute('aria-label', scenario.expected.readiness)
     const actual = await page.locator('#today').evaluate(element => {
       const normalize = (s: string | null) => (s || '').replace(/\s+/g, ' ').trim()
       return {
@@ -57,8 +31,8 @@ for (const scenario of scenarios) {
         stats: [...element.querySelectorAll('.st')].map(row => normalize(row.textContent)),
       }
     })
-    expect(actual.training).toEqual(reference.training)
-    expect(actual.stats).toEqual(reference.stats)
+    expect(actual.training).toEqual(scenario.expected.training)
+    expect(actual.stats).toEqual(scenario.expected.stats)
     await expect(page.getByRole('alert')).toHaveCount(0)
   })
 }
