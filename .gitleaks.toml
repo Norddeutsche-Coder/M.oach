@@ -1,0 +1,15 @@
+# Konfiguration für den Secret-Scan (.github/workflows/secret-scan.yml).
+# Standardregeln von gitleaks, dazu bewusst öffentliche Werte als Ausnahme.
+# Ausnahmen nur für Werte, die laut Anbieter öffentlich sein dürfen. Nie für echte Secrets.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Öffentliche Werte"
+regexes = [
+  # Supabase Publishable Key: für den Browser gedacht, Schutz erfolgt über RLS.
+  '''sb_publishable_[A-Za-z0-9_-]+''',
+  # Testwerte aus Tests und Doku.
+  '''sb_publishable_test_only_[0-9]+''',
+]

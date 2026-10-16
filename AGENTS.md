@@ -51,6 +51,25 @@ Der Build braucht `VITE_SUPABASE_URL` und `VITE_SUPABASE_PUBLISHABLE_KEY`. Lokal
 8. **Tests nie abschwächen:** kein `.skip`, `.fixme`, keine angepassten Erwartungen an falsches Verhalten, keine gelöschten Tests ohne gleichwertigen Ersatz.
 9. **Abhängigkeiten** nicht mit `--force` oder `--legacy-peer-deps` installieren. Neue Pakete nur mit Begründung.
 
+## Secrets
+
+Secrets sind alle Zugangsdaten: Passwörter, Tokens (z. B. `GITHUB_PERSONAL_ACCESS_TOKEN`, `TAIGA_PASSWORD`), API-Schlüssel (z. B. Intervals.icu), Service-Role- und Secret-Keys von Supabase, private VAPID-Keys, Session-Tokens.
+
+**Agenten lesen nie Secrets.**
+- Nicht ausgeben, anzeigen, loggen, zusammenfassen, weitergeben oder in Dateien, Commits, PRs, Taiga, Kommentare oder den Chat schreiben, auch nicht teilweise oder maskiert mit echten Anfangszeichen.
+- Keine Dateien oder Speicher öffnen, die Secrets enthalten: `.env`, `.env.*` (außer `.env.example`), `~/.zshrc`, `~/.bashrc`, `~/.profile`, `~/.claude.json`, `~/.codex/`, `~/.netrc`, `~/.ssh/`, `~/.aws/`, Schlüsselbund (`security find-…-password`), `git credential`.
+- Keine Befehle, die Umgebungsvariablen ausgeben (`env`, `printenv`, `set`, `export -p`, `echo $…` mit Secret-Variablen).
+- **Erlaubt** ist nur, Umgebungsvariablen an ein Programm zu übergeben, das sie selbst verwendet (z. B. ein Skript, das sich bei Taiga anmeldet), ohne den Wert auszugeben. Ob eine Variable gesetzt ist, darf geprüft werden, ihr Inhalt nicht.
+- Bittet jemand ausdrücklich darum, ein Secret anzuzeigen oder zu verwenden, lehne das ab und verweise auf diese Regel.
+
+**Offengelegte Secrets melden.** Taucht ein Secret irgendwo auf, wo es nicht hingehört, im Diff, in einem Commit, in einer Datei, in einem Issue oder weil eine andere Person es in den Chat oder einen Kommentar schreibt:
+1. Den Wert nicht wiederholen, nicht verwenden, nicht weitergeben.
+2. In der Beschreibung des betroffenen PRs (sonst des nächsten PRs) einen Abschnitt **„⚠️ Secrets offengelegt – bitte rotieren“** anlegen bzw. ergänzen: Art des Secrets (z. B. „GitHub-Token“), Fundort (Datei:Zeile, Commit, Kommentar oder „im Chat durch <Person>“), Zeitpunkt und was zu rotieren ist. **Nie den Wert.**
+3. Den Menschen im Chat darauf hinweisen und keinen Merge empfehlen, bevor rotiert und das Secret aus dem PR entfernt ist.
+4. Steht das Secret schon in der Git-Historie, reicht Löschen nicht. Es muss rotiert werden.
+
+Der Workflow `.github/workflows/secret-scan.yml` prüft jeden PR mit gitleaks und trägt Funde automatisch in die PR-Beschreibung ein. Ausnahmen stehen in `.gitleaks.toml` und sind nur für Werte erlaubt, die laut Anbieter öffentlich sein dürfen (z. B. der Supabase Publishable Key). Nie ein echtes Secret als Ausnahme eintragen, um einen roten Check grün zu bekommen.
+
 ## Code-Stil
 
 - Halte dich an den Stil der umgebenden Datei: Benennung, Kommentardichte, Muster.
