@@ -1,0 +1,4 @@
+# Verantwortlich für Code-Freigaben in M.oach.
+# Zusammen mit der Branch-Regel „Require review from Code Owners“ zählt nur
+# die Freigabe der hier genannten Personen. Siehe docs/agent-setup.md bzw. README.
+* @fynndow
