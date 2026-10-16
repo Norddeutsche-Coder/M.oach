@@ -33,7 +33,9 @@ Die bisherige App lässt sich separat mit `python3 -m http.server 8080 --directo
 
 Ein Push auf `main` startet automatisch `.github/workflows/deploy.yml`. Der Workflow veröffentlicht `frontend/dist/` erst, nachdem die vollständige CI einschließlich der Browserprüfungen erfolgreich war.
 
-Voraussetzungen sind die Pages-Quelle „GitHub Actions“ und die beiden gesetzten Repository-Variablen `VITE_SUPABASE_URL` und `VITE_SUPABASE_PUBLISHABLE_KEY`. Die Adresse bleibt `https://norddeutsche-coder.github.io/M.oach/`. Bei einer anderen Adresse verlieren Nutzer den Zugriff auf ihre dort im localStorage gespeicherten Daten.
+Voraussetzungen sind die Pages-Quelle „GitHub Actions“ und die beiden gesetzten Repository-Variablen `VITE_SUPABASE_URL` und `VITE_SUPABASE_PUBLISHABLE_KEY`. Die Adresse ist `https://norddeutsche-coder.github.io/m.oach/`. Ihr Pfad entspricht dem Repository-Namen. Das Repository deshalb nicht umbenennen: GitHub leitet die alte Pages-Adresse nicht weiter. Bei einer anderen Domain verlieren Nutzer zusätzlich den Zugriff auf ihre im localStorage gespeicherten Daten.
+
+Seit dem 16.10.2026 heißt das Repository `m.oach` statt `M.oach`. Die frühere Adresse `https://norddeutsche-coder.github.io/M.oach/` liefert seitdem eine 404-Seite.
 
 Die einmalige Umstellung erfolgt in dieser Reihenfolge:
 
@@ -41,7 +43,7 @@ Die einmalige Umstellung erfolgt in dieser Reihenfolge:
 2. Unter Settings → Pages die Quelle auf „GitHub Actions“ umstellen. Die bisher veröffentlichte Version bleibt dabei bis zum nächsten Deployment online.
 3. Unter Settings → Environments → `github-pages` prüfen, dass `main` deployen darf.
 4. PR mergen. Danach unter Actions prüfen, dass „Deploy“ grün durchläuft.
-5. `https://norddeutsche-coder.github.io/M.oach/` auf einem Gerät öffnen, auf dem die alte App installiert war, neu laden und prüfen, ob die Daten vorhanden sind und Offline-Neuladen funktioniert.
+5. `https://norddeutsche-coder.github.io/m.oach/` auf einem Gerät öffnen, auf dem die alte App installiert war, neu laden und prüfen, ob die Daten vorhanden sind und Offline-Neuladen funktioniert.
 6. In Supabase unter Authentication → URL Configuration prüfen, dass die Pages-URL als Site-URL beziehungsweise Redirect-URL für den Passwort-Reset eingetragen ist.
 
 ## Hinweise für KI-Agenten

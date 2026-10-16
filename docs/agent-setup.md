@@ -17,7 +17,7 @@ Claude Code nutzt das offizielle **GitHub-Plugin**. Es ist nicht im Repository e
 1. **Plugin installieren:** In Claude Code `/plugin` aufrufen, im Marketplace `claude-plugins-official` das Plugin **github** wählen und für den eigenen Account installieren.
 2. **Token anlegen:** https://github.com/settings/personal-access-tokens/new (Fine-grained token)
    - **Resource owner:** `Norddeutsche-Coder`
-   - **Repository access:** Only select repositories → `M.oach`
+   - **Repository access:** Only select repositories → `m.oach`
    - **Repository permissions:**
 
      | Recht | Stufe |
@@ -87,7 +87,7 @@ In Claude Code zusätzlich `/mcp` aufrufen: **github** und **taiga** müssen als
 | GitHub: „Authorization header is badly formatted“ | `GITHUB_PERSONAL_ACCESS_TOKEN` ist im laufenden Claude-Prozess leer. Schreibweise in `~/.zshrc` prüfen (Abschnitt 4), dann VS Code mit Cmd + Q neu starten. |
 | Taiga: „401 … No active account found with the given credentials“ | Variablen fehlen im Prozess (wie oben) oder die Zugangsdaten stimmen nicht. Auf https://tree.taiga.io/login mit E-Mail und Passwort testen, nicht über „Login with GitHub“. |
 | Prüfskript meldet die Variablen, `/mcp` aber nicht verbunden | Claude Code läuft noch mit der alten Umgebung. Komplett beenden und neu starten. |
-| GitHub 404 auf das Repository | Der Token hat keinen Zugriff auf `M.oach`, ist noch nicht freigegeben, oder der Resource owner ist nicht `Norddeutsche-Coder`. |
+| GitHub 404 auf das Repository | Der Token hat keinen Zugriff auf `m.oach`, ist noch nicht freigegeben, oder der Resource owner ist nicht `Norddeutsche-Coder`. |
 
 ## Andere Agenten (Codex)
 
