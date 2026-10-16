@@ -44,6 +44,21 @@ Die einmalige Umstellung erfolgt in dieser Reihenfolge:
 5. `https://norddeutsche-coder.github.io/M.oach/` auf einem Gerät öffnen, auf dem die alte App installiert war, neu laden und prüfen, ob die Daten vorhanden sind und Offline-Neuladen funktioniert.
 6. In Supabase unter Authentication → URL Configuration prüfen, dass die Pages-URL als Site-URL beziehungsweise Redirect-URL für den Passwort-Reset eingetragen ist.
 
+## Taiga-Anbindung für KI-Assistenten (MCP)
+
+`.mcp.json` bindet Taiga über den Community-MCP-Server [`mcp-taiga`](https://github.com/negoro26/mcp-taiga) (Version fest auf 1.0.0) an Claude Code an. Die Datei enthält keine Zugangsdaten. Jede Person setzt sie in der eigenen Shell-Umgebung, zum Beispiel in `~/.zshrc`:
+
+```sh
+export TAIGA_USERNAME="name@example.com"
+export TAIGA_PASSWORD="…"
+# nur für selbst gehostetes Taiga, Standard ist https://api.taiga.io/api/v1
+# export TAIGA_API_URL="https://taiga.example.com/api/v1"
+```
+
+Danach Claude Code neu starten, den Projekt-Server einmalig bestätigen und mit `/mcp` prüfen, ob „taiga“ verbunden ist.
+
+Der Server meldet sich mit Benutzername und Passwort an und kann Einträge anlegen, ändern und löschen. Am besten einen eigenen Taiga-Account nur mit Zugriff auf dieses Projekt verwenden. Zugangsdaten gehören nie ins Repository, denn es ist öffentlich.
+
 ## Migrationsstand
 
 Das Frontend enthält die bestehende Oberfläche im Vite-Build. Kopfbereich, Navigation und Tagesansicht sind React-Komponenten. Kalender, Läufe, Leistung, Race, Profil, Coaching und Anmeldung werden noch vom gekennzeichneten JavaScript-Übergangsmodul gerendert. Die weitere React-/TypeScript-Migration erfolgt ansichtsweise. Die bisherige App bleibt unter `frontend/legacy-app/` als Referenz erhalten. Das Hosting wird in diesem Schritt nicht umgestellt.
