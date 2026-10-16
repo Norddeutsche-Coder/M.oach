@@ -476,7 +476,7 @@ body.rvo{overflow:hidden}
 .mms{fill:#16a34a;stroke:#fff;stroke-width:2.5}.mme{fill:#ef4444;stroke:#fff;stroke-width:2.5}.mmk{fill:#f59e0b;stroke:#fff;stroke-width:3}
 .mmz{position:absolute;left:8px;top:8px;display:flex;flex-direction:column;gap:6px}
 .mmz button{width:34px;height:34px;padding:0;font-size:1.1rem;font-weight:700;border-radius:10px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.25)}
-.mma{position:absolute;right:0;bottom:0;font-size:.62rem;background:rgba(255,255,255,.75);color:#333;padding:1px 6px;border-radius:6px 0 0 0}
+.mma{position:absolute;right:6px;bottom:6px;display:flex;align-items:center;gap:6px;max-width:calc(100% - 12px);height:20px;min-width:20px;padding:0;border:0;border-radius:999px;background:rgba(255,255,255,.55);color:#444;font-size:.62rem;cursor:pointer;overflow:hidden;opacity:.7}.mma b{flex:none;width:20px;text-align:center;font:italic 700 .72rem/20px Georgia,serif}.mma span{display:none;padding-right:9px;white-space:nowrap;text-align:left}.mma.open{background:rgba(255,255,255,.88);opacity:1}.mma.open span{display:inline}
 .rvcc{padding-bottom:6px}.rdch{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:2px}.rdch b{font-size:1rem}
 .rdcv{font-size:.82rem;color:var(--mu);font-weight:600;font-variant-numeric:tabular-nums}.rdcv.sel{color:var(--tx);font-weight:800}
 .rdcs{touch-action:pan-y;cursor:crosshair;user-select:none;-webkit-user-select:none}.rdcs svg{width:100%;height:auto;display:block}
@@ -1508,7 +1508,7 @@ const isDarkUI=()=>{const t=document.documentElement.getAttribute('data-theme');
 function miniMap(el,pts,opt){
  opt=opt||{};
  const st={z:12,la:0,ln:0,W:0,H:0},tl=new Map(),dark=isDarkUI();el.classList.toggle('mmd',dark&&!opt.gray);el.classList.toggle('mmn',!!opt.gray);
- el.innerHTML='<div class="mmt"></div><svg class="mmo" aria-hidden="true">'+(opt.layers||[]).map((l,i)=>'<path class="mmh h'+i+'"/>').join('')+'<path class="mml"/><circle class="mms" r="5.5"/><circle class="mme" r="5.5"/><circle class="mmk" r="6.5" hidden/></svg><div class="mmz"><button type="button" data-z="1" aria-label="Vergrößern">+</button><button type="button" data-z="-1" aria-label="Verkleinern">−</button><button type="button" data-z="0" aria-label="Route zentrieren">⌖</button></div><div class="mma">'+(opt.attr||'© OpenStreetMap-Mitwirkende')+'</div>'+(opt.coop?'<div class="mmg" hidden>Mit zwei Fingern bewegen<br><small>Mit Strg + Mausrad zoomen</small></div>':'');
+ el.innerHTML='<div class="mmt"></div><svg class="mmo" aria-hidden="true">'+(opt.layers||[]).map((l,i)=>'<path class="mmh h'+i+'"/>').join('')+'<path class="mml"/><circle class="mms" r="5.5"/><circle class="mme" r="5.5"/><circle class="mmk" r="6.5" hidden/></svg><div class="mmz"><button type="button" data-z="1" aria-label="Vergrößern">+</button><button type="button" data-z="-1" aria-label="Verkleinern">−</button><button type="button" data-z="0" aria-label="Route zentrieren">⌖</button></div><button type="button" class="mma" aria-label="Kartenquellen anzeigen" aria-expanded="false"><b>i</b><span>'+(opt.attr||'© OpenStreetMap-Mitwirkende')+'</span></button>'+(opt.coop?'<div class="mmg" hidden>Mit zwei Fingern bewegen<br><small>Mit Strg + Mausrad zoomen</small></div>':'');
  const T=el.querySelector('.mmt'),O=el.querySelector('.mmo'),L=O.querySelector('.mml'),S0=O.querySelector('.mms'),E0=O.querySelector('.mme'),MK=O.querySelector('.mmk');
  let mk=null,moved=false;
  const meas=()=>{st.W=el.clientWidth;st.H=el.clientHeight;O.setAttribute('viewBox','0 0 '+st.W+' '+st.H)};
@@ -1537,7 +1537,7 @@ function miniMap(el,pts,opt){
   const pad=28;let z=17;for(;z>3;z--){const p=mmP(b,c,z),q=mmP(a,d,z);if(q[0]-p[0]<=st.W-2*pad&&q[1]-p[1]<=st.H-2*pad)break}
   const p=mmP(b,c,z),q=mmP(a,d,z);setC((p[0]+q[0])/2,(p[1]+q[1])/2,z);render()}
  const ptr=new Map();let pd=0;
- el.addEventListener('pointerdown',e=>{if(e.target.closest('.mmz')||(opt.coop&&e.pointerType=='touch'))return;try{el.setPointerCapture(e.pointerId)}catch(x){}ptr.set(e.pointerId,[e.clientX,e.clientY]);if(ptr.size==2){const v=[...ptr.values()];pd=Math.hypot(v[0][0]-v[1][0],v[0][1]-v[1][1])}});
+ el.addEventListener('pointerdown',e=>{if(e.target.closest('.mmz,.mma')||(opt.coop&&e.pointerType=='touch'))return;try{el.setPointerCapture(e.pointerId)}catch(x){}ptr.set(e.pointerId,[e.clientX,e.clientY]);if(ptr.size==2){const v=[...ptr.values()];pd=Math.hypot(v[0][0]-v[1][0],v[0][1]-v[1][1])}});
  el.addEventListener('pointermove',e=>{const o=ptr.get(e.pointerId);if(!o)return;const r=el.getBoundingClientRect();
   if(ptr.size==1){moved=true;const[ox,oy]=mmP(st.la,st.ln,st.z);setC(ox-(e.clientX-o[0]),oy-(e.clientY-o[1]),st.z);ptr.set(e.pointerId,[e.clientX,e.clientY]);render()}
   else if(ptr.size==2){ptr.set(e.pointerId,[e.clientX,e.clientY]);const v=[...ptr.values()],dd=Math.hypot(v[0][0]-v[1][0],v[0][1]-v[1][1]);if(pd>0&&dd>0){zoomAt((v[0][0]+v[1][0])/2-r.left,(v[0][1]+v[1][1])/2-r.top,st.z+Math.log2(dd/pd))}pd=dd}});
@@ -1549,6 +1549,7 @@ function miniMap(el,pts,opt){
   el.addEventListener('touchmove',e=>{if(e.touches.length>=2){e.preventDefault();const t=tp(e);if(t0){const[ox,oy]=mmP(st.la,st.ln,st.z);setC(ox-(t.x-t0.x),oy-(t.y-t0.y),st.z);moved=true;if(t0.d>0&&t.d>0)zoomAt(t.x,t.y,st.z+Math.log2(t.d/t0.d));else render()}t0=t}
    else{const g=el.querySelector('.mmg');if(g){g.hidden=false;clearTimeout(g._t);g._t=setTimeout(()=>{g.hidden=true},1300)}}},{passive:false});
   el.addEventListener('touchend',()=>{t0=null});el.addEventListener('touchcancel',()=>{t0=null})}
+ el.querySelector('.mma').addEventListener('click',e=>{e.stopPropagation();const a=e.currentTarget,o=!a.classList.contains('open');a.classList.toggle('open',o);a.setAttribute('aria-expanded',o);a.setAttribute('aria-label',o?'Kartenquellen ausblenden':'Kartenquellen anzeigen')});
  el.querySelector('.mmz').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;e.stopPropagation();const z=+b.dataset.z;if(z==0)fit();else zoomAt(st.W/2,st.H/2,Math.round(st.z)+z)});
  meas();if(window.ResizeObserver)new ResizeObserver(()=>{const w=st.W;meas();if(!w&&st.W)fit();else render()}).observe(el);
  if(opt.view&&isFinite(opt.view.z)){st.z=opt.view.z;st.la=opt.view.la;st.ln=opt.view.ln;moved=true;render()}else fit();
