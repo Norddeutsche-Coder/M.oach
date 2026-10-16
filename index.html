@@ -864,12 +864,13 @@ function rCal(){
  $('#cal').querySelectorAll('.c[data-d],.wi[data-d]').forEach(e=>e.onclick=()=>openM(e.dataset.d));
  $('#cal').querySelectorAll('.sm[data-w],#wad').forEach(e=>e.onclick=()=>openWeek(parse(e.dataset.w)));
  const mr=$('#mvr');if(mr)mr.onclick=()=>{const snap=JSON.stringify(S.mv||null);Object.keys(S.mv||{}).forEach(k=>{if(k>=iso(today))delete S.mv[k]});if(S.mv&&!Object.keys(S.mv).length)S.mv=null;save();render();toast('Verschiebungen zurückgesetzt.',()=>{S.mv=JSON.parse(snap);save();render()})};
- const ovz=(ph,w,sc)=>{OZ={ph:ph||null,w:w||null,fresh:true};rCal();if(sc!==false){const c=document.querySelector('#cal .ovc');if(c&&c.scrollIntoView)try{c.scrollIntoView({block:'start',behavior:'smooth'})}catch(e){}}};
+ const ovz=(ph,w,sc)=>{OZ={ph:ph||null,w:w||null,fresh:true,open:OZ.open};rCal();if(sc!==false){const c=document.querySelector('#cal .ovc');if(c&&c.scrollIntoView)try{c.scrollIntoView({block:'start',behavior:'smooth'})}catch(e){}}};
  const oc=$('#cal .ovc');
  if(oc){
+  const pd=oc.querySelector('#phd');if(pd)pd.ontoggle=()=>{OZ.open=pd.open};
   oc.querySelectorAll('[data-oz]').forEach(b=>b.onclick=()=>{const l=+b.dataset.oz;if(l==0)ovz(null,null);else ovz(oc.dataset.ph,null)});
   oc.querySelectorAll('[data-op]').forEach(e=>{if(e.dataset.op==='')return;e.onclick=()=>ovz(e.dataset.op,null);e.onkeydown=ev=>{if(ev.key=='Enter'||ev.key==' '){ev.preventDefault();ovz(e.dataset.op,null)}}});
-  oc.querySelectorAll('.wkr[data-w],.hit[data-w]').forEach(e=>{const go=()=>ovz(oc.dataset.ph,e.dataset.w);e.onclick=go;e.onkeydown=ev=>{if(ev.key=='Enter'||ev.key==' '){ev.preventDefault();go()}}});
+  oc.querySelectorAll('.wkr[data-w],.hit[data-w]').forEach(e=>{const go=()=>{if(e.classList.contains('hit')&&oc.dataset.lv=='0'){const m=JSON.parse(oc.dataset.pm||'{}');ovz(m[e.dataset.w]||'',null)}else ovz(oc.dataset.ph,e.dataset.w)};e.onclick=go;e.onkeydown=ev=>{if(ev.key=='Enter'||ev.key==' '){ev.preventDefault();go()}}});
   oc.querySelectorAll('[data-ow]').forEach(b=>{if(b.dataset.ow)b.onclick=()=>ovz(oc.dataset.ph,b.dataset.ow,false)});
   oc.querySelectorAll('[data-wadz]').forEach(b=>b.onclick=()=>openWeek(parse(b.dataset.w)))}
  const ov=$('#ovr');if(ov)ov.onclick=openRange;
@@ -2677,7 +2678,7 @@ function openWeek(ws){
  draw()}
 
 /* ===== Zeitraum-Auswahl ===== */
-let OVR={k:'all'},OZ={ph:null,w:null,fresh:false};
+let OVR={k:'all'},OZ={ph:null,w:null,fresh:false,open:false};
 const OVRN={plan:'Plan-Zeitraum','4':'Letzte 4 Wochen','12':'Letzte 12 Wochen','26':'Letzte 6 Monate',all:'Alle Wochen',cust:'Eigener Zeitraum'};
 function ovrLabel(){return OVR.k=='cust'&&OVR.a&&OVR.b?dshort(OVR.a)+'–'+dfull(parse(OVR.b)):OVRN[OVR.k]||'Alle Wochen'}
 function openRange(){
@@ -2741,6 +2742,7 @@ function overviewHtml(){
  /* Zoom: Gesamtplan -> Phase -> Woche */
  const segs=[];wk.forEach(x=>{const l=segs[segs.length-1];if(l&&l.ph==x.ph)l.w.push(x);else segs.push({ph:x.ph,w:[x]})});
  segs.forEach(g=>{g.a=iso(g.w[0].ws);g.pl=g.w.reduce((q,x)=>q+x.pl,0);g.ac=g.w.filter(x=>x.ws<=cw).reduce((q,x)=>q+x.acr,0);g.pd=g.w.filter(x=>x.ws<=cw).reduce((q,x)=>q+x.pl,0)});
+ const pm={};segs.forEach(g=>g.w.forEach(x=>{pm[iso(x.ws)]=g.a}));
  const segOf=w=>segs.find(g=>g.w.some(x=>iso(x.ws)==w));
  let sg=OZ.ph?segs.find(g=>g.a==OZ.ph):null,wz=OZ.w?wk.find(x=>iso(x.ws)==OZ.w):null;
  if(wz){const g2=segOf(OZ.w);if(g2)sg=g2}
@@ -2749,7 +2751,7 @@ function overviewHtml(){
  const lvl=wz?2:sg?1:0,fresh=OZ.fresh;OZ.fresh=false;
  const crumb=()=>'<div class="ovz"><button type="button" data-oz="0">Gesamtplan</button>'+(sg?'<span>›</span>'+(wz?'<button type="button" data-oz="1">':'<b>')+'<i style="background:'+(PCOL[sg.ph]||'#999')+'"></i>'+esc(sg.ph)+(wz?'</button>':'</b>'):'')+(wz?'<span>›</span><b>'+dshort(wz.ws)+'–'+dshort(addD(wz.ws,6))+'</b>':'')+'</div>';
  const head='<div class="oh"><h3>Gesamtübersicht</h3><button id="ovr" class="rngb">'+ovrLabel()+' ▾</button></div>';
- const wrap=(h)=>'<div class="card ovc'+(fresh?' ovzin':'')+'" data-lv="'+lvl+'" data-ph="'+(sg?sg.a:'')+'">'+h+'</div>';
+ const wrap=(h)=>'<div class="card ovc'+(fresh?' ovzin':'')+'" data-lv="'+lvl+'" data-ph="'+(sg?sg.a:'')+'" data-pm="'+JSON.stringify(pm).replace(/"/g,'&quot;')+'">'+h+'</div>';
  const phaseTiles=g=>{const n=g.w.length,f=g.pd>0?Math.round(g.ac/g.pd*100)+' %':'–';return'<div class="tiles"><div class="tl"><b>'+n+'</b><span>'+(n==1?'Woche':'Wochen')+'</span></div><div class="tl"><b>'+Math.round(g.pl)+' km</b><span>geplant</span></div><div class="tl"><b>'+Math.round(g.ac)+' km</b><span>gelaufen</span></div><div class="tl"><b>'+Math.round(g.pl/n)+' km</b><span>Ø geplant/Woche</span></div><div class="tl"><b>'+Math.round(Math.max.apply(null,g.w.map(x=>x.pl)))+' km</b><span>Spitzenwoche</span></div><div class="tl"><b>'+f+'</b><span>Erfüllung</span></div></div>'};
  if(lvl==2){
   const i=wk.indexOf(wz),pv=wk[i-1],nx=wk[i+1],sv=WS;let wh;WS=wz.ws;try{wh=weekHtml()}finally{WS=sv}
@@ -2767,8 +2769,8 @@ function overviewHtml(){
  const prow=segs.map(g=>{const has=g.w.some(x=>+x.ws==+cw);return'<div class="phr'+(has?' cur':'')+'" data-op="'+g.a+'" role="button" tabindex="0"><i style="background:'+(PCOL[g.ph]||'#999')+'"></i><div class="pht"><b>'+esc(g.ph)+(has?' · jetzt':'')+'</b><small>'+dshort(g.w[0].ws)+'–'+dshort(addD(g.w[g.w.length-1].ws,6))+' · '+g.w.length+' '+(g.w.length==1?'Woche':'Wochen')+'</small></div><div class="phk"><b>'+Math.round(g.pl)+'</b><small>km geplant</small></div><span class="phc">›</span></div>'}).join('');
  return wrap(head+'<div class="sub">'+dshort(first)+(first.getFullYear()!=today.getFullYear()?first.getFullYear():'')+' bis '+dfull(addD(lastw,6))+' · '+wk.length+' Wochen. Heller Balken: geplant, farbig: gelaufen.'+inf('ov_chart')+' Tippe auf eine Phase oder Woche, um hineinzuzoomen.</div>'
   +'<div class="tiles">'+tl(wk.length,'Wochen','ov_weeks')+tl(Math.round(acT)+' km','gelaufen gesamt','ov_ac')+tl(nb?Math.round(acT/nb)+' km':'–','Ø pro Woche','ov_avg')+tl(runs,'Lauftage','ov_days')+tl(Math.round(plD)+' km','Plan bisher','ov_plan')+tl(plD>0?Math.round(acD/plD*100)+' %':'–','Erfüllung','ov_ful')+'</div>'
-  +'<div class="wsec">Phasen</div>'+strip+prow
   +'<div class="wsec">Kilometer pro Woche</div>'+barsSvg(wk,340,120,cur,true)+'<div class="leg">'+legend+'</div>'
+  +'<details id="phd" class="pastw"'+(OZ.open?' open':'')+'><summary><span>Phasen anzeigen ('+segs.length+')</span></summary>'+strip+prow+'</details>'
   +allWeeksHtml(wk,cw))}
 
 
