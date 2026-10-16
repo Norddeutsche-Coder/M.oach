@@ -475,6 +475,7 @@ body.rvo{overflow:hidden}
 .ovh{font-size:.78rem;color:var(--mu);margin:6px 2px 4px}.ovs{font-weight:500;color:var(--mu)}
 .wkk{display:flex;align-items:center;gap:10px;width:calc(100% - 28px);margin:-2px 0 10px 28px;padding:8px 12px;text-align:left;font:inherit;color:var(--tx);cursor:pointer;border:1px dashed color-mix(in srgb,#0d9488 60%,var(--bd));border-left:5px solid #0d9488;border-radius:12px;background:color-mix(in srgb,#0d9488 9%,var(--card))}
 .wkk .ki{font-size:1.15rem}.wkk .kb{flex:1;min-width:0}.wkk b{display:block;font-size:.88rem;font-weight:800}.wkk small{display:block;font-size:.74rem;color:var(--mu);margin-top:1px}.wkk .kc{color:var(--mu);font-size:1.3rem}.wkk.pst{opacity:.7}
+.abi{display:flex;gap:10px;padding:9px 0;border-top:1px solid var(--bd)}.abi:first-child{border-top:0}.abn{flex:none;width:24px;height:24px;border-radius:50%;background:var(--pri);color:var(--pri-tx);font-weight:800;font-size:.8rem;display:flex;align-items:center;justify-content:center}.abi b{display:block}.abi small{display:block;color:var(--mu);font-size:.76rem;margin:1px 0 3px}.abi p{margin:0;font-size:.88rem;line-height:1.4}.abx{margin:8px 0}
 .ovn{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 0 8px}.ovn span{flex:1;text-align:center;font-size:.76rem;color:var(--mu);font-weight:600}.ovn .rngb[disabled]{opacity:.35;cursor:default}
 .phs{display:flex;gap:3px;height:22px;margin:4px 0 8px}.phs button{border:0;border-radius:6px;padding:0;min-width:6px;cursor:pointer;opacity:.9}.phs button:active{opacity:.7}
 .phr{display:flex;align-items:center;gap:10px;padding:10px 6px;border-bottom:1px solid var(--bd);cursor:pointer;border-radius:8px}.phr.cur{background:color-mix(in srgb,var(--pri) 10%,var(--card));outline:1.5px solid var(--pri)}.phr:active{background:var(--bg)}
@@ -747,8 +748,11 @@ function wkSegs(p,d){
  if(m=/(\d+) × (\d+) s Steigerung/.exec(T))notes.push(m[1]+' × '+m[2]+' s Steigerungen am Ende: zügig, aber nicht sprinten, dazwischen locker gehen oder traben.');
  if(/Doppeleinheit/.test(T))notes.push('Doppeleinheit möglich: den Umfang morgens und abends aufteilen.');
  if(/Verpflegung/.test(T))notes.push('Verpflegung wie im Rennen testen (Gel und Getränk).');
+ const abc=abcOn(p,d)&&p.t!='race';
+ if(abc){const ix=steps.findIndex(x=>x.t=='Einlaufen'),st={k:'e',t:'Lauf-ABC',x:'5 Übungen à 2 × 20 m · ca. 8 min, zusätzlich zur Laufzeit'};
+  if(p.t=='q')steps.splice(ix>=0?ix+1:0,0,st);else{st.x='vor den Steigerungen · 5 Übungen à 2 × 20 m · ca. 8 min, zusätzlich zur Laufzeit';steps.push(st)}}
  const km=core.reduce((a,s)=>a+s.km,0),sec=core.reduce((a,s)=>a+s.sec,0);
- return{segs:core,steps,notes,tips:[...new Set(tips)],km,sec,range:single?er:null}}
+ return{segs:core,steps,notes,tips:[...new Set(tips)],km,sec,range:single?er:null,abc}}
 function profSvg(R,mini){
  const G=R.segs,K=R.km,W=mini?60:340,H=mini?22:146,x0=mini?0:8,x1=W-x0,yb=mini?H:108,yt=mini?3:20;
  const ps=G.map(g=>g.pace),fast=Math.min(...ps),slow=Math.max(...ps);
@@ -774,6 +778,7 @@ function detailHtml(R){
  return'<div class="dd"><div class="tiles ddt"><div class="tl"><b>'+km1(R.km)+' km</b><span>Distanz</span></div><div class="tl"><b>'+pace.replace(' /km','')+'</b><span>'+(R.range?'Pace /km':'Ø Pace /km')+'</span></div><div class="tl"><b>'+fdur(R.sec)+'</b><span>Dauer ≈</span></div></div>'
   +'<div class="ddc">'+profSvg(R)+'</div><div class="ddl">'+kinds.map(k=>'<span><i class="pk-'+k+'"></i>'+SKIND[k]+'</span>').join('')+'</div>'
   +'<h4 class="ddh">Ablauf</h4><ol class="dds">'+R.steps.map(s=>'<li><i class="pk-'+s.k+'"></i><div><b>'+esc(s.t)+'</b><span>'+esc(s.x)+'</span></div></li>').join('')+'</ol>'
+  +(R.abc?'<div class="ddn">Lauf-ABC gehört in das Aufwärmen dieser Einheit: kurze Technikübungen, keine Zusatzbelastung.<br>'+ABCB+'</div>':'')
   +(R.notes.length?R.notes.map(n=>'<div class="ddn">'+esc(n)+'</div>').join(''):'')
   +(R.tips.length?R.tips.map(n=>'<div class="ddn">'+esc(n)+'</div>').join(''):'')
   +'<small class="mu">Distanz, Pace und Zeit sind Schätzungen aus deinen aktuellen Plan-Paces. Die Trabpausen laufen etwas langsamer als dein lockeres Tempo.</small></div>'}
@@ -850,7 +855,7 @@ function weekHtml(){
   const R=p&&p.t!='rest'?wkSegs(p,d):null,rest=!p||p.t=='rest',pst=k<iso(today);
   const t=p?p.t:'rest',title=!p?'–':rest?'Ruhetag':(p.ttl||p.lab)+(p.km?' · '+r1(p.km)+' km':'');
   const sub=!p?'':rest?'Erholung, optional 15 min Mobility':strip(p).replace(/\s*Gekürzt.*$/,'');
-  const meta=R?'<div class="wm">≈ '+fdur(R.sec)+' · '+(R.range?R.range:'Ø '+fp(R.sec/R.km)+' /km')+(dn?' · <span class="ck">✓ '+km1(ran||+(l&&l.km)||0)+' km gelaufen</span>':'')+'</div>':(dn?'<div class="wm"><span class="ck">✓ '+km1(ran||+(l&&l.km)||0)+' km gelaufen</span></div>':'');
+  const meta=R?'<div class="wm">≈ '+fdur(R.sec)+' · '+(R.range?R.range:'Ø '+fp(R.sec/R.km)+' /km')+(R.abc?' · mit Lauf-ABC':'')+(dn?' · <span class="ck">✓ '+km1(ran||+(l&&l.km)||0)+' km gelaufen</span>':'')+'</div>':(dn?'<div class="wm"><span class="ck">✓ '+km1(ran||+(l&&l.km)||0)+' km gelaufen</span></div>':'');
   rows+='<div class="wi k-'+t+(rest?' rest':'')+(+d==+today?' tod':'')+(dn?' dn':'')+(pst?' pst':'')+'" data-d="'+k+'"'+mvAttr(d)+'><div class="wd"><b>'+DOW[i]+'</b><span>'+d.getDate()+'.</span></div><div class="wb"><div class="wl">'+(p&&p.mv?'<span class="mvb" title="verschoben">↔</span>':'')+esc(title)+'</div>'+(sub?'<div class="ws">'+esc(sub)+'</div>':'')+meta+'</div>'+(R?profSvg(R,1):'')+(mvInfo(d).drag?'<span class="wg" aria-hidden="true">⋮⋮</span>':'')+'</div>'+krWeekRow(p,k)}
  const w=wtr(ws),cur=iso(mon(today))==iso(ws);
  return'<div class="wvs"><div><b>'+Math.round(pl)+' km</b><span>geplant'+(ac?' · '+Math.round(ac)+' km gelaufen':'')+'</span></div><div class="wvp">'+(S.noPlan?'Ohne Plan':esc(ph(w)))+'</div><button type="button" class="rngb" data-w="'+iso(ws)+'" id="wad">Woche anpassen ›</button></div>'
@@ -1070,6 +1075,27 @@ function openEx(id){
   +'<div class="exv"><div><b>Zu schwer?</b>'+(z?'<br><button type="button" class="chip" data-ex="'+e.ez+'">'+esc(z.n)+' ›</button>':'<br><span>Weniger Dauer oder Bereich verkleinern, die Haltung bleibt sauber.</span>')+'</div><div><b>Zu leicht?</b><br><span>'+esc(e.hd)+'</span></div></div>'
   +'<div class="b"><button id="krb2" type="button">‹ Zur Einheit</button><button class="pri" id="krx">Schließen</button></div>');
  $('#krb2').onclick=()=>openKr(KRX.s,KRX.n)}
+/* ===== Lauf-ABC (Technikübungen im Aufwärmen) ===== */
+const ABC=[
+ {n:'Fußgelenksarbeit',r:'2 × 20 m',s:'Kleine, schnelle Schritte allein aus dem Fußgelenk. Die Fußspitze zieht nach oben, die Ferse bleibt knapp über dem Boden, die Knie sind fast gestreckt.',f:'Kurzer, elastischer Bodenkontakt'},
+ {n:'Kniehebelauf',r:'2 × 20 m',s:'Das Knie bis etwa auf Hüfthöhe heben, das Standbein streckt sich. Der Fuß landet unter der Hüfte. Aufrecht bleiben, die Arme schwingen im Gegentakt.',f:'Hohe Hüfte, aufrechte Haltung'},
+ {n:'Anfersen',r:'2 × 20 m',s:'Die Ferse zieht zum Gesäß, das Knie zeigt dabei nach unten und bleibt unter der Hüfte. Kein Hohlkreuz, der Oberkörper bleibt leicht nach vorn geneigt.',f:'Ferse zum Gesäß, Knie unter der Hüfte'},
+ {n:'Hopserlauf (Skipping)',r:'2 × 20 m',s:'Mit jedem Schritt ein kleiner Hüpfer: Knie hoch, der Gegenarm schwingt mit, die Landung erfolgt auf dem Vorfuß unter dem Körper. Rhythmisch und locker bleiben.',f:'Rhythmus und Armtakt'},
+ {n:'Armeinsatz',r:'2 × 20 s',s:'Aufrecht stehen oder locker traben. Die Ellbogen sind etwa im rechten Winkel, die Arme schwingen aus der Schulter vor und zurück, die Hände bleiben locker, die Schultern entspannt.',f:'Lockere Schultern, kein Kreuzen vor der Brust'}];
+function abcDays(ws){
+ const q=[],e=[];
+ for(let i=0;i<7;i++){const d=addD(ws,i),p=plan(d);if(!p||!(p.km>0))continue;
+  if(p.t=='q')q.push(iso(d));else if(p.t=='easy'&&/Steigerung/.test(p.d||''))e.push(iso(d))}
+ return new Set(q.concat(e).slice(0,2))}
+function abcOn(p,d){return!S.noPlan&&!!p&&(p.t=='q'||p.t=='easy')&&p.km>0&&abcDays(mon(d)).has(iso(d))}
+const ABCB='<button type="button" class="krb" data-abc="1">Übungen ansehen ›</button>';
+function openAbc(){
+ krModal('<h3>Lauf-ABC</h3><div class="mu">5 Technikübungen · ca. 6–8 min · gehört ins Aufwärmen, keine eigene Einheit</div>'
+  +'<div class="krn"><b>So gehst du vor</b><ul><li>Erst 10–15 min locker einlaufen, dann die Übungen, danach Steigerungen oder der Hauptteil.</li><li>Jede Übung über etwa 20 m, zurück gehst du locker. Das ist die Pause.</li><li>Konzentriert und locker ausführen, nicht ermüden. Die Übungen schulen Technik und Elastizität und sind kein Krafttraining.</li><li>Auf ebenem, festem Untergrund. Bei müden oder schmerzenden Beinen auslassen.</li></ul></div>'
+  +'<div class="krl">'+ABC.map((e,i)=>'<div class="abi"><span class="abn">'+(i+1)+'</span><div><b>'+esc(e.n)+'</b><small>'+esc(e.r)+' · Fokus: '+esc(e.f)+'</small><p>'+esc(e.s)+'</p></div></div>').join('')+'</div>'
+  +'<div class="krn"><b>Wann im Plan</b><ul><li>Vor Qualitätseinheiten. Gibt es in einer Woche nur eine, kommt ein lockerer Tag mit Steigerungen dazu. Höchstens zweimal pro Woche.</li><li>Vor dem Longrun und nach harten Einheiten nicht nötig.</li></ul></div>'
+  +'<div class="b"><button class="pri" id="krx">Schließen</button></div>')}
+document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-abc]');if(!t)return;e.preventDefault();e.stopPropagation();openAbc()},true);
 document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-ex],[data-kr]');if(!t)return;e.preventDefault();e.stopPropagation();if(t.dataset.ex)openEx(t.dataset.ex);else openKr(t.dataset.kr,t.dataset.ks)},true);
 
 function readiness(){
@@ -2136,13 +2162,15 @@ function trainBlock(p,adj,z){
  if(kind=='easy'){
   rows.push(['Aufwärmen','5 min zügig gehen oder sehr locker traben']);
   rows.push(['Hauptteil',adj.mode=='swap'?k+' km sehr locker bei '+fp(z.e2)+' /km oder langsamer (ca. '+min+' min)':k+' km locker bei '+e+' (ca. '+min+' min)']);
-  rows.push(['Abschluss',adj.mode=='plan'&&/Steigerungsläufe/.test(p.d)?'6 × 20 s Steigerung (flüssig, ca. 90 %), dazwischen 40 s traben':'5 min gehen, Waden und Hüftbeuger kurz dehnen']);
+  const abcE=adj.mode!='swap'&&abcOn(p,today);
+  rows.push(['Abschluss',adj.mode=='plan'&&/Steigerungsläufe/.test(p.d)?(abcE?'Lauf-ABC (ca. 8 min), dann ':'')+'6 × 20 s Steigerung (flüssig, ca. 90 %), dazwischen 40 s traben'+(abcE?'<br>'+ABCB:''):'5 min gehen, Waden und Hüftbeuger kurz dehnen']);
   if(p.str&&adj.mode!='swap')rows.push(kraft);
   rows.push(REG(p));
   tips.push('Gesprächstempo: Du sprichst in ganzen Sätzen (RPE 3–4). Wenn nicht: langsamer.');
   return{meta:k+' km · ca. '+min+' min',rows,tips}}
  if(kind=='q'){
-  rows.push(['Aufwärmen','15 min locker bei '+e+', dann Lauf-ABC und 3 × 80 m Steigerung']);
+  const abcQ=adj.mode!='swap'&&abcOn(p,today);
+  rows.push(['Aufwärmen','15 min locker bei '+e+', dann '+(abcQ?'Lauf-ABC (ca. 8 min) und ':'')+'3 × 80 m Steigerung'+(abcQ?'<br>'+ABCB:'')]);
   rows.push(['Hauptteil',strip(p)+(adj.mode=='reduced'?' (gekürzt auf ca. '+k+' km gesamt)':'')]);
   rows.push(['Auslaufen','10–15 min sehr locker bei '+fp(z.e2)+' /km']);
   if(p.str)rows.push(kraft);
@@ -2160,7 +2188,7 @@ function trainBlock(p,adj,z){
   if(k>=18)tips.push('Verpflegung und Route mit Wasserstellen vorher festlegen (siehe Reiter Erholung).');
   return{meta:k+' km · ca. '+min+' min',rows,tips}}
  const mar=p.lab=='MARATHON';
- rows.push(['Aufwärmen','15–20 min locker, Lauf-ABC 2 × 20 m, 4 × 80–100 m Steigerung']);
+ rows.push(['Aufwärmen','15–20 min locker, Lauf-ABC 2 × 20 m, 4 × 80–100 m Steigerung<br>'+ABCB]);
  rows.push(['Rennen',p.d]);
  rows.push(['Danach','10–15 min auslaufen, Ergebnis unter „Leistung“ eintragen']);
  rows.push(REG(p));
