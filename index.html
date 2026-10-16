@@ -471,8 +471,10 @@ body.rvo{overflow:hidden}
 .rvm{position:relative;height:280px;background:var(--bg);overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
 .rvm.mmn{background:#e3e6eb}.mmn .mml{stroke:#17418f}
 .ovz{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;margin:6px 0 10px;font-size:.84rem}.ovz button{background:var(--bg);border:1px solid var(--bd);border-radius:99px;padding:5px 11px;font-weight:700;font-size:.8rem;color:var(--tx);display:inline-flex;align-items:center;gap:6px;cursor:pointer}.ovz span{color:var(--mu)}.ovz b{font-weight:800;display:inline-flex;align-items:center;gap:6px}.ovz i,.phr>i{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
-.bsel{fill:color-mix(in srgb,var(--pri) 16%,transparent);stroke:var(--pri);stroke-width:1.5}.ovch{margin:4px 0 2px}
+.bsel{fill:color-mix(in srgb,var(--pri) 13%,transparent);stroke:color-mix(in srgb,var(--pri) 45%,transparent);stroke-width:1}.bcar{fill:var(--pri)}.ovch{margin:4px 0 2px}
 .ovh{font-size:.78rem;color:var(--mu);margin:6px 2px 4px}.ovs{font-weight:500;color:var(--mu)}
+.wkk{display:flex;align-items:center;gap:10px;width:calc(100% - 28px);margin:-2px 0 10px 28px;padding:8px 12px;text-align:left;font:inherit;color:var(--tx);cursor:pointer;border:1px dashed color-mix(in srgb,#0d9488 60%,var(--bd));border-left:5px solid #0d9488;border-radius:12px;background:color-mix(in srgb,#0d9488 9%,var(--card))}
+.wkk .ki{font-size:1.15rem}.wkk .kb{flex:1;min-width:0}.wkk b{display:block;font-size:.88rem;font-weight:800}.wkk small{display:block;font-size:.74rem;color:var(--mu);margin-top:1px}.wkk .kc{color:var(--mu);font-size:1.3rem}.wkk.pst{opacity:.7}
 .ovn{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 0 8px}.ovn span{flex:1;text-align:center;font-size:.76rem;color:var(--mu);font-weight:600}.ovn .rngb[disabled]{opacity:.35;cursor:default}
 .phs{display:flex;gap:3px;height:22px;margin:4px 0 8px}.phs button{border:0;border-radius:6px;padding:0;min-width:6px;cursor:pointer;opacity:.9}.phs button:active{opacity:.7}
 .phr{display:flex;align-items:center;gap:10px;padding:10px 6px;border-bottom:1px solid var(--bd);cursor:pointer;border-radius:8px}.phr.cur{background:color-mix(in srgb,var(--pri) 10%,var(--card));outline:1.5px solid var(--pri)}.phr:active{background:var(--bg)}
@@ -840,15 +842,16 @@ function monthHtml(){
    c+=`<div class="c ${p?'t-'+p.t:''} ${dn?'dn':''} ${d.getMonth()!=M.getMonth()?'out':''} ${+d==+today?'tod':''}" data-d="${iso(d)}"${mvAttr(d)}><span class="n">${d.getDate()}</span>${p?`<span class="l">${p.mv?'↔ ':''}${p.lab}</span><span class="k">${p.km?r1(p.km)+' km':''}</span>`:''}${dn?`<span class="ck">✓ ${esc(l.km)}</span>`:''}</div>`}
   h+=c+(pl>0||ac>0?`<div class="sm" data-w="${iso(ws)}"><b>${Math.round(pl)}</b><span class="u">km</span>${pl>0?`<span class="pb"><i style="width:${Math.min(100,ac/pl*100)}%"></i></span>`:''}<small>${ac?Math.round(ac)+' ✓':''}</small></div>`:`<div class="sm" data-w="${iso(ws)}"><b>–</b></div>`)}
  return h+`</div><div class="leg"><span><i style="background:var(--easy)"></i>Locker</span><span><i style="background:var(--q)"></i>Qualität</span><span><i style="background:var(--long)"></i>Longrun</span><span><i style="background:var(--race)"></i>Wettkampf</span><span>Tippe auf einen Tag für Details (gelaufene Tage öffnen den Lauf im Reiter Läufe), auf die Wochensumme zum Anpassen. Zum Verschieben eine Einheit gedrückt halten und auf einen anderen Tag ziehen.</span></div>`}
+const krWeekRow=(p,k)=>p&&p.kr&&p.t!='rest'?'<button type="button" class="wkk'+(k<iso(today)?' pst':'')+'" data-kr="'+p.kr+'" data-ks="'+(p.krs||3)+'"><span class="ki" aria-hidden="true">💪</span><span class="kb"><b>Krafttraining · Einheit '+p.kr+'</b><small>'+KSD[p.kr]+' · 20–25 min nach dem Lauf</small></span><span class="kc" aria-hidden="true">›</span></button>':'';
 function weekHtml(){
  const ws=WS,we=addD(ws,6);let pl=0,ac=0,rows='';
  for(let i=0;i<7;i++){const d=addD(ws,i),k=iso(d),p=plan(d),runs=allRuns().filter(r=>r.d==k),ran=runs.reduce((a,r)=>a+(+r.km||0),0),l=S.log[k],dn=ran>0||(l&&l.done);
   if(p)pl+=p.km;ac+=ran;
   const R=p&&p.t!='rest'?wkSegs(p,d):null,rest=!p||p.t=='rest',pst=k<iso(today);
   const t=p?p.t:'rest',title=!p?'–':rest?'Ruhetag':(p.ttl||p.lab)+(p.km?' · '+r1(p.km)+' km':'');
-  const sub=!p?'':rest?'Erholung, optional 15 min Mobility':strip(p).replace(/\s*Gekürzt.*$/,'')+(p.kr?' · 💪 Kraft '+p.kr:'');
+  const sub=!p?'':rest?'Erholung, optional 15 min Mobility':strip(p).replace(/\s*Gekürzt.*$/,'');
   const meta=R?'<div class="wm">≈ '+fdur(R.sec)+' · '+(R.range?R.range:'Ø '+fp(R.sec/R.km)+' /km')+(dn?' · <span class="ck">✓ '+km1(ran||+(l&&l.km)||0)+' km gelaufen</span>':'')+'</div>':(dn?'<div class="wm"><span class="ck">✓ '+km1(ran||+(l&&l.km)||0)+' km gelaufen</span></div>':'');
-  rows+='<div class="wi k-'+t+(rest?' rest':'')+(+d==+today?' tod':'')+(dn?' dn':'')+(pst?' pst':'')+'" data-d="'+k+'"'+mvAttr(d)+'><div class="wd"><b>'+DOW[i]+'</b><span>'+d.getDate()+'.</span></div><div class="wb"><div class="wl">'+(p&&p.mv?'<span class="mvb" title="verschoben">↔</span>':'')+esc(title)+'</div>'+(sub?'<div class="ws">'+esc(sub)+'</div>':'')+meta+'</div>'+(R?profSvg(R,1):'')+(mvInfo(d).drag?'<span class="wg" aria-hidden="true">⋮⋮</span>':'')+'</div>'}
+  rows+='<div class="wi k-'+t+(rest?' rest':'')+(+d==+today?' tod':'')+(dn?' dn':'')+(pst?' pst':'')+'" data-d="'+k+'"'+mvAttr(d)+'><div class="wd"><b>'+DOW[i]+'</b><span>'+d.getDate()+'.</span></div><div class="wb"><div class="wl">'+(p&&p.mv?'<span class="mvb" title="verschoben">↔</span>':'')+esc(title)+'</div>'+(sub?'<div class="ws">'+esc(sub)+'</div>':'')+meta+'</div>'+(R?profSvg(R,1):'')+(mvInfo(d).drag?'<span class="wg" aria-hidden="true">⋮⋮</span>':'')+'</div>'+krWeekRow(p,k)}
  const w=wtr(ws),cur=iso(mon(today))==iso(ws);
  return'<div class="wvs"><div><b>'+Math.round(pl)+' km</b><span>geplant'+(ac?' · '+Math.round(ac)+' km gelaufen':'')+'</span></div><div class="wvp">'+(S.noPlan?'Ohne Plan':esc(ph(w)))+'</div><button type="button" class="rngb" data-w="'+iso(ws)+'" id="wad">Woche anpassen ›</button></div>'
   +'<div class="wv">'+rows+'</div><div class="leg"><span>Tippe auf eine Einheit für Details und Diagramm (gelaufene Tage öffnen den Lauf im Reiter Läufe). Zum Verschieben gedrückt halten und auf einen anderen Tag ziehen (am Computer einfach ziehen).</span></div>'}
@@ -2701,9 +2704,9 @@ function barsSvg(wk,Wd,H,mark,hit,sel){
   let o=h>0?'<rect x="'+xx.toFixed(1)+'" y="'+(H-h).toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="1.5" fill="'+(x.ac!=null?'var(--bd)':c)+'"'+(x.dl&&x.ac==null?' opacity=".45"':'')+'/>':'';
   if(x.ac>0){const h2=Math.max(2,x.ac/mx*(H-8)),w2=bw*.62;o+='<rect x="'+(xx+(bw-w2)/2).toFixed(1)+'" y="'+(H-h2).toFixed(1)+'" width="'+w2.toFixed(1)+'" height="'+h2.toFixed(1)+'" rx="1.2" fill="'+c+'"/>'}
   if(hit)o+='<rect class="hit" data-w="'+iso(x.ws)+'" x="'+(4+i*(Wd-8)/n).toFixed(1)+'" y="0" width="'+((Wd-8)/n).toFixed(1)+'" height="'+H+'" fill="transparent" style="cursor:pointer"/>';
-  return o}).join('');
+  return sel!=null&&sel>=0&&i!=sel?'<g opacity=".42">'+o+'</g>':o}).join('');
  const mk=mark!=null&&mark>=0?'<line x1="'+(4+(mark+.5)*(Wd-8)/n).toFixed(1)+'" x2="'+(4+(mark+.5)*(Wd-8)/n).toFixed(1)+'" y1="0" y2="'+H+'" stroke="var(--tx)" stroke-dasharray="3 3" opacity=".6"/>':'';
- const sl=sel!=null&&sel>=0?'<rect class="bsel" x="'+(4+sel*(Wd-8)/n-1).toFixed(1)+'" y="0" width="'+((Wd-8)/n+1).toFixed(1)+'" height="'+H+'" rx="4"/>':'';
+ const sl=sel!=null&&sel>=0?'<rect class="bsel" x="'+(4+sel*(Wd-8)/n-1).toFixed(1)+'" y="0" width="'+((Wd-8)/n+1).toFixed(1)+'" height="'+H+'" rx="6"/><path class="bcar" d="M'+(4+(sel+.5)*(Wd-8)/n-4.5).toFixed(1)+' 1.5h9l-4.5 5.5z"/>':'';
  return '<svg viewBox="0 0 '+Wd+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="Kilometer pro Woche">'+sl+b+mk+'</svg>'}
 
 function weekRowHtml(x,mxv,cw){
