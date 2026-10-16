@@ -471,6 +471,8 @@ body.rvo{overflow:hidden}
 .rvm{position:relative;height:280px;background:var(--bg);overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
 .rvm.mmn{background:#e3e6eb}.mmn .mml{stroke:#17418f}
 .ovz{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;margin:6px 0 10px;font-size:.84rem}.ovz button{background:var(--bg);border:1px solid var(--bd);border-radius:99px;padding:5px 11px;font-weight:700;font-size:.8rem;color:var(--tx);display:inline-flex;align-items:center;gap:6px;cursor:pointer}.ovz span{color:var(--mu)}.ovz b{font-weight:800;display:inline-flex;align-items:center;gap:6px}.ovz i,.phr>i{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+.bsel{fill:color-mix(in srgb,var(--pri) 16%,transparent);stroke:var(--pri);stroke-width:1.5}.ovch{margin:4px 0 2px}
+.ovh{font-size:.78rem;color:var(--mu);margin:6px 2px 4px}.ovs{font-weight:500;color:var(--mu)}
 .ovn{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 0 8px}.ovn span{flex:1;text-align:center;font-size:.76rem;color:var(--mu);font-weight:600}.ovn .rngb[disabled]{opacity:.35;cursor:default}
 .phs{display:flex;gap:3px;height:22px;margin:4px 0 8px}.phs button{border:0;border-radius:6px;padding:0;min-width:6px;cursor:pointer;opacity:.9}.phs button:active{opacity:.7}
 .phr{display:flex;align-items:center;gap:10px;padding:10px 6px;border-bottom:1px solid var(--bd);cursor:pointer;border-radius:8px}.phr.cur{background:color-mix(in srgb,var(--pri) 10%,var(--card));outline:1.5px solid var(--pri)}.phr:active{background:var(--bg)}
@@ -2693,7 +2695,7 @@ function openRange(){
  $('#rc').onclick=()=>{const a=$('#ra').value,b=$('#rb').value;if(!a||!b||a>b)return;OVR={k:'cust',a,b};m.hidden=true;rCal()};
  $('#rx').onclick=()=>{m.hidden=true}}
 
-function barsSvg(wk,Wd,H,mark,hit){
+function barsSvg(wk,Wd,H,mark,hit,sel){
  const n=wk.length,mx=Math.max(...wk.map(x=>Math.max(x.km,x.ac||0)),1),bw=Math.max(1.5,(Wd-8)/n-1.2);
  const b=wk.map((x,i)=>{const xx=4+i*(Wd-8)/n,c=PCOL[x.ph]||'#999',h=Math.max(x.km>0?2:0,x.km/mx*(H-8));
   let o=h>0?'<rect x="'+xx.toFixed(1)+'" y="'+(H-h).toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="1.5" fill="'+(x.ac!=null?'var(--bd)':c)+'"'+(x.dl&&x.ac==null?' opacity=".45"':'')+'/>':'';
@@ -2701,7 +2703,8 @@ function barsSvg(wk,Wd,H,mark,hit){
   if(hit)o+='<rect class="hit" data-w="'+iso(x.ws)+'" x="'+(4+i*(Wd-8)/n).toFixed(1)+'" y="0" width="'+((Wd-8)/n).toFixed(1)+'" height="'+H+'" fill="transparent" style="cursor:pointer"/>';
   return o}).join('');
  const mk=mark!=null&&mark>=0?'<line x1="'+(4+(mark+.5)*(Wd-8)/n).toFixed(1)+'" x2="'+(4+(mark+.5)*(Wd-8)/n).toFixed(1)+'" y1="0" y2="'+H+'" stroke="var(--tx)" stroke-dasharray="3 3" opacity=".6"/>':'';
- return '<svg viewBox="0 0 '+Wd+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="Kilometer pro Woche">'+b+mk+'</svg>'}
+ const sl=sel!=null&&sel>=0?'<rect class="bsel" x="'+(4+sel*(Wd-8)/n-1).toFixed(1)+'" y="0" width="'+((Wd-8)/n+1).toFixed(1)+'" height="'+H+'" rx="4"/>':'';
+ return '<svg viewBox="0 0 '+Wd+' '+H+'" width="100%" height="'+H+'" role="img" aria-label="Kilometer pro Woche">'+sl+b+mk+'</svg>'}
 
 function weekRowHtml(x,mxv,cw){
  const f=+x.ws>+cw,cur=+x.ws==+cw,col=PCOL[x.ph]||'#999',pw=x.pl/mxv*100,aw=Math.min(100,x.acr/mxv*100);
@@ -2761,6 +2764,7 @@ function overviewHtml(){
   wh=wh.replace(' id="wad"',' data-wadz="1"');
   const fc=FOCUS[sg.ph]||'';
   return wrap(head+crumb()+'<div class="ovn"><button type="button" class="rngb" data-ow="'+(pv?iso(pv.ws):'')+'"'+(pv?'':' disabled')+'>‹ Vorherige</button><span>Woche '+(sg.w.indexOf(wz)+1)+' von '+sg.w.length+' · '+esc(sg.ph)+(+wz.ws==+cw?' · diese Woche':'')+'</span><button type="button" class="rngb" data-ow="'+(nx?iso(nx.ws):'')+'"'+(nx?'':' disabled')+'>Nächste ›</button></div>'
+   +'<div class="ovch">'+barsSvg(sg.w,340,100,sg.w.findIndex(x=>+x.ws==+cw),true,sg.w.indexOf(wz))+'</div><div class="leg" style="margin:2px 0 8px"><span><i style="background:'+(PCOL[sg.ph]||'#999')+'"></i>'+esc(sg.ph)+' · Woche '+(sg.w.indexOf(wz)+1)+' markiert</span></div>'
    +(fc?'<div class="sub" style="margin:2px 0 10px">'+esc(fc)+'</div>':'')+wh)}
  if(lvl==1){
   const g=sg,mxv=Math.max(10,...g.w.map(x=>Math.max(x.pl,x.acr||0))),cur2=g.w.findIndex(x=>+x.ws==+cw),si=segs.indexOf(g),fc=FOCUS[g.ph]||'';
@@ -2772,8 +2776,8 @@ function overviewHtml(){
  const prow=segs.map(g=>{const has=g.w.some(x=>+x.ws==+cw);return'<div class="phr'+(has?' cur':'')+'" data-op="'+g.a+'" role="button" tabindex="0"><i style="background:'+(PCOL[g.ph]||'#999')+'"></i><div class="pht"><b>'+esc(g.ph)+(has?' · jetzt':'')+'</b><small>'+dshort(g.w[0].ws)+'–'+dshort(addD(g.w[g.w.length-1].ws,6))+' · '+g.w.length+' '+(g.w.length==1?'Woche':'Wochen')+'</small></div><div class="phk"><b>'+Math.round(g.pl)+'</b><small>km geplant</small></div><span class="phc">›</span></div>'}).join('');
  return wrap(head+'<div class="sub">'+dshort(first)+(first.getFullYear()!=today.getFullYear()?first.getFullYear():'')+' bis '+dfull(addD(lastw,6))+' · '+wk.length+' Wochen. Heller Balken: geplant, farbig: gelaufen.'+inf('ov_chart')+' Tippe auf eine Phase oder Woche, um hineinzuzoomen.</div>'
   +'<div class="tiles">'+tl(wk.length,'Wochen','ov_weeks')+tl(Math.round(acT)+' km','gelaufen gesamt','ov_ac')+tl(nb?Math.round(acT/nb)+' km':'–','Ø pro Woche','ov_avg')+tl(runs,'Lauftage','ov_days')+tl(Math.round(plD)+' km','Plan bisher','ov_plan')+tl(plD>0?Math.round(acD/plD*100)+' %':'–','Erfüllung','ov_ful')+'</div>'
-  +'<div class="wsec">Kilometer pro Woche</div>'+barsSvg(wk,340,120,cur,true)+'<div class="leg">'+legend+'</div>'
-  +'<details id="phd" class="pastw"'+(OZ.open?' open':'')+'><summary><span>Phasen anzeigen ('+segs.length+')</span></summary>'+strip+prow+'</details>'
+  +'<div class="wsec">Kilometer pro Woche</div>'+barsSvg(wk,340,120,cur,true)+'<div class="leg">'+legend+'</div><div class="ovh">👆 Tippe auf einen Balken, um in die zugehörige Phase hineinzuzoomen.</div>'
+  +'<details id="phd" class="pastw"'+(OZ.open?' open':'')+'><summary><span>Phasen anzeigen ('+segs.length+')<small class="ovs"> · antippen zum Hineinzoomen</small></span></summary>'+strip+prow+'</details>'
   +allWeeksHtml(wk,cw))}
 
 
