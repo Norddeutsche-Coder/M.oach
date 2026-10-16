@@ -469,6 +469,7 @@ body.rvo{overflow:hidden}
 .rvn2{display:block;margin-top:8px}.rvf{font-size:.76rem;color:var(--mu);text-align:center;margin-top:6px}
 .rvmc{padding:0;overflow:hidden}
 .rvm{position:relative;height:280px;background:var(--bg);overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.rvm.mmn{background:#e3e6eb}.mmn .mml{stroke:#17418f}
 .rvm0{display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center;height:110px;color:var(--mu);font-size:.88rem;text-align:center;padding:10px;cursor:default;touch-action:auto}
 .mmt{position:absolute;inset:0;overflow:hidden}.mmd .mmt{filter:invert(1) hue-rotate(180deg) brightness(.9) contrast(.88) saturate(.7)}.mmi{position:absolute;left:0;top:0;max-width:none;user-select:none;pointer-events:none;will-change:transform}
 .mmo{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
@@ -1505,6 +1506,7 @@ function newRunCard(){
 const mmP=(la,ln,z)=>{const s=256*Math.pow(2,z),sn=Math.sin(la*Math.PI/180);return[(ln+180)/360*s,(.5-Math.log((1+sn)/(1-sn))/(4*Math.PI))*s]};
 const mmU=(x,y,z)=>{const s=256*Math.pow(2,z);return[Math.atan(Math.sinh(Math.PI*(1-2*y/s)))*180/Math.PI,x/s*360-180]};
 const isDarkUI=()=>{const t=document.documentElement.getAttribute('data-theme');return t=='dark'||(t!='light'&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)};
+const MAPGRAY={gray:true,tile:(z,x,y)=>'https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/'+z+'/'+y+'/'+x,tmax:16,zmax:17,attr:'Karte © Esri, © OpenStreetMap-Mitwirkende'};
 function miniMap(el,pts,opt){
  opt=opt||{};
  const st={z:12,la:0,ln:0,W:0,H:0},tl=new Map(),dark=isDarkUI();el.classList.toggle('mmd',dark&&!opt.gray);el.classList.toggle('mmn',!!opt.gray);
@@ -1693,7 +1695,7 @@ function rvPaint(state){
  $('#rvx').onclick=rvClose;const re_=$('#rve');if(re_)re_.onclick=()=>{const k=re_.dataset.d;rvClose();openM(k)};const rr=$('#rvr');if(rr)rr.onclick=()=>openRun(RVR.id,1);
  const s=RVD&&RVD.s;
  if(RVM){RVM=null}
- const el=$('#rvm');if(el&&s&&s.rt)RVM=miniMap(el,s.rt);
+ const el=$('#rvm');if(el&&s&&s.rt)RVM=miniMap(el,s.rt,Object.assign({},MAPGRAY));
  if(s)rdBind()}
 async function openRun(id,force){
  const r=allRuns().find(x=>String(x.id)==String(id));if(!r)return;
@@ -1763,7 +1765,7 @@ function hmDraw(){
  if(rs.length){const o=rs[0].p[0],near=rs.filter(x=>{const q=x.p[0],dy=(q[0]-o[0])*111,dx=(q[1]-o[1])*111*Math.cos(o[0]*Math.PI/180);return dx*dx+dy*dy<2500});
   fit=[];near.forEach(x=>x.p.forEach(q=>fit.push(q)))}
  if(HMM){HMM.layers(L,fit,!rs.length);return}
- HMM=miniMap(el,null,{layers:L,fit:fit||[],coop:true,gray:true,tile:(z,x,y)=>'https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/'+z+'/'+y+'/'+x,tmax:16,zmax:17,attr:'Karte © Esri, © OpenStreetMap-Mitwirkende',view:HMV})}
+ HMM=miniMap(el,null,Object.assign({layers:L,fit:fit||[],coop:true,view:HMV},MAPGRAY))}
 async function hmFetch(){
  if(HM.busy||!ICU.key||navigator.onLine===false||(HM.retry&&Date.now()<HM.retry))return;
  const cache=hmLoadC(),todo=hmRuns().filter(r=>!(String(r.id) in cache));
