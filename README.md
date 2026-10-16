@@ -48,6 +48,8 @@ Die einmalige Umstellung erfolgt in dieser Reihenfolge:
 
 Regeln und Arbeitsweise für Claude Code, Codex und andere Agenten stehen in [AGENTS.md](AGENTS.md). `CLAUDE.md` verweist nur darauf.
 
+Einrichtung von GitHub und Taiga für Agenten: [docs/agent-setup.md](docs/agent-setup.md). Ob alles funktioniert, zeigt `./scripts/check-agent-setup.sh`.
+
 ## Taiga-Anbindung für KI-Assistenten (MCP)
 
 `.mcp.json` bindet Taiga über den Community-MCP-Server [`mcp-taiga`](https://github.com/negoro26/mcp-taiga) (Version fest auf 1.0.0) an Claude Code an. Die Datei enthält keine Zugangsdaten. Jede Person setzt sie in der eigenen Shell-Umgebung, zum Beispiel in `~/.zshrc`:
