@@ -4,9 +4,11 @@ Marathon-Coach mit Trainingsplanung, Tagesbriefing und Intervals.icu-Anbindung.
 
 ## Struktur
 
-- `frontend/`: neue Web-App mit Vite, TypeScript und Svelte.
+- `frontend/`: Web-App mit Vite, React 19 und TypeScript.
 - `backend/`: Supabase-Backend; Datenbankschema und serverseitige Funktionen werden hier versioniert.
 - `frontend/legacy-app/`: ursprüngliche App mit HTML, Service Worker, Manifest und Bildern. Der Ordner dient nur als Referenz für die Migration und wird nach deren Abschluss gelöscht.
+- `frontend/src/features/today/`: bereits nach React und TypeScript migrierte Tagesansicht.
+- `frontend/src/legacy/`: Übergangsmodul für die noch nicht migrierten Ansichten.
 
 ## Entwicklung
 
@@ -29,11 +31,11 @@ Die bisherige App lässt sich separat mit `python3 -m http.server 8080 --directo
 
 ## Migrationsstand
 
-Das Frontend enthält jetzt die bestehende Oberfläche im Vite-Build. Kopfbereich und Navigation sind Svelte-Komponenten; die übrigen Ansichten und die Fachlogik laufen zunächst in einem gekennzeichneten JavaScript-Übergangsmodul. Die vollständige Svelte-/TypeScript-Migration folgt ansichtsweise. Die bisherige App bleibt unter `frontend/legacy-app/` während der Migration erhalten. Das Hosting wird in diesem Schritt nicht umgestellt.
+Das Frontend enthält die bestehende Oberfläche im Vite-Build. Kopfbereich, Navigation und Tagesansicht sind React-Komponenten. Kalender, Läufe, Leistung, Race, Profil, Coaching und Anmeldung werden noch vom gekennzeichneten JavaScript-Übergangsmodul gerendert. Die weitere React-/TypeScript-Migration erfolgt ansichtsweise. Die bisherige App bleibt unter `frontend/legacy-app/` als Referenz erhalten. Das Hosting wird in diesem Schritt nicht umgestellt.
 
 Nächste Schritte:
 
-1. Tagesansicht und ihren Datenvertrag vollständig nach Svelte/TypeScript übertragen; anschließend die weiteren Ansichten.
+1. Kalender und seinen Datenvertrag vollständig nach React/TypeScript übertragen; anschließend die weiteren Ansichten.
 2. Supabase-Schema, Zugriffsregeln und vorhandene Funktionen erfassen und unter `backend/` versionieren.
 3. Speicherung und API-Zugriffe aus der Oberfläche lösen; Trainingslogik in TypeScript überführen und prüfen.
 4. Echte Cloud-Anmeldung, Synchronisierung und Push prüfen; danach Hosting auf `frontend/dist/` umstellen. Offline-Neuladen ist im Vite-Build bereits integriert und browsergetestet.
