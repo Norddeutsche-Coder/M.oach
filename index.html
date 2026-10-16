@@ -483,11 +483,11 @@ body.rvo{overflow:hidden}
 .rdav{stroke-width:1.4;stroke-dasharray:5 4;opacity:.9}.rdavt{font-size:9.5px;font-weight:700}.rdg{stroke:var(--bd);stroke-width:1}.rdt{font-size:9.5px;fill:var(--mu)}.rdl{stroke:var(--mu);stroke-width:1;stroke-dasharray:3 3}.rdna{font-size:.84rem;padding:6px 0}
 .rlh{margin:14px 2px 8px}.rlh h3{margin:0}#runs .card.nrc2{margin-bottom:10px}
 
-.hmm{height:340px;touch-action:auto;margin-top:8px;border-radius:14px}
+.hmm.mmn{background:#e3e6eb}.hmm.mmn .mma{display:none}.hmm{height:340px;touch-action:auto;margin-top:8px;border-radius:14px}
 .mmh{fill:none;stroke-linejoin:round;stroke-linecap:round}
-.mmh.h0{stroke:#38bdf8;stroke-width:2.4;stroke-opacity:.55}.mmh.h1{stroke:#818cf8;stroke-width:3;stroke-opacity:.7}.mmh.h2{stroke:#e879f9;stroke-width:3.6;stroke-opacity:.82}.mmh.h3{stroke:#fb923c;stroke-width:4.2;stroke-opacity:.92}.mmh.h4{stroke:#ef4444;stroke-width:5;stroke-opacity:1}
-.hml{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:.74rem;color:var(--mu)}.hms{flex:1;display:flex;height:8px;border-radius:99px;overflow:hidden}.hms i{flex:1}
-.hms .h0{background:#38bdf8}.hms .h1{background:#818cf8}.hms .h2{background:#e879f9}.hms .h3{background:#fb923c}.hms .h4{background:#ef4444}
+.mmh.h0{stroke:#8fb2ee;stroke-width:2.4}.mmh.h1{stroke:#5e8ede;stroke-width:3}.mmh.h2{stroke:#2f66c6;stroke-width:3.6}.mmh.h3{stroke:#17418f;stroke-width:4.2}.mmh.h4{stroke:#0a1f44;stroke-width:5}
+.hml{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:.74rem;color:var(--mu)}.hms{flex:1;display:flex;height:8px;border-radius:99px;overflow:hidden;box-shadow:0 0 0 1px var(--bd)}.hms i{flex:1}
+.hms .h0{background:#8fb2ee}.hms .h1{background:#5e8ede}.hms .h2{background:#2f66c6}.hms .h3{background:#17418f}.hms .h4{background:#0a1f44}
 .hmn{display:flex;margin:2px 52px 8px 44px;font-size:.68rem;color:var(--mu)}.hmn span{flex:1;text-align:center}
 .mmg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,31,68,.55);color:#fff;font-weight:700;text-align:center;pointer-events:none}.mmg small{font-weight:500}.mmg[hidden]{display:none}
 </style></head><body>
@@ -1507,7 +1507,7 @@ const mmU=(x,y,z)=>{const s=256*Math.pow(2,z);return[Math.atan(Math.sinh(Math.PI
 const isDarkUI=()=>{const t=document.documentElement.getAttribute('data-theme');return t=='dark'||(t!='light'&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)};
 function miniMap(el,pts,opt){
  opt=opt||{};
- const st={z:12,la:0,ln:0,W:0,H:0},tl=new Map(),dark=isDarkUI();el.classList.toggle('mmd',dark);
+ const st={z:12,la:0,ln:0,W:0,H:0},tl=new Map(),dark=isDarkUI();el.classList.toggle('mmd',dark&&!opt.notiles);el.classList.toggle('mmn',!!opt.notiles);
  el.innerHTML='<div class="mmt"></div><svg class="mmo" aria-hidden="true">'+(opt.layers||[]).map((l,i)=>'<path class="mmh h'+i+'"/>').join('')+'<path class="mml"/><circle class="mms" r="5.5"/><circle class="mme" r="5.5"/><circle class="mmk" r="6.5" hidden/></svg><div class="mmz"><button type="button" data-z="1" aria-label="Vergrößern">+</button><button type="button" data-z="-1" aria-label="Verkleinern">−</button><button type="button" data-z="0" aria-label="Route zentrieren">⌖</button></div><div class="mma">© OpenStreetMap-Mitwirkende</div>'+(opt.coop?'<div class="mmg" hidden>Mit zwei Fingern bewegen<br><small>Mit Strg + Mausrad zoomen</small></div>':'');
  const T=el.querySelector('.mmt'),O=el.querySelector('.mmo'),L=O.querySelector('.mml'),S0=O.querySelector('.mms'),E0=O.querySelector('.mme'),MK=O.querySelector('.mmk');
  let mk=null,moved=false;
@@ -1516,12 +1516,13 @@ function miniMap(el,pts,opt){
  function render(){
   if(!st.W)return;
   const zt=Math.max(0,Math.min(19,Math.round(st.z))),sc=Math.pow(2,st.z-zt),[cx,cy]=mmP(st.la,st.ln,zt),n=Math.pow(2,zt);
+  if(opt.notiles){for(const[k,im]of tl){im.remove();tl.delete(k)}}else{
   const x0=Math.floor((cx-st.W/2/sc)/256),x1=Math.floor((cx+st.W/2/sc)/256),y0=Math.max(0,Math.floor((cy-st.H/2/sc)/256)),y1=Math.min(n-1,Math.floor((cy+st.H/2/sc)/256)),used=new Set();
   for(let tx=x0;tx<=x1;tx++)for(let ty=y0;ty<=y1;ty++){
    const wx=((tx%n)+n)%n,key=zt+'/'+tx+'/'+ty;used.add(key);let im=tl.get(key);
    if(!im){im=new Image();im.className='mmi';im.alt='';im.draggable=false;im.decoding='async';im.onerror=()=>{im.style.visibility='hidden'};im.src=tileUrl(zt,wx,ty);T.appendChild(im);tl.set(key,im)}
    im.style.width=im.style.height=(256*sc+.6)+'px';im.style.transform='translate('+Math.round(((tx*256-cx)*sc+st.W/2)*10)/10+'px,'+Math.round(((ty*256-cy)*sc+st.H/2)*10)/10+'px)'}
-  for(const[k,im]of tl)if(!used.has(k)){im.remove();tl.delete(k)}
+  for(const[k,im]of tl)if(!used.has(k)){im.remove();tl.delete(k)}}
   const [ox,oy]=mmP(st.la,st.ln,st.z),pr=(a,b)=>{const q=mmP(a,b,st.z);return[q[0]-ox+st.W/2,q[1]-oy+st.H/2]};
   if(pts&&pts.length>1){let d='';pts.forEach((p,i)=>{const q=pr(p[0],p[1]);d+=(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)});L.setAttribute('d',d);
    const a=pr(pts[0][0],pts[0][1]),b=pr(pts[pts.length-1][0],pts[pts.length-1][1]);S0.setAttribute('cx',a[0]);S0.setAttribute('cy',a[1]);E0.setAttribute('cx',b[0]);E0.setAttribute('cy',b[1])}
@@ -1748,7 +1749,7 @@ function hmCard(){
  return'<div class="card hmc" id="hmc"><h3>Alle Läufe</h3><div class="sub" id="hmi">Karte wird vorbereitet …</div><div class="rvm hmm" id="hmm"></div>'
   +'<div class="hml" aria-hidden="false"><span>seltener</span><div class="hms"><i class="h0"></i><i class="h1"></i><i class="h2"></i><i class="h3"></i><i class="h4"></i></div><span>häufiger</span></div>'
   +'<div class="hmn"><span>1×</span><span>2–3×</span><span>4–7×</span><span>8–14×</span><span>15×+</span></div>'
-  +'<small class="mu">Aus den GPS-Daten deiner Läufe der letzten 6 Monate. Je öfter du eine Strecke gelaufen bist, desto kräftiger und wärmer die Linie. Mit zwei Fingern bewegen und zoomen.</small></div>'}
+  +'<small class="mu">Aus den GPS-Daten deiner Läufe der letzten 6 Monate. Je öfter du eine Strecke gelaufen bist, desto dunkler und kräftiger die Linie. Mit zwei Fingern bewegen und zoomen.</small></div>'}
 function hmDraw(){
  const el=$('#hmm');if(!el)return;
  const C=hmLoadC(),runs=hmRuns(),rs=[];let km=0;
@@ -1761,7 +1762,7 @@ function hmDraw(){
  if(rs.length){const o=rs[0].p[0],near=rs.filter(x=>{const q=x.p[0],dy=(q[0]-o[0])*111,dx=(q[1]-o[1])*111*Math.cos(o[0]*Math.PI/180);return dx*dx+dy*dy<2500});
   fit=[];near.forEach(x=>x.p.forEach(q=>fit.push(q)))}
  if(HMM){HMM.layers(L,fit,!rs.length);return}
- HMM=miniMap(el,null,{layers:L,fit:fit||[],coop:true,view:HMV})}
+ HMM=miniMap(el,null,{layers:L,fit:fit||[],coop:true,notiles:true,view:HMV})}
 async function hmFetch(){
  if(HM.busy||!ICU.key||navigator.onLine===false||(HM.retry&&Date.now()<HM.retry))return;
  const cache=hmLoadC(),todo=hmRuns().filter(r=>!(String(r.id) in cache));
