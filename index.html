@@ -480,7 +480,7 @@ body.rvo{overflow:hidden}
 .rvcc{padding-bottom:6px}.rdch{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:2px}.rdch b{font-size:1rem}
 .rdcv{font-size:.82rem;color:var(--mu);font-weight:600;font-variant-numeric:tabular-nums}.rdcv.sel{color:var(--tx);font-weight:800}
 .rdcs{touch-action:pan-y;cursor:crosshair;user-select:none;-webkit-user-select:none}.rdcs svg{width:100%;height:auto;display:block}
-.rdg{stroke:var(--bd);stroke-width:1}.rdt{font-size:9.5px;fill:var(--mu)}.rdl{stroke:var(--mu);stroke-width:1;stroke-dasharray:3 3}.rdna{font-size:.84rem;padding:6px 0}
+.rdav{stroke-width:1.4;stroke-dasharray:5 4;opacity:.9}.rdavt{font-size:9.5px;font-weight:700}.rdg{stroke:var(--bd);stroke-width:1}.rdt{font-size:9.5px;fill:var(--mu)}.rdl{stroke:var(--mu);stroke-width:1;stroke-dasharray:3 3}.rdna{font-size:.84rem;padding:6px 0}
 .rlh{margin:14px 2px 8px}.rlh h3{margin:0}#runs .card.nrc2{margin-bottom:10px}
 
 .hmm{height:340px;touch-action:auto;margin-top:8px;border-radius:14px}
@@ -1622,14 +1622,17 @@ const RDC=[
  {k:'hr',t:'HR',ix:2,col:'#ef4444',u:'bpm',fmt:v=>String(Math.round(v))},
  {k:'cad',t:'Cadence',ix:3,col:'#8b5cf6',u:'spm',fmt:v=>String(Math.round(v))},
  {k:'alt',t:'Elevation',ix:4,col:'#16a34a',u:'m',fmt:v=>String(Math.round(v))}];
-function rdChart(c,s,avgTxt){
+function rdRange(c,s,av){
+ const ok=s.pts.map(p=>p[c.ix]).filter(v=>v!=null).sort((a,b)=>a-b);let lo=ok[0],hi=ok[ok.length-1];
+ if(c.k=='pace'){lo=ok[Math.floor(ok.length*.03)];hi=ok[Math.min(ok.length-1,Math.floor(ok.length*.97))]}
+ if(av!=null){lo=Math.min(lo,av);hi=Math.max(hi,av)}
+ const pad=Math.max(c.k=='alt'?2:c.k=='pace'?6:3,(hi-lo)*.12);return[lo-pad,hi+pad]}
+function rdChart(c,s,avgTxt,av){
  const vals=s.pts.map(p=>p[c.ix]),ok=vals.filter(v=>v!=null);
  const head='<div class="rdch"><b>'+c.t+'</b><span class="rdcv" data-avg="'+esc(avgTxt||'')+'">'+esc(avgTxt||'')+'</span></div>';
  if(ok.length<3)return'<div class="card rvcc" data-k="'+c.k+'">'+head+'<div class="mu rdna">Keine Daten für diesen Lauf.</div></div>';
- const W=340,H=120,Lx=36,Rx=8,Tp=8,B=20,iw=W-Lx-Rx,ih=H-Tp-B,tot=s.tot,f=v=>v.toFixed(1),srt=ok.slice().sort((a,b)=>a-b);
- let lo=srt[0],hi=srt[srt.length-1];
- if(c.k=='pace'){lo=srt[Math.floor(srt.length*.03)];hi=srt[Math.min(srt.length-1,Math.floor(srt.length*.97))]}
- const pad=Math.max(c.k=='alt'?2:c.k=='pace'?6:3,(hi-lo)*.12);lo-=pad;hi+=pad;
+ const W=340,H=120,Lx=36,Rx=8,Tp=8,B=20,iw=W-Lx-Rx,ih=H-Tp-B,tot=s.tot,f=v=>v.toFixed(1);
+ const[lo,hi]=rdRange(c,s,av);
  const X=v=>Lx+iw*v/tot,Y=v=>c.inv?Tp+ih*(v-lo)/(hi-lo):Tp+ih*(1-(v-lo)/(hi-lo)),yc=v=>Math.max(Tp,Math.min(Tp+ih,Y(v)));
  let sv='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+c.t+' über die Distanz">';
  for(let i=0;i<=2;i++){const y=Tp+ih*i/2,v=c.inv?lo+(hi-lo)*i/2:hi-(hi-lo)*i/2;sv+='<line x1="'+Lx+'" x2="'+(W-Rx)+'" y1="'+f(y)+'" y2="'+f(y)+'" class="rdg"/><text x="'+(Lx-5)+'" y="'+f(y+3)+'" text-anchor="end" class="rdt">'+c.fmt(v)+'</text>'}
@@ -1637,8 +1640,9 @@ function rdChart(c,s,avgTxt){
  let ln='',ar='',seg=[];const flush=()=>{if(seg.length>1){ar+='M'+f(X(seg[0][0]))+' '+(Tp+ih)+seg.map(p=>'L'+f(X(p[0]))+' '+f(yc(p[1]))).join('')+'L'+f(X(seg[seg.length-1][0]))+' '+(Tp+ih)+'Z'}seg=[]};
  s.pts.forEach(p=>{const v=p[c.ix];if(v==null){flush();return}seg.push([p[0],v]);ln+=(seg.length==1?'M':'L')+f(X(p[0]))+' '+f(yc(v))});flush();
  sv+='<path d="'+ar+'" fill="'+c.col+'" opacity=".14"/><path d="'+ln+'" fill="none" stroke="'+c.col+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+ if(av!=null){const ya=yc(av),ty=ya-4<Tp+8?ya+11:ya-4;sv+='<line class="rdav" x1="'+Lx+'" x2="'+(W-Rx)+'" y1="'+f(ya)+'" y2="'+f(ya)+'" stroke="'+c.col+'"/><text x="'+(W-Rx-2)+'" y="'+f(ty)+'" text-anchor="end" class="rdavt" fill="'+c.col+'">Ø '+c.fmt(av)+'</text>'}
  sv+='<line class="rdl" x1="0" x2="0" y1="'+Tp+'" y2="'+(Tp+ih)+'" hidden/><circle class="rdd" r="4" fill="'+c.col+'" stroke="var(--card)" stroke-width="2" hidden/></svg>';
- return'<div class="card rvcc" data-k="'+c.k+'" data-lx="'+Lx+'" data-iw="'+iw+'" data-w="'+W+'">'+head+'<div class="rdcs">'+sv+'</div></div>'}
+ return'<div class="card rvcc" data-k="'+c.k+'" data-av="'+(av!=null?av:'')+'" data-lx="'+Lx+'" data-iw="'+iw+'" data-w="'+W+'">'+head+'<div class="rdcs">'+sv+'</div></div>'}
 function rdSel(i){
  const s=RVD&&RVD.s;if(!s)return;i=Math.max(0,Math.min(s.pts.length-1,i));const p=s.pts[i];
  document.querySelectorAll('#rv .rvcc').forEach(el=>{
@@ -1653,9 +1657,7 @@ function rdBind(){
  document.querySelectorAll('#rv .rvcc').forEach(el=>{
   const box=el.querySelector('.rdcs'),sv=box&&box.querySelector('svg');if(!box)return;
   const c=RDC.find(z=>z.k==el.dataset.k),Lx=+el.dataset.lx,iw=+el.dataset.iw,W=+el.dataset.w;
-  const vals=s.pts.map(p=>p[c.ix]).filter(v=>v!=null).sort((a,b)=>a-b);let lo=vals[0],hi=vals[vals.length-1];
-  if(c.k=='pace'){lo=vals[Math.floor(vals.length*.03)];hi=vals[Math.min(vals.length-1,Math.floor(vals.length*.97))]}
-  const pad=Math.max(c.k=='alt'?2:c.k=='pace'?6:3,(hi-lo)*.12);lo-=pad;hi+=pad;const Tp=8,ih=120-Tp-20;
+  const[lo,hi]=rdRange(c,s,el.dataset.av!==''&&el.dataset.av!=null?+el.dataset.av:null),Tp=8,ih=120-Tp-20;
   sv.__y=v=>Math.max(Tp,Math.min(Tp+ih,c.inv?Tp+ih*(v-lo)/(hi-lo):Tp+ih*(1-(v-lo)/(hi-lo))));
   let dn=false;const pick=e=>{const r=sv.getBoundingClientRect(),px=(e.clientX-r.left)/r.width*W;rdSel(Math.round(Math.max(0,Math.min(1,(px-Lx)/iw))*(s.pts.length-1)))};
   box.addEventListener('pointerdown',e=>{dn=true;pick(e)});box.addEventListener('pointermove',e=>{if(dn||e.pointerType==='mouse')pick(e)});
@@ -1675,8 +1677,10 @@ function rvHtml(r,d,state){
   +(state=='ok'&&f.gct==null&&f.vo==null&&f.vr==null?'<small class="mu rvn2">Laufdynamik (Bodenkontakt, Oszillation, Ratio) liefert nur eine kompatible Uhr mit passendem Sensor.</small>':'')+'</div>';
  h+='<div class="card"><h3 class="rvs">Terrain</h3><div class="tiles">'+rdTile('Elevation gain',f.eg,'m')+rdTile('Elevation loss',f.el,'m')+rdTile('Grade-adj. pace',f.gap?fp(f.gap):null,'/km')+'</div></div>';
  if(s&&s.pts){
-  const av={pace:pc?'Ø '+fp(pc)+' /km':'',hr:(f.mx||s.ah)?'Ø '+(s.ah||'–')+' bpm':'',cad:f.cad?'Ø '+f.cad+' spm':'',alt:f.eg!=null?'+'+f.eg+' m':''};
-  h+=RDC.map(c=>rdChart(c,s,av[c.k])).join('')}
+  const am=s.pts.map(p=>p[4]).filter(v=>v!=null),aa=am.length?am.reduce((x,y)=>x+y,0)/am.length:null,hv=s.ah||r.hr||null;
+  const avn={pace:pc||null,hr:hv,cad:f.cad||null,alt:aa},
+   av={pace:pc?'Ø '+fp(pc)+' /km':'',hr:hv?'Ø '+hv+' bpm':'',cad:f.cad?'Ø '+f.cad+' spm':'',alt:aa!=null?'Ø '+Math.round(aa)+' m'+(f.eg!=null?' · +'+f.eg+' m':''):''};
+  h+=RDC.map(c=>rdChart(c,s,av[c.k],avn[c.k])).join('')}
  else if(state=='ok')h+='<div class="card"><div class="mu">Für diesen Lauf liefert Intervals.icu keinen Verlauf.</div></div>';
  h+='<div class="card"><h3 class="rvs">Analyse</h3><div class="an a-g"><b>Das lief gut</b><ul>'+(a.good||[]).map(x=>'<li>'+x+'</li>').join('')+'</ul></div>'
   +((a.bad||[]).length?'<div class="an a-y"><b>Weniger gut</b><ul>'+a.bad.map(x=>'<li>'+x.t+'</li>').join('')+'</ul></div>':'<div class="an a-n"><b>Weniger gut</b>Nichts Auffälliges in den Daten.</div>')
