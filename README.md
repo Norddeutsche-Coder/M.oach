@@ -29,6 +29,21 @@ Der Build liegt unter `frontend/dist/`; `npm run preview` zeigt ihn lokal an.
 
 Die bisherige App lässt sich separat mit `python3 -m http.server 8080 --directory frontend/legacy-app` unter `http://localhost:8080` öffnen.
 
+## Deployment
+
+Ein Push auf `main` startet automatisch `.github/workflows/deploy.yml`. Der Workflow veröffentlicht `frontend/dist/` erst, nachdem die vollständige CI einschließlich der Browserprüfungen erfolgreich war.
+
+Voraussetzungen sind die Pages-Quelle „GitHub Actions“ und die beiden gesetzten Repository-Variablen `VITE_SUPABASE_URL` und `VITE_SUPABASE_PUBLISHABLE_KEY`. Die Adresse bleibt `https://norddeutsche-coder.github.io/M.oach/`. Bei einer anderen Adresse verlieren Nutzer den Zugriff auf ihre dort im localStorage gespeicherten Daten.
+
+Die einmalige Umstellung erfolgt in dieser Reihenfolge:
+
+1. PR von `chore/project-structure` nach `main` öffnen und prüfen.
+2. Unter Settings → Pages die Quelle auf „GitHub Actions“ umstellen. Die bisher veröffentlichte Version bleibt dabei bis zum nächsten Deployment online.
+3. Unter Settings → Environments → `github-pages` prüfen, dass `main` deployen darf.
+4. PR mergen. Danach unter Actions prüfen, dass „Deploy“ grün durchläuft.
+5. `https://norddeutsche-coder.github.io/M.oach/` auf einem Gerät öffnen, auf dem die alte App installiert war, neu laden und prüfen, ob die Daten vorhanden sind und Offline-Neuladen funktioniert.
+6. In Supabase unter Authentication → URL Configuration prüfen, dass die Pages-URL als Site-URL beziehungsweise Redirect-URL für den Passwort-Reset eingetragen ist.
+
 ## Migrationsstand
 
 Das Frontend enthält die bestehende Oberfläche im Vite-Build. Kopfbereich, Navigation und Tagesansicht sind React-Komponenten. Kalender, Läufe, Leistung, Race, Profil, Coaching und Anmeldung werden noch vom gekennzeichneten JavaScript-Übergangsmodul gerendert. Die weitere React-/TypeScript-Migration erfolgt ansichtsweise. Die bisherige App bleibt unter `frontend/legacy-app/` als Referenz erhalten. Das Hosting wird in diesem Schritt nicht umgestellt.
