@@ -848,7 +848,7 @@ function rCal(){
  const we=addD(WS,6),mvN=Object.keys(S.mv||{}).filter(k=>k>=iso(today)).length;
  const title=CV=='m'?M.toLocaleDateString('de-DE',{month:'long',year:'numeric'}):(WS.getMonth()==we.getMonth()?WS.getDate()+'.–'+we.getDate()+'. '+WS.toLocaleDateString('de-DE',{month:'long',year:'numeric'}):WS.getDate()+'. '+MON3[WS.getMonth()]+' – '+we.getDate()+'. '+MON3[we.getMonth()]+' '+we.getFullYear());
  const h=CVT()+`<div class="mh"><button id="pv" aria-label="Zurück">‹</button><b>${title}</b><button id="nx" aria-label="Weiter">›</button><button id="td">Heute</button></div>`+(CV=='m'?monthHtml():weekHtml())+(mvN?'<div class="b"><button type="button" id="mvr">Verschiebungen zurücksetzen</button></div>':'');
- $('#cal').innerHTML=planCard()+h+overviewHtml();wirePlanCard();
+ $('#cal').innerHTML=planCard()+overviewHtml()+h;wirePlanCard();
  const sh=n=>{if(CV=='m')M=new Date(M.getFullYear(),M.getMonth()+n,1);else WS=addD(WS,7*n);rCal()};
  $('#pv').onclick=()=>sh(-1);$('#nx').onclick=()=>sh(1);
  $('#td').onclick=()=>{M=new Date(today.getFullYear(),today.getMonth(),1);WS=mon(today);rCal()};
