@@ -25,6 +25,8 @@ export default function App() {
         onCoachChange: value => { if (mounted) setCoaching(value) },
         onTodayChange: input => { if (mounted) setToday(buildToday(input)) },
       })
+      // The legacy runtime is created once by this mount-only integration effect.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRuntime(instance)
       registerServiceWorker()
     } catch (cause) {
