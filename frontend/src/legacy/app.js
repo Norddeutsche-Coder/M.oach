@@ -1,5 +1,5 @@
 // @ts-nocheck
-// Transitional runtime extracted from sources/index.html. Feature views still
+// Transitional runtime extracted from legacy-app/index.html. Feature views still
 // render imperatively; migrate them individually instead of disguising this as TS.
 import { createLifecycle } from '../lib/lifecycle'
 import { iso, parse, addD, mon, fp, ft } from '../lib/format'
