@@ -44,6 +44,10 @@ Die einmalige Umstellung erfolgt in dieser Reihenfolge:
 5. `https://norddeutsche-coder.github.io/M.oach/` auf einem Gerät öffnen, auf dem die alte App installiert war, neu laden und prüfen, ob die Daten vorhanden sind und Offline-Neuladen funktioniert.
 6. In Supabase unter Authentication → URL Configuration prüfen, dass die Pages-URL als Site-URL beziehungsweise Redirect-URL für den Passwort-Reset eingetragen ist.
 
+## Hinweise für KI-Agenten
+
+Regeln und Arbeitsweise für Claude Code, Codex und andere Agenten stehen in [AGENTS.md](AGENTS.md). `CLAUDE.md` verweist nur darauf.
+
 ## Taiga-Anbindung für KI-Assistenten (MCP)
 
 `.mcp.json` bindet Taiga über den Community-MCP-Server [`mcp-taiga`](https://github.com/negoro26/mcp-taiga) (Version fest auf 1.0.0) an Claude Code an. Die Datei enthält keine Zugangsdaten. Jede Person setzt sie in der eigenen Shell-Umgebung, zum Beispiel in `~/.zshrc`:
