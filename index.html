@@ -483,7 +483,7 @@ body.rvo{overflow:hidden}
 .rdav{stroke-width:1.4;stroke-dasharray:5 4;opacity:.9}.rdavt{font-size:9.5px;font-weight:700}.rdg{stroke:var(--bd);stroke-width:1}.rdt{font-size:9.5px;fill:var(--mu)}.rdl{stroke:var(--mu);stroke-width:1;stroke-dasharray:3 3}.rdna{font-size:.84rem;padding:6px 0}
 .rlh{margin:14px 2px 8px}.rlh h3{margin:0}#runs .card.nrc2{margin-bottom:10px}
 
-.hmm.mmn{background:#e3e6eb}.hmm.mmn .mma{display:none}.hmm{height:340px;touch-action:auto;margin-top:8px;border-radius:14px}
+.hmm.mmn{background:#e3e6eb}.hmm{height:340px;touch-action:auto;margin-top:8px;border-radius:14px}
 .mmh{fill:none;stroke-linejoin:round;stroke-linecap:round}
 .mmh.h0{stroke:#8fb2ee;stroke-width:2.4}.mmh.h1{stroke:#5e8ede;stroke-width:3}.mmh.h2{stroke:#2f66c6;stroke-width:3.6}.mmh.h3{stroke:#17418f;stroke-width:4.2}.mmh.h4{stroke:#0a1f44;stroke-width:5}
 .hml{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:.74rem;color:var(--mu)}.hms{flex:1;display:flex;height:8px;border-radius:99px;overflow:hidden;box-shadow:0 0 0 1px var(--bd)}.hms i{flex:1}
@@ -1507,16 +1507,16 @@ const mmU=(x,y,z)=>{const s=256*Math.pow(2,z);return[Math.atan(Math.sinh(Math.PI
 const isDarkUI=()=>{const t=document.documentElement.getAttribute('data-theme');return t=='dark'||(t!='light'&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)};
 function miniMap(el,pts,opt){
  opt=opt||{};
- const st={z:12,la:0,ln:0,W:0,H:0},tl=new Map(),dark=isDarkUI();el.classList.toggle('mmd',dark&&!opt.notiles);el.classList.toggle('mmn',!!opt.notiles);
- el.innerHTML='<div class="mmt"></div><svg class="mmo" aria-hidden="true">'+(opt.layers||[]).map((l,i)=>'<path class="mmh h'+i+'"/>').join('')+'<path class="mml"/><circle class="mms" r="5.5"/><circle class="mme" r="5.5"/><circle class="mmk" r="6.5" hidden/></svg><div class="mmz"><button type="button" data-z="1" aria-label="Vergrößern">+</button><button type="button" data-z="-1" aria-label="Verkleinern">−</button><button type="button" data-z="0" aria-label="Route zentrieren">⌖</button></div><div class="mma">© OpenStreetMap-Mitwirkende</div>'+(opt.coop?'<div class="mmg" hidden>Mit zwei Fingern bewegen<br><small>Mit Strg + Mausrad zoomen</small></div>':'');
+ const st={z:12,la:0,ln:0,W:0,H:0},tl=new Map(),dark=isDarkUI();el.classList.toggle('mmd',dark&&!opt.gray);el.classList.toggle('mmn',!!opt.gray);
+ el.innerHTML='<div class="mmt"></div><svg class="mmo" aria-hidden="true">'+(opt.layers||[]).map((l,i)=>'<path class="mmh h'+i+'"/>').join('')+'<path class="mml"/><circle class="mms" r="5.5"/><circle class="mme" r="5.5"/><circle class="mmk" r="6.5" hidden/></svg><div class="mmz"><button type="button" data-z="1" aria-label="Vergrößern">+</button><button type="button" data-z="-1" aria-label="Verkleinern">−</button><button type="button" data-z="0" aria-label="Route zentrieren">⌖</button></div><div class="mma">'+(opt.attr||'© OpenStreetMap-Mitwirkende')+'</div>'+(opt.coop?'<div class="mmg" hidden>Mit zwei Fingern bewegen<br><small>Mit Strg + Mausrad zoomen</small></div>':'');
  const T=el.querySelector('.mmt'),O=el.querySelector('.mmo'),L=O.querySelector('.mml'),S0=O.querySelector('.mms'),E0=O.querySelector('.mme'),MK=O.querySelector('.mmk');
  let mk=null,moved=false;
  const meas=()=>{st.W=el.clientWidth;st.H=el.clientHeight;O.setAttribute('viewBox','0 0 '+st.W+' '+st.H)};
- const tileUrl=(z,x,y)=>'https://tile.openstreetmap.org/'+z+'/'+x+'/'+y+'.png';
+ const tileUrl=opt.tile||((z,x,y)=>'https://tile.openstreetmap.org/'+z+'/'+x+'/'+y+'.png');
  function render(){
   if(!st.W)return;
-  const zt=Math.max(0,Math.min(19,Math.round(st.z))),sc=Math.pow(2,st.z-zt),[cx,cy]=mmP(st.la,st.ln,zt),n=Math.pow(2,zt);
-  if(opt.notiles){for(const[k,im]of tl){im.remove();tl.delete(k)}}else{
+  const zt=Math.max(0,Math.min(opt.tmax||19,Math.round(st.z))),sc=Math.pow(2,st.z-zt),[cx,cy]=mmP(st.la,st.ln,zt),n=Math.pow(2,zt);
+  {
   const x0=Math.floor((cx-st.W/2/sc)/256),x1=Math.floor((cx+st.W/2/sc)/256),y0=Math.max(0,Math.floor((cy-st.H/2/sc)/256)),y1=Math.min(n-1,Math.floor((cy+st.H/2/sc)/256)),used=new Set();
   for(let tx=x0;tx<=x1;tx++)for(let ty=y0;ty<=y1;ty++){
    const wx=((tx%n)+n)%n,key=zt+'/'+tx+'/'+ty;used.add(key);let im=tl.get(key);
@@ -1529,7 +1529,7 @@ function miniMap(el,pts,opt){
   if(opt.layers){const sc=256*Math.pow(2,st.z);O.querySelectorAll('.mmh').forEach((pe,i)=>{let d='';for(const pl of opt.layers[i]||[]){const b=pl.bb;if(b[1]*sc-ox+st.W/2<-8||b[0]*sc-ox+st.W/2>st.W+8||b[3]*sc-oy+st.H/2<-8||b[2]*sc-oy+st.H/2>st.H+8)continue;const p=pl.p;d+='M';for(let k=0;k<p.length;k+=2)d+=(k?'L':'')+(p[k]*sc-ox+st.W/2).toFixed(1)+' '+(p[k+1]*sc-oy+st.H/2).toFixed(1)}pe.setAttribute('d',d)})}
   if(mk){const q=pr(mk[0],mk[1]);MK.setAttribute('cx',q[0]);MK.setAttribute('cy',q[1]);MK.removeAttribute('hidden')}else MK.setAttribute('hidden','')}
  function setC(wx,wy,z){const u=mmU(wx,wy,z);st.la=Math.max(-84,Math.min(84,u[0]));st.ln=u[1];st.z=z}
- function zoomAt(px,py,z){moved=true;z=Math.max(3,Math.min(18,z));const[ox,oy]=mmP(st.la,st.ln,st.z),wx=ox+px-st.W/2,wy=oy+py-st.H/2,k=Math.pow(2,z-st.z);setC(wx*k-(px-st.W/2),wy*k-(py-st.H/2),z);render()}
+ function zoomAt(px,py,z){moved=true;z=Math.max(3,Math.min(opt.zmax||18,z));const[ox,oy]=mmP(st.la,st.ln,st.z),wx=ox+px-st.W/2,wy=oy+py-st.H/2,k=Math.pow(2,z-st.z);setC(wx*k-(px-st.W/2),wy*k-(py-st.H/2),z);render()}
  function fit(){
   moved=false;const fp_=pts&&pts.length?pts:opt.fit;
   if(!fp_||!fp_.length){st.la=51;st.ln=10;st.z=4;render();return}
@@ -1762,7 +1762,7 @@ function hmDraw(){
  if(rs.length){const o=rs[0].p[0],near=rs.filter(x=>{const q=x.p[0],dy=(q[0]-o[0])*111,dx=(q[1]-o[1])*111*Math.cos(o[0]*Math.PI/180);return dx*dx+dy*dy<2500});
   fit=[];near.forEach(x=>x.p.forEach(q=>fit.push(q)))}
  if(HMM){HMM.layers(L,fit,!rs.length);return}
- HMM=miniMap(el,null,{layers:L,fit:fit||[],coop:true,notiles:true,view:HMV})}
+ HMM=miniMap(el,null,{layers:L,fit:fit||[],coop:true,gray:true,tile:(z,x,y)=>'https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/'+z+'/'+y+'/'+x,tmax:16,zmax:17,attr:'Karte © Esri, © OpenStreetMap-Mitwirkende',view:HMV})}
 async function hmFetch(){
  if(HM.busy||!ICU.key||navigator.onLine===false||(HM.retry&&Date.now()<HM.retry))return;
  const cache=hmLoadC(),todo=hmRuns().filter(r=>!(String(r.id) in cache));
