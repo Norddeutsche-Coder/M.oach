@@ -1,174 +1,71 @@
 ---
 name: finish-taiga-ticket
-description: Schließt eine Taiga-User-Story nach bestandener QA ab. Aufruf mit der Story-Nummer, z. B. `/finish-taiga-ticket 27`. Prüft CI, QA und Acceptance Criteria auf dem Branch, wartet auf Go, erstellt erst dann den PR, setzt die Story auf Im Review, merged den PR per Squash, wartet auf das Deployment, macht einen Smoke-Test der Live-App, schreibt einen Release-Kommentar und eine Neuigkeit in Alltagssprache, räumt den Branch auf und setzt die Story auf Fertig oder, bei sichtbaren Änderungen, auf Abnahme durch eine andere Person. Ein zweiter Aufruf schließt die Abnahme ab. Bei Fehlern nach dem Merge hält er an und bereitet einen Revert vor.
+description: Schließt eine Taiga-User-Story nach bestandener QA ab. Aufruf mit der Story-Nummer, z. B. `/finish-taiga-ticket 27`. Prüft die Bedingungen mit einem Skript, erstellt nach Go den PR, merged per Squash, prüft das Deployment live, schreibt Release-Kommentar und Neuigkeit und setzt die Story auf Fertig oder bei sichtbaren Änderungen auf Abnahme durch eine andere Person. Ein zweiter Aufruf schließt die Abnahme ab. Bei Fehlern nach dem Merge bereitet er einen Revert vor.
 argument-hint: <story-nummer>
 disable-model-invocation: true
+model: sonnet
+effort: medium
 ---
 
 # Taiga-Story abschließen
 
-> **Für alle Agenten** (Claude Code, Codex u. a.). Aufruf in Claude Code mit `/finish-taiga-ticket`, in Codex mit `$finish-taiga-ticket`, jeweils gefolgt vom Argument. „Taiga-MCP `work`“ meint das Werkzeug `work` des MCP-Servers `taiga` (Claude Code: `mcp__taiga__work`). GitHub-Schritte bevorzugt über das GitHub-MCP, sonst mit `gh`. `<tmp>` ist ein temporärer Arbeitsordner außerhalb des Repositorys (Claude Code: Scratchpad der Sitzung, sonst `${TMPDIR:-/tmp}/moach`). Rückfragen mit Auswahl stellst du über das Auswahl-Werkzeug des Agenten (Claude Code: `AskUserQuestion`). Gibt es keins, stell sie als nummerierte Optionen im Chat und warte auf die Antwort.
+> Gemeinsame Regeln: `docs/workflow.md` (zu Beginn lesen). Helfer: `python3 -I scripts/moach_taiga.py <befehl>`. Live-URL: `https://norddeutsche-coder.github.io/m.oach/`, Deploy-Workflow `Deploy`.
 
-Argument: das Aufruf-Argument ist die Nummer der **User Story**. Fehlt sie, frag danach.
+Argument: Nummer der **User Story**. Fehlt sie, frag danach. **Steht die Story auf `Abnahme`**, direkt zu Phase 7.
 
-**Ein Haltepunkt:** vor dem PR und dem Merge. Nach dem Go läuft alles bis „Fertig“ bzw. „Abnahme“ durch, außer etwas schlägt fehl.
+**Ein Haltepunkt:** vor PR und Merge. Den PR erstellt nur dieser Skill, und nur nach bestandener QA für den aktuellen Head-Commit.
 
-**Steht die Story beim Aufruf auf `Abnahme`**, springe direkt zu **Phase 7: Abnahme abschließen**.
+## Phase 1: Bedingungen
 
-**Erst QA, dann PR.** Der PR wird ausschließlich in diesem Skill erstellt, und nur, wenn `/qa-taiga-ticket` für den aktuellen Head-Commit des Branches mit „bestanden“ durchgelaufen ist. Fehlt das, wird kein PR erstellt.
-
-**Abnahme nach der Veröffentlichung:** Nur Stories mit einer für Läufer **sichtbaren Änderung** (Oberfläche, Texte, Verhalten in der App, dieselben Kriterien wie für Screenshots im QA-Skill) werden abgenommen, und zwar **in der Live-App nach dem Merge**. Abnehmen darf jedes Projektmitglied **außer der Person, der die Story zugeordnet ist**. Angesprochen wird: Ist `fynndow` zugeordnet, `@lukcy22`, sonst `@fynndow`. Reine Technik-Stories (Tests, CI, Refactoring, Doku) brauchen keine Abnahme. Bei Stories mit Tag `hotfix` ist die Abnahme optional.
-
-## Projektzuordnung
-
-Projekt aus `git remote get-url origin` bestimmen. Ist das Repo nicht in der Tabelle, halte an und frag.
-
-| Repo | Taiga-Projekt | Basis-Branch | Live-URL | Deploy-Workflow | App-Ordner |
-|---|---|---|---|---|---|
-| `Norddeutsche-Coder/m.oach` | `fynndow-moach` | `main` | `https://norddeutsche-coder.github.io/m.oach/` | `Deploy` (`.github/workflows/deploy.yml`) | `frontend/` |
-
-GitHub: bevorzugt das GitHub-MCP (`pull_request_read`, `merge_pull_request`). Für Workflow-Läufe die GitHub-API per `curl` mit `Authorization: Bearer $GITHUB_PERSONAL_ACCESS_TOKEN`. Den Token nie ausgeben.
-
-## Phase 1: Bedingungen prüfen
-
-1. Story laden (Taiga-MCP `work`, `op: get`, `type: story`), dazu ihre Tasks und Kommentare (Taiga-MCP `comments`, `op: list`).
-2. Branch finden: `git fetch origin`, Branch `…/tg-<nr>-…` auf `origin`. Gibt es keinen, halte an. Merke den Head-Commit (Kurz-SHA).
-3. Prüfen, ob es schon einen PR für den Branch gibt (`list_pull_requests` bzw. `gh pr list --head <branch>`). Das sollte nicht so sein. Gibt es doch einen, weise im Haltepunkt darauf hin und verwende ihn weiter, statt einen zweiten zu erstellen.
-4. Prüfe **alle** Bedingungen und halte das Ergebnis je Punkt fest:
-   - [ ] **CI grün** für den Head-Commit des Branches (`GET /repos/<repo>/actions/runs?head_sha=<sha>` bzw. `gh run list --commit <sha>`). Läuft sie noch, warte darauf, höchstens 15 Minuten.
-   - [ ] **QA bestanden:** Der neueste QA-Kommentar an der Story (`## QA ✅ bestanden · … · Branch <branch> @ <head>`) nennt den aktuellen Head-Commit des Branches (Kurz-SHA). Ein älteres „bestanden“ für einen früheren Commit zählt nicht.
-   - [ ] **Basis eingearbeitet:** Die QA hat nur den Branch geprüft. Enthält `origin/<basis>` Commits, die nicht im Branch sind (`git log origin/<branch>..origin/<basis>`), liste sie auf und frag, ob vorher `<basis>` in den Branch gemergt und `/qa-taiga-ticket` erneut ausgeführt werden soll. Empfehlung: ja, wenn diese Commits dieselben Dateien berühren.
-   - [ ] **Story-Status `Im Test`.**
-   - [ ] **Keine offenen QA- oder Abnahme-Tasks** (`QA: …`, `Abnahme: …` mit Status ungleich `Erledigt`).
-   - [ ] **Alle Acceptance Criteria abgehakt** in der Story-Beschreibung (`- [x]`). Ist eine noch `- [ ]`, aber laut QA-Kommentar erfüllt, darfst du sie im Zuge des Abschlusses abhaken. Das sagst du im Haltepunkt ausdrücklich.
-   - [ ] **Keine sonstigen offenen Tasks.** Gibt es welche, liste sie auf und frag, ob sie geschlossen, in eine neue Story verschoben oder zuerst erledigt werden sollen.
-   - [ ] **Ohne Konflikte mergebar:** `git merge-tree --write-tree origin/<basis> origin/<branch>` meldet keine Konflikte.
-5. Merke dir die aktuell live ausgelieferte Version: Lade `<Live-URL>` und notiere den Dateinamen des Haupt-Bundles (`assets/index-<hash>.js`).
+1. `python3 -I scripts/moach_taiga.py finish-check <nr>`. Das Skript prüft Branch, CI, QA-Kommentar zum Head-Commit, neue Commits auf `main` und gemeinsame Dateien, Status `Im Test`, offene Tasks, offene Acceptance Criteria, Merge-Konflikte und einen vorhandenen PR. Läuft die CI noch (⏳), warte (höchstens 15 Minuten) und prüfe erneut.
+2. Bei ⚠️ **Basis**: Liste die gemeinsamen Dateien und frag, ob vorher `main` in den Branch gemergt und die QA wiederholt werden soll (Empfehlung: ja). Bei ⚠️ **PR**: den vorhandenen PR weiterverwenden.
+3. Offene Acceptance Criteria, die laut QA-Kommentar erfüllt sind, darfst du beim Abschluss abhaken. Das sagst du im Haltepunkt. Andere offene Tasks: fragen, ob schließen, verschieben oder zuerst erledigen.
+4. Bundle-Namen der Live-Version notieren (`curl -s <Live-URL> | grep -o 'assets/index-[^"]*\.js'`).
 
 ## Phase 2: Freigabe (Haltepunkt)
 
-Zeig:
-- Story (Nummer, Titel, Punkte), Branch mit Head-Commit, Anzahl Commits und `git diff --stat origin/<basis>...origin/<branch>`,
-- die Bedingungen mit ✅/❌,
-- den geplanten PR: Titel `<Story-Titel> (TG-<nr>)` und die Beschreibung (siehe Phase 3),
-- die geplante Squash-Commit-Nachricht: Titel `<PR-Titel>` (enthält `TG-<nr>`), Text als kurze Zusammenfassung der Änderungen, **ohne** `Co-authored-by:`-Zeilen für KI-Agenten (GitHub schlägt sie beim Squash automatisch vor, entferne sie),
-- was danach automatisch passiert (PR erstellen, Im Review, Checks abwarten, Merge, Deploy abwarten, Smoke-Test, Fertig, Neuigkeit, Aufräumen).
+Zeig die Ausgabe von `finish-check`, `git diff --stat origin/main...origin/<branch>`, den PR (Titel `<Story-Titel> (TG-<nr>)`, Text nach `templates/pr-beschreibung.md`) und die Squash-Nachricht ohne `Co-authored-by:` für KI-Agenten. Steht irgendwo ❌, **kein PR und kein Merge**, sondern nenne den Skill, der es behebt. Sonst halte an und warte auf ein Go.
 
-Ist eine Bedingung ❌, **erstelle keinen PR und merge nicht**. Nenn, was fehlt und welcher Skill das erledigt (`/implement-taiga-ticket`, `/qa-taiga-ticket`). Ist alles ✅, **halte an** und warte auf ein Go.
+## Phase 3: PR und Merge (nach Go)
 
-## Phase 3: PR und Merge (erst nach Go)
-
-1. **PR erstellen** nach `<basis>`, bevorzugt mit dem GitHub-MCP (`create_pull_request`), sonst `gh pr create`. Gibt es eine PR-Vorlage im Repo, nutz sie. Titel: `<Story-Titel> (TG-<nr>)`. Die Beschreibung ist auf Deutsch:
-   - **Kurz gesagt:** 2–3 Sätze ohne Fachbegriffe, was sich für Läufer ändert,
-   - Worum es geht (1–2 Sätze) und ein Link zur Story `https://tree.taiga.io/project/<slug>/us/<nr>`,
-   - Änderungen,
-   - die Acceptance Criteria als abgehakte Checkliste,
-   - QA: Link zum QA-Kommentar bzw. „QA bestanden für `<head-kurz-sha>`“,
-   - Abnahme: „nach der Veröffentlichung durch @<andere Person>“ | „nicht nötig, reine Technik“,
-   - Risiken bzw. was beim Review zu beachten ist,
-   - abschließend die Attribution-Zeile für PR-Beschreibungen, falls der Agent eine vorgibt.
-2. Den PR-Link in das Story-Feld **„Pull Request“** eintragen. Das MCP kann keine eigenen Felder setzen, deshalb über die Taiga-API mit `TAIGA_USERNAME` und `TAIGA_PASSWORD` aus der Umgebung:
-   ```python
-   # python3 -I - ; Zugangsdaten nie ausgeben
-   import json, os, urllib.request
-   API = os.environ.get("TAIGA_API_URL", "https://api.taiga.io/api/v1")
-   def call(m, p, b=None, t=None):
-       r = urllib.request.Request(API + p, method=m, data=json.dumps(b).encode() if b is not None else None,
-           headers={"Content-Type": "application/json", **({"Authorization": "Bearer " + t} if t else {})})
-       with urllib.request.urlopen(r) as x: return json.load(x)
-   t = call("POST", "/auth", {"type": "normal", "username": os.environ["TAIGA_USERNAME"], "password": os.environ["TAIGA_PASSWORD"]})["auth_token"]
-   pid = call("GET", f"/projects/by_slug?slug={SLUG}", t=t)["id"]
-   us = call("GET", f"/userstories/by_ref?project={pid}&ref={NR}", t=t)
-   attr = next(a for a in call("GET", f"/userstory-custom-attributes?project={pid}", t=t) if a["name"] == "Pull Request")
-   cur = call("GET", f"/userstories/custom-attributes-values/{us['id']}", t=t)
-   vals = {**cur["attributes_values"], str(attr["id"]): PR_URL}
-   call("PATCH", f"/userstories/custom-attributes-values/{us['id']}", {"attributes_values": vals, "version": cur["version"]}, t=t)
-   ```
-3. Story auf `Im Review` setzen.
-4. **Checks des PR abwarten** (`pull_request_read`, Methode `get_status`, bzw. Check-Runs, z. B. der Secret-Scan), höchstens 15 Minuten. Ist einer rot, halte an, zeig Job und Ursache. Die Story bleibt `Im Review`.
-5. Gegebenenfalls die laut QA erfüllten Acceptance Criteria in der Story abhaken (`op: update`, Beschreibung mit `- [x]`).
-6. PR per **Squash** mergen (`merge_pull_request`, `merge_method: squash`, mit Commit-Titel und -Text aus Phase 2). Nie mit Admin-Rechten Schutzregeln umgehen. Lehnt GitHub den Merge ab, halte an und melde den Grund.
-7. Merge-Commit-SHA notieren.
+1. PR nach `main` erstellen (GitHub-MCP `create_pull_request` oder `gh pr create --body-file`).
+2. `python3 -I scripts/moach_taiga.py set-pr-link <nr> <PR-URL>`, Story auf `Im Review`.
+3. Checks des PR abwarten (z. B. Secret-Scan, höchstens 15 Minuten). Rot → anhalten, Story bleibt `Im Review`.
+4. Laut QA erfüllte Acceptance Criteria abhaken. Squash-Merge mit Titel und Text aus Phase 2, nie Schutzregeln umgehen. Abgelehnt → anhalten, Grund melden.
 
 ## Phase 4: Deployment und Smoke-Test
 
-1. **Deploy-Lauf abwarten:** Lauf des Deploy-Workflows für den Merge-Commit finden (`GET /repos/<repo>/actions/runs?head_sha=<sha>`) und warten, bis er abgeschlossen ist, höchstens 20 Minuten, Abfrage etwa jede Minute. Ergebnis und Link notieren.
-2. **Neue Version live:** `<Live-URL>` laden, bis der Bundle-Name sich gegenüber Phase 1 geändert hat (höchstens 5 Minuten, GitHub Pages cached kurz).
-3. **Smoke-Test mit Screenshot:** die betroffene Ansicht der Story auf der Live-URL mit Testdaten aufnehmen, Handy hell, plus Dunkelmodus, falls die Story die Oberfläche betrifft. Verwende das Skript des QA-Skills, das alle externen Anfragen blockiert (keine echten Konten, keine Anfragen an Supabase oder Intervals.icu):
-   `node <repo>/.agents/skills/qa-taiga-ticket/scripts/shots.cjs <app-ordner>/node_modules/@playwright/test <Live-URL> <tmp>/release-tg-<nr> <szenarien.json>` (`<repo>` ist das Wurzelverzeichnis des Repositorys)
-   Szenarien wie im QA-Skill beschrieben (localStorage-Testdaten, festes Datum, Reiter). Bei M.oach ist für die Live-Version kein `moach_sb` nötig.
-   **Jeden Screenshot ansehen.** Prüfe: Die App startet ohne Fehlermeldung, die Änderung der Story ist sichtbar, die Konsole zeigt keine Fehler (das Skript meldet sie).
-4. Schlägt einer dieser Schritte fehl, weiter mit **Phase 6**.
+1. Deploy-Lauf zum Merge-Commit abwarten (`gh run list --commit <sha>`, höchstens 20 Minuten).
+2. Live-URL laden, bis sich der Bundle-Name geändert hat (höchstens 5 Minuten).
+3. Die betroffene Ansicht mit `shots.cjs` aus dem QA-Skill gegen die Live-URL aufnehmen (Handy hell, bei Oberflächen zusätzlich dunkel, externe Anfragen blockiert, kein `moach_sb`). Jeden Screenshot ansehen: Die App startet, die Änderung ist sichtbar, es gibt keine Konsolenfehler.
+4. Schlägt etwas fehl → Phase 6.
 
-## Phase 5: Abschließen (nur wenn Phase 4 erfolgreich)
+## Phase 5: Abschließen
 
-1. Alle restlichen Tasks der Story auf `Erledigt` setzen.
-2. **Abnahme nötig** (laut QA-Kommentar, sichtbare Änderung, kein `hotfix` ohne Abnahme)? Dann Story auf `Abnahme` setzen. Sonst auf `Fertig`.
-   **Sprint sortieren:** `python3 -I <repo>/.agents/skills/plan-taiga-sprint/scripts/sort_sprint.py <slug>` ausführen (`<repo>` ist das Wurzelverzeichnis des Repositorys). Stories in Bearbeitung (In Arbeit, Im Test, Im Review, Abnahme) stehen dann oben, offene darunter, fertige unten.
-3. Die Screenshots des Smoke-Tests als **eine ZIP-Datei** an die Story hängen, nie als einzelne PNG-Dateien: `python3 -m zipfile -c <tmp>/release-tg-<nr>/live-tg-<nr>.zip <tmp>/release-tg-<nr>/*.png`, dann Taiga-MCP `attachments`, `op: upload`, `type: story`, `filePath` auf die ZIP, Beschreibung z. B. „Live · Smoke-Test · <bundle-name>“.
-4. Release-Kommentar an die Story (Taiga-MCP `comments`, `op: add`):
-   ```
-   ## Released ✅ · <Datum>
-
-   **Kurz gesagt:** <1–2 Sätze ohne Fachbegriffe: was Läufer ab jetzt in der App bemerken>
-
-   - **PR:** #<nr> <Link> (Squash)
-   - **Merge-Commit:** <kurz-sha> <Link>
-   - **Deployment:** <Link zum Deploy-Lauf> · <Dauer>
-   - **Live:** <Live-URL> · Version <bundle-name>
-   - **Smoke-Test:** <geprüfte Ansicht(en)> · ✅ ohne Konsolenfehler · Screenshots in `live-tg-<nr>.zip` angehängt
-   ```
-5. **Neuigkeit eintragen:** Bemerken Läufer die Änderung, oben in der Wiki-Seite `neuigkeiten` eine Zeile ergänzen (Taiga-MCP `wiki`, `op: get`, dann `op: update`): `- <Datum>: <was Läufer davon haben, ohne Fachbegriffe> (#<nr>)`. Reine Technik-Änderungen überspringen.
-6. **Abnahme anfordern** (nur wenn nötig): Kommentar an die Story:
-   ```
-   ## Zur Abnahme · @<andere Person>
-
-   **Kurz gesagt:** <was sich für Läufer geändert hat>
-   **Was du ausprobieren kannst:** <1–3 Schritte in Alltagssprache aus dem QA-Kommentar>
-   **Wo:** in der Live-App <Live-URL>, Screenshots in `live-tg-<nr>.zip`
-   **So antwortest du:** Kommentar an diese Story mit „Abgenommen“ oder „Nicht abgenommen: <was fehlt oder stört>“.
-   ```
-7. **Aufräumen:**
-   - Remote-Branch löschen, falls GitHub ihn nicht automatisch gelöscht hat (`git push origin --delete <branch>`),
-   - lokal auf den Basis-Branch wechseln, `git pull --ff-only`, lokalen Branch löschen (`git branch -d`, nicht `-D`). Weigert sich Git, halte an und frag,
-   - temporäre Ordner unter `<tmp>` bleiben bestehen.
+1. Restliche Tasks `Erledigt`. Story auf `Abnahme`, wenn der QA-Kommentar „Nötig: ja“ sagt (bei `hotfix` optional), sonst `Fertig`. Danach `sort-sprint`.
+2. Screenshots als **eine ZIP** (`python3 -m zipfile -c <tmp>/release-tg-<nr>/live-tg-<nr>.zip <tmp>/release-tg-<nr>/*.png`) hochladen, Kommentar nach `templates/release.md`.
+3. Bemerken Läufer die Änderung: eine Zeile oben in der Wiki-Seite `neuigkeiten`: `- <Datum>: <was Läufer davon haben> (#<nr>)`.
+4. Bei Abnahme: Kommentar nach `templates/zur-abnahme.md` an die nicht zugeordnete Person.
+5. Aufräumen: Remote-Branch löschen, falls noch da, lokal `git switch main && git pull --ff-only && git branch -d <branch>` (bei Weigerung fragen).
 
 ## Phase 6: Fehler nach dem Merge
 
-Story **nicht** auf Fertig setzen. Sie bleibt `Im Review`.
+Story bleibt `Im Review`. Task `Release: <kurz>` mit den fünf Angaben (Geprüft, Erwartet, Tatsächlich, Ursache, Vorschlag). Revert vorbereiten, **nicht mergen**: Branch `revert/tg-<nr>-<kurztitel>`, `git revert <merge-sha>`, PR „Revert: <PR-Titel>“. Melden und fragen: Revert oder vorwärts korrigieren. Nach Go zum Revert: mergen, Deployment und Smoke-Test, Kommentar, Story `In Arbeit`.
 
-1. Einen Task in der Story anlegen: Titel `Release: <kurze Beschreibung>`, Status `Neu`, Beschreibung mit **Geprüft, Erwartet, Tatsächlich, Ursache, Vorschlag** (wie im QA-Skill), mit Link zum Deploy-Lauf bzw. Screenshot.
-2. **Revert vorbereiten, nicht ausführen:**
-   - Branch `revert/tg-<nr>-<kurztitel>` vom aktuellen Basis-Branch, `git revert <merge-sha>` (Squash-Commit, daher ohne `-m`), pushen,
-   - PR „Revert: <PR-Titel>“ öffnen, mit Begründung und Link zum Release-Task,
-   - **nicht mergen.**
-3. Im Chat melden: was fehlgeschlagen ist (die fünf Angaben), der Link zum Revert-PR, und die Frage, ob reverted oder vorwärts korrigiert werden soll (`/implement-taiga-ticket <nr>` arbeitet den Release-Task ab).
-4. Auf Go zum Revert: Revert-PR mergen (Squash), Deployment abwarten, Smoke-Test wiederholen und das Ergebnis als Kommentar an die Story. Die Story auf `In Arbeit` setzen.
+## Phase 7: Abnahme abschließen
 
-## Phase 7: Abnahme abschließen (Story steht auf `Abnahme`)
+Neuester Kommentar nach „Zur Abnahme“, der mit „Abgenommen“ oder „Nicht abgenommen“ beginnt:
+- von der zugeordneten Person → zählt nicht, anhalten und darauf hinweisen,
+- „Abgenommen“ von jemand anderem → `Fertig`, Kommentar `Abnahme bestätigt durch @<Person> · <Datum>`,
+- „Nicht abgenommen: …“ → je Punkt ein Task `Abnahme: <Punkt>` (Status `Neu`, der zugeordneten Person), Story `In Arbeit`, nächster Schritt `/implement-taiga-ticket <nr>`. Bei schädlichen Mängeln Revert oder `hotfix` vorschlagen,
+- keine Antwort → anhalten, nennen, wer angesprochen ist und seit wann.
 
-1. Kommentare der Story laden (Taiga-MCP `comments`, `op: list`) und den neuesten Kommentar nach „Zur Abnahme“ suchen, der mit „Abgenommen“ oder „Nicht abgenommen“ beginnt.
-2. **Er stammt von der Person, der die Story zugeordnet ist?** Zählt nicht. Halte an und weise darauf hin, dass eine andere Person abnehmen muss.
-3. **„Abgenommen“** von einer anderen Person: Story auf `Fertig` setzen, kurzer Kommentar `Abnahme bestätigt durch @<Person> · <Datum>`.
-4. **„Nicht abgenommen: …“**: Pro genanntem Punkt einen Task `Abnahme: <Punkt>` (Status `Neu`, der zugeordneten Person) anlegen, Story auf `In Arbeit` setzen. Nächster Schritt ist `/implement-taiga-ticket <nr>` (neuer Branch, wieder über QA und PR). Ist die Änderung für Läufer schädlich, schlag einen Revert oder `hotfix` vor (Wiki `hotfix`).
-   Nach Schritt 3 oder 4: **Sprint sortieren:** `python3 -I <repo>/.agents/skills/plan-taiga-sprint/scripts/sort_sprint.py <slug>` ausführen (`<repo>` ist das Wurzelverzeichnis des Repositorys). Stories in Bearbeitung (In Arbeit, Im Test, Im Review, Abnahme) stehen dann oben, offene darunter, fertige unten.
-5. **Noch keine Antwort:** Halte an und nenne, wer angesprochen ist und seit wann.
+Danach `sort-sprint`.
 
 ## Abschlussbericht
 
-- **Kurz gesagt** (1–2 Sätze ohne Fachbegriffe),
-- Ergebnis: ✅ released oder ❌ mit Grund,
-- PR, Merge-Commit, Deploy-Lauf, Live-Version,
-- Smoke-Test mit 1–2 Screenshots direkt im Chat (Bild öffnen, in Claude Code mit dem Read-Tool),
-- Taiga-Status von Story und Tasks,
-- aufgeräumte Branches.
+Kurz gesagt, Ergebnis ✅/❌, PR, Merge-Commit, Deploy-Lauf, Live-Version, 1–2 Screenshots, Taiga-Status, aufgeräumte Branches.
 
 ## Grenzen
 
-- Nie einen PR erstellen ohne bestandene QA für den aktuellen Head-Commit des Branches.
-- Nie selbst abnehmen. Die Abnahme ist ein Kommentar einer Person, der die Story nicht zugeordnet ist.
-- Nie einen PR erstellen oder mergen ohne Go und nie bei einer nicht erfüllten Bedingung. Schutzregeln nie umgehen.
-- Nie force-pushen, nie direkt auf den Basis-Branch pushen (der Revert läuft immer über einen PR).
-- Kein automatischer Revert ohne Go.
-- Keine echten Zugangsdaten im Smoke-Test, keine Anfragen an Live-Backends.
-- Keinen Code ändern, außer dem Revert in Phase 6.
+Kein PR ohne bestandene QA für den Head-Commit, kein PR oder Merge ohne Go oder bei ❌. Nie selbst abnehmen. Nie force-pushen, nie direkt auf `main`, kein Revert ohne Go. Keine echten Zugangsdaten, keine Live-Backends. Kein Code außer dem Revert.

@@ -1,153 +1,66 @@
 ---
 name: qa-taiga-ticket
-description: Unabhängige Qualitätsprüfung einer Taiga-User-Story. Aufruf mit optionaler Story-Nummer, z. B. `/qa-taiga-ticket 27`. Führt alle automatischen Prüfungen aus, prüft jede Acceptance Criteria mit Beleg, macht bei Änderungen an Oberfläche oder Logik Vorher/Nachher-Screenshots, reviewt den Diff, berichtet im Chat und in Taiga und setzt die Story bei Befunden zurück auf In Arbeit, bei Bestehen schließt sie die Tasks und legt fest, ob nach der Veröffentlichung eine Abnahme nötig ist. Prüft den gepushten Branch, bevor es einen PR gibt. Behebt selbst nichts.
+description: Unabhängige Qualitätsprüfung einer Taiga-User-Story auf dem gepushten Branch, bevor es einen PR gibt. Aufruf mit optionaler Story-Nummer, z. B. `/qa-taiga-ticket 27`. Übernimmt das CI-Ergebnis, prüft jede Acceptance Criteria mit Beleg, macht bei sichtbaren Änderungen Vorher/Nachher-Screenshots nach Risiko, reviewt den Diff, berichtet in Taiga und setzt die Story bei Befunden zurück auf In Arbeit. Behebt selbst nichts.
 argument-hint: [story-nummer]
 disable-model-invocation: true
+context: fork
+agent: general-purpose
+background: false
+effort: high
 ---
 
 # QA einer Taiga-Story
 
-> **Für alle Agenten** (Claude Code, Codex u. a.). Aufruf in Claude Code mit `/qa-taiga-ticket`, in Codex mit `$qa-taiga-ticket`, jeweils gefolgt vom Argument. „Taiga-MCP `work`“ meint das Werkzeug `work` des MCP-Servers `taiga` (Claude Code: `mcp__taiga__work`). GitHub-Schritte bevorzugt über das GitHub-MCP, sonst mit `gh`. `<tmp>` ist ein temporärer Arbeitsordner außerhalb des Repositorys (Claude Code: Scratchpad der Sitzung, sonst `${TMPDIR:-/tmp}/moach`). Rückfragen mit Auswahl stellst du über das Auswahl-Werkzeug des Agenten (Claude Code: `AskUserQuestion`). Gibt es keins, stell sie als nummerierte Optionen im Chat und warte auf die Antwort.
+> Gemeinsame Regeln: `docs/workflow.md` (zu Beginn lesen). Helfer: `python3 -I scripts/moach_taiga.py <befehl>`. Du läufst ohne Vorgeschichte und prüfst unabhängig: **Du behebst nichts** und änderst weder Code, Tests noch Konfiguration.
 
-Du bist die unabhängige Prüfinstanz. **Du behebst nichts**, auch keine Kleinigkeiten. Du prüfst, belegst und berichtest. Code, Tests und Konfiguration änderst du nicht.
+## 0. Prüfstand
 
-## 0. Story und Projekt bestimmen
+1. Story-Nummer aus dem Argument, sonst aus dem Branch-Namen `…/tg-<nr>-…`. Gibt es keine, prüf nur den Diff gegen `main` ohne Taiga-Schritte und sag das.
+2. Story, Tasks und den letzten Kommentar „Umgesetzt“ laden, Wiki `definition-of-done` lesen. Status sollte `Im Test` sein (sonst sagen, trotzdem prüfen).
+3. `git fetch origin`. Geprüft wird `origin/<branch>`. Head-Commit merken (Kurz-SHA). Diff: `git diff --stat origin/main...origin/<branch>`, danach gezielt Datei für Datei.
+4. Gibt es schon einen PR für den Branch, ist das ein **Befund** (kein PR vor bestandener QA).
 
-1. Projekt aus `git remote get-url origin` bestimmen. Ist das Repo nicht in der Tabelle, halte an und frag.
+## 1. CI übernehmen
 
-   | Repo | Taiga-Projekt | Basis-Branch | App-Ordner | Prüfbefehle (im App-Ordner, in dieser Reihenfolge) |
-   |---|---|---|---|---|
-   | `Norddeutsche-Coder/m.oach` | `fynndow-moach` | `main` | `frontend/` | `npm run check`, `npm run lint`, `npm test`, `npm run build`, `npm run test:e2e` |
+Die CI prüft auf jedem Push Typprüfung, Lint, Unit-Tests, Build und E2E. Hol das Ergebnis für den Head-Commit (`gh run list --commit <sha> --json workflowName,status,conclusion,url`), höchstens 15 Minuten warten. Grün → nicht lokal wiederholen. Rot oder fehlend → **Befund**. Die Ursache suchst du über das Log (`gh run view <id> --log-failed | tail -n 60`). Lokal nur nachstellen, wenn das Log nicht reicht.
 
-2. Story-Nummer: das Aufruf-Argument. Fehlt sie, aus dem Branch-Namen lesen (`…/tg-<nr>-…`). Gibt es keine, prüf nur den Diff gegen den Basis-Branch, ohne Taiga-Schritte, und sag das zu Beginn.
-3. Story laden (Taiga-MCP `work`, `op: get`, `type: story`), außerdem ihre Tasks und das Wiki „definition-of-done“ (Taiga-MCP `wiki`, `op: get`).
-4. **Prüfstand bestimmen.** Geprüft wird der **gepushte Branch** der Story (`origin/<branch>`, Branch `…/tg-<nr>-…`), genau in dem Stand, den `/implement-taiga-ticket` hinterlassen hat. Einen PR gibt es zu diesem Zeitpunkt noch nicht. Ihn erstellt erst `/finish-taiga-ticket` nach bestandener QA.
-   - `git fetch origin` und einen Worktree `<tmp>/qa-tg-<nr>/branch-src` von `origin/<branch>` anlegen. **Alle Prüfungen (1–4) laufen in diesem Worktree**, nicht im Arbeitsverzeichnis. Im App-Ordner `npm ci`. Ist `package-lock.json` identisch mit dem aktuellen Stand, darf `node_modules` verlinkt werden.
-   - Merke den Head-Commit des Branches (Kurz-SHA). Er steht im Bericht und im QA-Kommentar, `/finish-taiga-ticket` gleicht ihn ab.
-   - Diff = `git diff origin/<basis>...origin/<branch>`.
-   - Story-Status sollte `Im Test` sein. Ist sie `In Arbeit`, sag das zu Beginn, prüfe aber trotzdem.
-   - Lies den letzten Kommentar „Umgesetzt“ der Story (Kurz gesagt, Hinweise für die QA, Abweichungen vom Entwurf).
-   - Hat der lokale Branch Commits, die noch nicht gepusht sind, oder uncommittete Änderungen, prüfe trotzdem nur `origin/<branch>` und sag das zu Beginn.
-   - **Gibt es für den Branch schon einen PR**, ist das ein **Befund** (Verstoß gegen den Ablauf: kein PR vor bestandener QA). Prüfe trotzdem weiter.
+## 2. Acceptance Criteria und Definition of Done
 
-## 1. Automatische Prüfungen
+Jede Acceptance Criteria einzeln, unabhängig vom Haken in Taiga: **erfüllt** mit Beleg (Test mit Datei und Name, `datei:zeile` oder Screenshot) oder **Befund**. Ebenso die Punkte der Definition of Done, soweit sie vor dem Merge prüfbar sind (Rest: „nach dem Merge“). Mit freigegebenem Entwurf: Nachher-Screenshots damit vergleichen. Eine Abweichung, die im Kommentar „Umgesetzt“ nicht begründet ist, ist ein Befund.
 
-Führe alle Prüfbefehle aus der Tabelle aus, auch wenn einer fehlschlägt. Halte pro Befehl fest: bestanden oder fehlgeschlagen, mit den relevanten Zeilen der Ausgabe. Für den Build braucht M.oach `VITE_SUPABASE_URL` und `VITE_SUPABASE_PUBLISHABLE_KEY`. Verwende Testwerte (`https://test-project.supabase.co`, `sb_publishable_test_only_000000000000`), nie echte Zugangsdaten. Jeder fehlgeschlagene Befehl ist ein **Befund**.
+## 3. Screenshots (bei sichtbaren Änderungen)
 
-## 2. Acceptance Criteria
+**Wann:** Der Diff betrifft die Oberfläche (`.tsx`, `.css`, `index.html`, `src/legacy/app.js`, `public/`) oder Logik, die in der App sichtbar wird. Bei Logik baust du Testdaten, die genau den Fall auslösen. Reine Tests, Doku oder CI brauchen keine.
 
-Prüfe jede Acceptance Criteria der Story einzeln und unabhängig davon, ob sie in Taiga abgehakt ist:
-- **Erfüllt**, mit Beleg: welcher Test sie abdeckt (Datei und Testname), welche Codestelle (Datei:Zeile) oder welcher Screenshot.
-- **Nicht erfüllt** oder **nicht belegbar**: Das ist ein **Befund**, mit Begründung.
+**Matrix nach Risiko** je Szenario:
+- Standard: Handy hell und Desktop dunkel,
+- alle vier Kombinationen (Handy/Desktop × hell/dunkel) bei den Tags `sicherheit`, `rls`, `datenverlust` oder wenn `app.css`, Farben oder das Layout geändert sind,
+- `hotfix`: nur das betroffene Szenario auf Handy hell.
 
-Prüfe ebenso die Punkte der Definition of Done, soweit sie vor dem Merge prüfbar sind. Merge, Deployment und Live-Test sind es nicht, die markierst du als „nach dem Merge“.
-
-**Entwurf:** Hat die Story einen freigegebenen Entwurf (Link oder Bild, Kommentar „Entwurf freigegeben“), vergleiche die Nachher-Screenshots damit. Eine Abweichung, die im Kommentar „Umgesetzt“ nicht begründet ist, ist ein **Befund**.
-
-## 3. Screenshots (bei Änderungen an Oberfläche oder Logik)
-
-**Wann:** Wenn der Diff die Oberfläche betrifft (`.tsx`, `.css`, `index.html`, `src/legacy/app.js`, `public/`) oder Logik, die in der Oberfläche sichtbar wird (Trainingsplan, Readiness, Anpassungen, Berechnungen, Texte). Bei Logikänderungen prüfst du, **ob das neue Verhalten in der Oberfläche ankommt**. Dafür baust du Testdaten, die genau den betroffenen Fall auslösen (z. B. Readiness-Wert 8, Renntag, Plan mit genau 5 Wochen). Reine Änderungen an Tests, Doku oder CI brauchen keine Screenshots. Bei Stories mit Tag `hotfix` reicht das betroffene Szenario auf Handy hell.
-
-**Vorgehen (Vorher/Nachher):**
-1. Arbeitsordner unter `<tmp>` anlegen, z. B. `<tmp>/qa-tg-<nr>/`, darin `branch/`, `basis/` und `szenarien.json`.
-2. **Nachher:** Im App-Ordner des Prüfstands (Worktree aus Abschnitt 0) mit Testwerten bauen, dann `npx vite preview --host 127.0.0.1 --port 4181 --strictPort` im Hintergrund starten.
-3. **Vorher:** `git worktree add <tmp>/qa-tg-<nr>/worktree origin/<basis>`. Im App-Ordner des Worktrees `npm ci`. Ist `package-lock.json` identisch, darf stattdessen `node_modules` vom aktuellen Stand verlinkt werden. Dann bauen und auf Port 4182 starten.
-4. `szenarien.json` schreiben: pro betroffener Ansicht und Fall ein Szenario, jeweils **Handy und Desktop, hell und dunkel**. Testdaten für M.oach werden über localStorage gesetzt, Vorlage siehe `frontend/tests/today.spec.ts` (Funktion `seed`) und `frontend/tests/fixtures/`. Immer mit festem Datum.
-5. Für beide Stände ausführen:
-   `node <repo>/.agents/skills/qa-taiga-ticket/scripts/shots.cjs <app-ordner>/node_modules/@playwright/test http://127.0.0.1:<port>/ <tmp>/qa-tg-<nr>/<branch|basis> <szenarien.json>` (`<repo>` ist das Wurzelverzeichnis des Repositorys)
-6. **Jeden Screenshot ansehen** (Bild öffnen, in Claude Code mit dem Read-Tool) und Vorher/Nachher vergleichen. Prüfe:
-   - Ist die beabsichtigte Änderung sichtbar und richtig (inhaltlich und visuell)?
-   - Gibt es Regressionen: Überlappungen, abgeschnittener Text, unschöne Umbrüche (z. B. Wert und Einheit getrennt), leere Bereiche, falsche Farben, Dunkelmodus, Inhalt hinter der Navigation?
-   - Konsolenfehler, die das Skript meldet?
-   Fehler sind **Befunde**, reine Geschmacksfragen **Hinweise**.
-7. Aufräumen: Preview-Server beenden und alle Worktrees mit `git worktree remove` entfernen. Die Screenshots bleiben unter `<tmp>`.
+**Vorgehen:**
+1. Unter `<tmp>/qa-tg-<nr>/` die Worktrees `branch-src` (von `origin/<branch>`) und `basis-src` (von `origin/main`) anlegen. In `frontend/` jeweils `npm ci --silent` (oder `node_modules` verlinken, wenn `package-lock.json` gleich ist), mit den Testwerten aus AGENTS.md bauen und mit `npx vite preview --host 127.0.0.1 --strictPort` auf Port 4181 (nachher) bzw. 4182 (vorher) starten.
+2. `szenarien.json` schreiben (localStorage-Testdaten wie in `frontend/tests/today.spec.ts` und `frontend/tests/fixtures/`, festes Datum, sprechende Namen wie `heute-readiness-8-handy-dunkel`).
+3. Je Stand `node <repo>/.agents/skills/qa-taiga-ticket/scripts/shots.cjs <tmp>/qa-tg-<nr>/branch-src/frontend/node_modules/@playwright/test http://127.0.0.1:<port>/ <tmp>/qa-tg-<nr>/<nachher|vorher> <tmp>/qa-tg-<nr>/szenarien.json`.
+4. `python3 -I scripts/moach_taiga.py compare-shots <tmp>/qa-tg-<nr>/vorher <tmp>/qa-tg-<nr>/nachher`. **Ansehen musst du nur geänderte und neue Bilder**, dazu je ein Vorher-Bild zum Vergleich. Unverändert, obwohl die Story etwas Sichtbares ändern soll, ist ein Befund.
+5. Prüfen: Ist die beabsichtigte Änderung sichtbar und richtig? Gibt es Regressionen (Überlappung, abgeschnittener Text, Umbrüche zwischen Wert und Einheit, leere Bereiche, falsche Farben, Dunkelmodus, Inhalt hinter der Navigation) oder Konsolenfehler? Fehler sind Befunde, Geschmack ist ein Hinweis.
+6. Preview-Server beenden, Worktrees entfernen.
 
 ## 4. Code-Review
 
-Lies den Diff und prüfe:
-- Fehler in der Logik, nicht behandelte Fälle, Datums- und Zeitzonenfehler,
-- Sicherheit: XSS (`innerHTML` mit Nutzerdaten ohne `esc()`), Secrets im Code, RLS-relevante Änderungen,
-- Änderungen an localStorage-Schlüsseln ohne Migration, Service Worker, Supabase-Schema,
-- Änderungen außerhalb des Umfangs der Story,
-- abgeschwächte, übersprungene (`.skip`, `.fixme`) oder gelöschte Tests.
+Logik und Sonderfälle, Datum und Zeitzone (AGENTS.md Regel 5), XSS (`innerHTML` ohne `esc()`), Secrets, RLS, localStorage-Schlüssel ohne Migration, Service Worker, Änderungen außerhalb des Umfangs, abgeschwächte oder gelöschte Tests. **Befund** = Fehler, Sicherheitsproblem, Verstoß gegen Acceptance Criteria oder Definition of Done. **Hinweis** = optionale Verbesserung.
 
-Einordnung:
-- **Befund:** Fehler, Sicherheitsproblem, Verstoß gegen Acceptance Criteria oder Definition of Done.
-- **Hinweis:** optionale Verbesserung (Benennung, Lesbarkeit, Stil).
+**Jeder Befund** hat überall dieselben fünf Angaben: Geprüft, Erwartet, Tatsächlich (höchstens 10 Zeilen Auszug), Ursache (`datei:zeile`, 1–3 Sätze, sonst „Ursache unklar“ mit Ausgeschlossenem), Vorschlag (ohne Tests abzuschwächen).
 
-## Pflichtangaben je Befund
+## 5. Ergebnis in Taiga
 
-Jeder Befund wird überall (Chat, Taiga-Kommentar, QA-Task) mit denselben fünf Angaben beschrieben. Ein Befund ohne Ursache ist unvollständig: Untersuche ihn, bis du sie benennen kannst. Kannst du sie wirklich nicht finden, schreib „Ursache unklar“ und was du bereits ausgeschlossen hast.
+- **Befunde:** Story `In Arbeit`, pro Befund ein Task `QA: <kurz>` (Status `Neu`, fünf Angaben). Gleichnamigen offenen QA-Task ergänzen statt doppelt anlegen.
+- **Bestanden:** Story bleibt `Im Test`. Alle Tasks in `Im Test` auf `Erledigt`. Festlegen, ob nach der Veröffentlichung eine Abnahme nötig ist (sichtbare Änderung, siehe `docs/workflow.md`).
+- **Immer:** alle Screenshots als **eine ZIP** (`python3 -m zipfile -c <tmp>/qa-tg-<nr>/screenshots-tg-<nr>-<sha>.zip <tmp>/qa-tg-<nr>/vorher <tmp>/qa-tg-<nr>/nachher`) mit Taiga-MCP `attachments` hochladen. Kommentar nach `templates/qa-kommentar.md`: bei „bestanden“ ohne „Befunde“, bei „nicht bestanden“ ohne „Abnahme“.
 
-- **Geprüft:** was genau, z. B. Befehl (`npm run test:e2e`), Testdatei und Testname, Acceptance Criteria im Wortlaut, Screenshot-Szenario (Ansicht, Gerät, hell/dunkel, Testdaten).
-- **Erwartet:** das korrekte Ergebnis laut Acceptance Criteria, Definition of Done oder Test.
-- **Tatsächlich:** was passiert ist, mit einem kurzen Auszug der Fehlermeldung (höchstens 10 Zeilen, Pfade gekürzt) oder dem Screenshot-Dateinamen.
-- **Ursache:** warum es fehlschlägt, mit Fundstelle (Datei:Zeile) und Erklärung in 1–3 Sätzen.
-- **Vorschlag:** wie es sich beheben lässt, ohne den Test abzuschwächen.
+## 6. Bericht
 
-## 5. Ergebnis in Taiga (nur mit Story)
-
-**Gibt es mindestens einen Befund:**
-1. Story auf `In Arbeit` setzen (Taiga-MCP `work`, `op: update`, `status: In Arbeit`).
-2. Pro Befund einen Task in der Story anlegen, Titel `QA: <kurze Beschreibung>`, Status `Neu`. Die Beschreibung enthält die fünf Pflichtangaben (Geprüft, Erwartet, Tatsächlich, Ursache, Vorschlag). Mehrere als Batch (`op: create`, `type: task`, `items`). Gibt es einen gleichnamigen offenen QA-Task schon, lege keinen doppelten an, sondern ergänze ihn als Kommentar.
-
-**Gibt es keinen Befund:** Der Story-Status bleibt `Im Test`. Alle Tasks der Story mit Status `Im Test` auf `Erledigt` setzen, auch behobene QA- und Abnahme-Tasks.
-
-**Abnahme nach der Veröffentlichung:** Nur Stories mit einer für Läufer **sichtbaren Änderung** (Oberfläche, Texte, Verhalten in der App, dieselben Kriterien wie für Screenshots im QA-Skill) werden abgenommen, und zwar **in der Live-App nach dem Merge**. Abnehmen darf jedes Projektmitglied **außer der Person, der die Story zugeordnet ist**. Angesprochen wird: Ist `fynndow` zugeordnet, `@lukcy22`, sonst `@fynndow`. Reine Technik-Stories (Tests, CI, Refactoring, Doku) brauchen keine Abnahme. Entscheide, ob die Story abgenommen werden muss, und schreib es in den Kommentar.
-
-**In beiden Fällen:**
-1. Die Screenshots als **eine ZIP-Datei** an die Story hängen, nie als einzelne PNG-Dateien:
-   - Alle Vorher- und Nachher-Bilder in die ZIP, in den Ordnern `vorher/` und `nachher/`. Die Dateinamen beschreiben das Szenario, z. B. `heute-readiness-8-handy-dunkel.png`.
-   - Erstellen plattformunabhängig mit Python: `python3 -m zipfile -c <tmp>/qa-tg-<nr>/screenshots-tg-<nr>-<head-kurz-sha>.zip <tmp>/qa-tg-<nr>/vorher <tmp>/qa-tg-<nr>/nachher` (vorher die Ordner `basis/` und `branch/` entsprechend benennen oder kopieren).
-   - Hochladen mit Taiga-MCP `attachments`, `op: upload`, `type: story`, `filePath` auf die ZIP, Beschreibung z. B. „QA-Screenshots · Vorher/Nachher · <head-kurz-sha> · 12 Bilder“.
-2. Einen Kommentar an die Story (Taiga-MCP `comments`, `op: add`):
-   ```
-   ## QA <✅ bestanden | ❌ nicht bestanden> · <Datum> · Branch <branch> @ <head-kurz-sha>
-
-   **Kurz gesagt:** <2–3 Sätze ohne Fachbegriffe: bestanden oder nicht, was sich für Läufer ändert, was bei Befunden noch fehlt>
-
-   ### Was geprüft wurde
-   **Automatische Prüfungen**
-   - `npm run check` ✅
-   - `npm run lint` ✅
-   - `npm test` ✅ n Tests in m Dateien
-   - `npm run build` ✅
-   - `npm run test:e2e` ❌ n von m bestanden (fehlgeschlagen: <Testnamen>)
-
-   **Acceptance Criteria:** x von y erfüllt
-   - ✅/❌ <AC im Wortlaut> – <Beleg bzw. Grund>
-
-   **Definition of Done:** <erfüllt / Abweichungen>
-   **Screenshots:** <Szenarien in Kurzform, z. B. „Heute · Handy/Desktop · hell/dunkel · Readiness 8“>, Vorher/Nachher, <Anzahl> Bilder in `screenshots-tg-<nr>-<sha>.zip` angehängt | keine nötig, weil <Grund>
-   **Code-Review:** <geprüfte Bereiche in einem Satz>
-
-   ### Befunde (→ QA-Tasks #…)
-   **1. <Kurztitel>** (QA-Task #<nr>)
-   - Geprüft: …
-   - Erwartet: …
-   - Tatsächlich: …
-   - Ursache: … (`datei:zeile`)
-   - Vorschlag: …
-
-   ### Hinweise
-   - … | keine
-
-   ### Abnahme nach der Veröffentlichung (nur bei bestanden)
-   **Nötig:** ja, sichtbare Änderung | nein, reine Technik
-   **Was ausprobiert werden soll:** <1–3 Schritte in Alltagssprache, z. B. „Öffne Heute und tippe auf …“> (nur wenn nötig)
-   ```
-   Bei „bestanden“ entfällt der Abschnitt „Befunde“, bei „nicht bestanden“ der Abschnitt „Abnahme nach der Veröffentlichung“. Der Abschnitt „Was geprüft wurde“ bleibt immer vollständig.
-
-## 6. Bericht im Chat
-
-Derselbe Inhalt wie der Kommentar, also immer vollständig, was geprüft wurde, und je Befund die fünf Pflichtangaben. Zusätzlich:
-- die Pfade der wichtigsten Screenshots. Zeig 2–4 aussagekräftige Bilder direkt (Bild öffnen, in Claude Code mit dem Read-Tool),
-- bei Befunden: die angelegten QA-Tasks mit Nummer und den Hinweis, dass `/implement-taiga-ticket <nr>` beim Fortsetzen die offenen QA-Tasks abarbeitet,
-- bei bestanden: dass jetzt `/finish-taiga-ticket <nr>` den PR erstellen und veröffentlichen kann, und ob danach eine Abnahme in der Live-App nötig ist.
+Inhalt wie der Kommentar, dazu 2–4 aussagekräftige Bilder und der nächste Schritt: bei Befunden `/implement-taiga-ticket <nr>`, bei Bestehen `/finish-taiga-ticket <nr>`.
 
 ## Grenzen
 
-- Nichts beheben, nichts committen, pushen oder mergen, keinen PR erstellen. Nur QA-Tasks, Kommentare, Anhänge, den Story-Status `In Arbeit` bei Befunden und den Task-Status `Erledigt` (von `Im Test`) bei bestandener QA in Taiga anlegen bzw. setzen.
-- Story nie auf `Im Review` oder `Fertig` setzen und nie selbst abnehmen.
-- Keine echten Zugangsdaten für Builds oder Screenshots verwenden. Keine Anfragen an Live-Systeme (das Skript blockiert externe Hosts).
-- Kann ein Schritt nicht ausgeführt werden (z. B. Build schlägt fehl, deshalb keine Screenshots), ist das ein Befund. Weiterprüfen, was noch geht.
+Nichts beheben, committen, pushen oder mergen, keinen PR. In Taiga nur QA-Tasks, Kommentare, Anhänge, Story `In Arbeit` bei Befunden, Tasks `Erledigt` bei Bestehen. Nie `Im Review`, `Abnahme` oder `Fertig`, nie abnehmen. Keine echten Zugangsdaten, keine Live-Systeme. Was nicht ausführbar ist, ist ein Befund. Weiterprüfen, was geht.
