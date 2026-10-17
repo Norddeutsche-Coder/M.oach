@@ -13,7 +13,7 @@ Eingabe: das Aufruf-Argument ist eine Idee in Freitext. Fehlt sie, frag danach.
 
 Du legst **nur Epics und User Stories** an, keine Tasks und keine Issues. Tasks entstehen später durch `/implement-taiga-ticket`. Alles landet im **Backlog**, ohne Sprint. Angelegt wird **erst nach ausdrücklichem Go des Product Owners** (in diesem Projekt `fynndow`) zum Entwurf. Ideen und Fehler, die als Taiga-Issue gemeldet wurden, verarbeitet `/triage-taiga-issues`.
 
-**Fachliche Fragen** (Verhalten für Läufer, Texte, Umfang im Detail) beantwortet `lukcy22`. Was die aufrufende Person nicht entscheiden kann oder will, stellst du nach dem Anlegen als Kommentar `## Fachliche Fragen an @lukcy22` an die betroffene Story (nummeriert, je Frage 2–4 Antwortmöglichkeiten, Empfehlung zuerst). Die Story bleibt dann `Neu`, bis die Fragen beantwortet sind (Definition of Ready).
+**Fachliche Fragen** (Verhalten für Läufer, Texte, Umfang im Detail) beantwortet `lukcy22`. Was die aufrufende Person nicht entscheiden kann oder will, stellst du nach dem Anlegen als Kommentar `## Fachliche Fragen an @lukcy22` an die betroffene Story (nummeriert, je Frage 2–4 Antwortmöglichkeiten, Empfehlung zuerst). Die Story bleibt dann `Neu`, bis die Fragen beantwortet sind (Definition of Ready). **Technische Fragen** (Architektur, Daten, Supabase, Abhängigkeiten) entscheidet `fynndow`.
 
 ## Projektzuordnung
 

@@ -23,9 +23,9 @@ Ablauf über alle Skills: umsetzen → Checks → Go → Commit + Push → CI gr
 
 Bestimme das Projekt aus `git remote get-url origin`. Ist das Repo nicht in der Tabelle, halte an und frag nach. Rate nie.
 
-| Repo | Taiga-Projekt | Basis-Branch | App-Ordner | Schnelle Checks | Product Owner | Fachliche Fragen |
-|---|---|---|---|---|---|---|
-| `Norddeutsche-Coder/m.oach` | `fynndow-moach` | `main` | `frontend/` | `npm run check`, `npm run lint`, `npm test` | `fynndow` | `lukcy22` |
+| Repo | Taiga-Projekt | Basis-Branch | App-Ordner | Schnelle Checks | Product Owner | Fachliche Fragen | Technische Fragen |
+|---|---|---|---|---|---|---|---|
+| `Norddeutsche-Coder/m.oach` | `fynndow-moach` | `main` | `frontend/` | `npm run check`, `npm run lint`, `npm test` | `fynndow` | `lukcy22` | `fynndow` |
 
 **Fachliche Fragen** (Verhalten, Texte, Umfang, Entwurf) beantwortet `lukcy22`, nicht der Agent und nicht die Entwicklung. Stell sie als Kommentar an die Story mit der Überschrift `## Fachliche Fragen an @lukcy22`: nummeriert, je Frage 2–4 Antwortmöglichkeiten in Alltagssprache, die empfohlene zuerst mit „(Empfehlung)“. Die Erwähnung `@lukcy22` löst die E-Mail von Taiga aus. Danach halte an. Weiter geht es erst, wenn `lukcy22` in einem Kommentar geantwortet hat. Antwortet er nicht, kann der Product Owner ausdrücklich an seiner Stelle entscheiden.
 
@@ -61,11 +61,11 @@ Untersuche den betroffenen Code selbst, bevor du fragst. Was sich aus dem Code b
 - **Schritte** als nummerierte Liste. Sie werden zu Taiga-Tasks, deshalb jeder Schritt klar abgegrenzt und höchstens ein halber Tag.
 - **Betroffene Dateien.**
 - **Fachliche Fragen an `lukcy22`:** Verhalten, Texte, Umfang, Entwurf, fehlende fachliche Punkte der Definition of Ready. Jeweils mit deinem Vorschlag, in Alltagssprache. Gibt es welche, schreib sie wie oben beschrieben als Kommentar an die Story und halte an. Bereits beantwortete Fragen übernimmst du aus den Kommentaren.
-- **Technische Entscheidungen:** was du technisch vorhast, wo es Alternativen gibt, jeweils mit Empfehlung. Diese entscheidet die Entwicklung.
+- **Technische Fragen an `fynndow`:** was du technisch vorhast, wo es Alternativen gibt (Architektur, Bibliotheken, Datenmodell, localStorage, Supabase, Tests), jeweils mit Empfehlung. Sie entscheidet `fynndow`, im Dialog über das Auswahl-Werkzeug. Läuft die Sitzung ohne ihn, als Kommentar `## Technische Fragen an @fynndow` an die Story, dann anhalten.
 - **Risiken**, z. B. Änderungen an localStorage-Schlüsseln, Supabase, Service Worker.
 - **Branch-Name:** `<typ>/tg-<nr>-<kurztitel>`. Typ `fix`, wenn die Story den Tag `bug` oder `hotfix` hat, `chore` für reine Infrastruktur oder Doku, sonst `feat`. Der Kurztitel ist englisch, kleingeschrieben, mit Bindestrichen, höchstens 5 Wörter.
 
-**Halte an** und warte auf ein Go. Ein Go zum Plan gibt es erst, wenn alle fachlichen Fragen von `lukcy22` (oder ausdrücklich vom Product Owner) beantwortet sind. Schreib die technischen Entscheidungen danach als Kommentar an die Story (Taiga-MCP `comments`).
+**Halte an** und warte auf ein Go. Ein Go zum Plan gibt es erst, wenn alle fachlichen Fragen von `lukcy22` (oder ausdrücklich vom Product Owner) beantwortet sind. Ebenso müssen die technischen Fragen von `fynndow` entschieden sein. Schreib die technischen Entscheidungen danach als Kommentar an die Story (Taiga-MCP `comments`).
 
 ## Phase 3: Vorbereiten (erst nach Go zum Plan)
 
@@ -123,7 +123,7 @@ Kurz und auf Deutsch, beginnend mit **Kurz gesagt** (2–3 Sätze ohne Fachbegri
 
 - **Nie einen Pull Request erstellen**, auch keinen Entwurf. Das macht `/finish-taiga-ticket` nach QA und Abnahme.
 - Nie mergen, die Story nie auf `Abnahme`, `Im Review` oder `Fertig` setzen.
-- Fachliche Fragen nie selbst entscheiden, sondern `lukcy22` vorlegen.
+- Fachliche Fragen nie selbst entscheiden, sondern `lukcy22` vorlegen. Technische Fragen mit Alternativen nie selbst entscheiden, sondern `fynndow` vorlegen.
 - Keine Änderungen an GitHub-, Taiga- oder Supabase-Einstellungen, keine Migrationen gegen das Live-Projekt.
 - Keine Zugangsdaten, Tokens oder Secrets in Code, Commits oder Taiga-Kommentaren.
 - Geht etwas außerhalb des Plans schief, oder erfordert die Story Schritte, die nicht im freigegebenen Plan standen, halte an und frag.
