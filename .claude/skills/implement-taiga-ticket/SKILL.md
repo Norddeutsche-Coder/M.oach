@@ -27,7 +27,7 @@ Bestimme das Projekt aus `git remote get-url origin`. Ist das Repo nicht in der 
 |---|---|---|---|---|---|---|---|
 | `Norddeutsche-Coder/m.oach` | `fynndow-moach` | `main` | `frontend/` | `npm run check`, `npm run lint`, `npm test` | `fynndow` | `lukcy22` | `fynndow` |
 
-**Fachliche Fragen** (Verhalten, Texte, Umfang, Entwurf) beantwortet `lukcy22`, nicht der Agent und nicht die Entwicklung. Stell sie als Kommentar an die Story mit der Überschrift `## Fachliche Fragen an @lukcy22`: nummeriert, je Frage 2–4 Antwortmöglichkeiten in Alltagssprache, die empfohlene zuerst mit „(Empfehlung)“. Die Erwähnung `@lukcy22` löst die E-Mail von Taiga aus. Danach halte an. Weiter geht es erst, wenn `lukcy22` in einem Kommentar geantwortet hat. Antwortet er nicht, kann der Product Owner ausdrücklich an seiner Stelle entscheiden.
+**Fachliche Fragen** (Verhalten, Texte, Umfang, Entwurf) beantwortet `lukcy22`, nicht der Agent und nicht die Entwicklung. Stell sie als Kommentar an die Story mit der Überschrift `## Fachliche Fragen an @lukcy22`: nummeriert, je Frage 2–4 Antwortmöglichkeiten in Alltagssprache, die empfohlene zuerst mit „(Empfehlung)“. Die Erwähnung `@lukcy22` löst die E-Mail von Taiga aus. Danach halte an. Weiter geht es erst, wenn `lukcy22` in einem Kommentar geantwortet hat. Antwortet er nicht, kann der Product Owner ausdrücklich an seiner Stelle entscheiden, mit einem Kommentar, der mit „Entschieden“ beginnt.
 
 **Technische Fragen** gehen nur an `fynndow`, wenn sie die **Architektur** beeinflussen: neue Abhängigkeiten oder Bibliotheken, Datenmodell, localStorage-Schlüssel und -Format, Supabase (Schema, RLS, Edge Functions), Sync, Offline und Service Worker, Sicherheit, neue Module oder Ordner und Schnittstellen zwischen Features, Aufteilung zwischen Legacy-Modul und React. Stell sie im Dialog über das Auswahl-Werkzeug, mit Empfehlung. Läuft die Sitzung ohne ihn, als Kommentar `## Technische Fragen an @fynndow` an die Story, dann anhalten. **Alle übrigen technischen Entscheidungen triffst du selbst** (Umsetzung innerhalb eines Features, Benennung, Aufteilung in Komponenten und Funktionen, Testaufbau) und dokumentierst sie im Plan und im Kommentar „Technische Entscheidungen“.
 
@@ -44,7 +44,7 @@ Lies außerdem die Wiki-Seiten `definition-of-ready` und `definition-of-done` (T
 Bevor du die Story lädst, prüfst du, ob in **anderen Stories des laufenden Sprints** noch Fragen an die aufrufende Person unbeantwortet sind. Sie sollen beantwortet werden, bevor neue Arbeit beginnt, sonst bleiben andere Stories stehen.
 
 1. Aufrufende Person bestimmen: Taiga-Konto der Sitzung (`GET /users/me`).
-2. Nur die offenen Stories (Status nicht `Fertig`/`Archiviert`) im **laufenden Sprint** durchsuchen, also im offenen Sprint, dessen Zeitraum das heutige Datum enthält. Backlog, andere Sprints und Issues nicht. Gibt es keinen laufenden Sprint, entfällt Phase 0. Offen ist eine Frage, wenn ein Kommentar mit `## Fachliche Fragen an @<person>` oder `## Technische Fragen an @<person>` beginnt und danach kein Kommentar dieser Person folgt. Das MCP kann Kommentare nicht projektweit durchsuchen, deshalb über die Taiga-API (Zugangsdaten aus `TAIGA_USERNAME` und `TAIGA_PASSWORD`, nie ausgeben):
+2. Nur die offenen Stories (Status nicht `Fertig`/`Archiviert`) im **laufenden Sprint** durchsuchen, also im offenen Sprint, dessen Zeitraum das heutige Datum enthält. Backlog, andere Sprints und Issues nicht. Gibt es keinen laufenden Sprint, entfällt Phase 0. Offen ist eine Frage, wenn ein Kommentar mit `## Fachliche Fragen an @<person>` oder `## Technische Fragen an @<person>` beginnt und danach weder ein Kommentar dieser Person folgt noch ein Kommentar einer anderen Person, der mit „Antworten“ oder „Entschieden“ beginnt (z. B. wenn der Product Owner stellvertretend entschieden hat). Das MCP kann Kommentare nicht projektweit durchsuchen, deshalb über die Taiga-API (Zugangsdaten aus `TAIGA_USERNAME` und `TAIGA_PASSWORD`, nie ausgeben):
    ```python
    # python3 -I -
    import json, os, urllib.request
@@ -69,7 +69,8 @@ Bevor du die Story lädst, prüfst du, ob in **anderen Stories des laufenden Spr
            continue
        comments = sorted((h for h in call("GET", f"/history/userstory/{it['id']}?type=comment", t=t) if h.get("comment")), key=lambda h: h["created_at"])
        asked = [i for i, h in enumerate(comments) if h["comment"].lstrip().startswith(heads)]
-       if asked and not any(h["user"]["username"] == me for h in comments[asked[-1] + 1:]):
+       later = comments[asked[-1] + 1:] if asked else []
+       if asked and not any(h["user"]["username"] == me or h["comment"].lstrip().startswith(("Antworten", "Entschieden")) for h in later):
            print(sprint["name"], it["ref"], it["subject"], comments[asked[-1]]["created_at"][:10])
    ```
 3. **Gibt es offene Fragen:** Zeig sie zuerst, je Story mit Nummer, Titel und den Fragen samt Antwortmöglichkeiten. Frag über das Auswahl-Werkzeug, ob sie jetzt beantwortet werden (Empfehlung) oder erst später. Antwortet die Person im Dialog, schreib die Antworten als Kommentar an die jeweilige Story: `Antworten von @<person> (im Dialog mit <Agent>): 1: …, 2: …`. Danach geht es mit der aufgerufenen Story weiter.
