@@ -37,6 +37,11 @@ Alles im Ordner `frontend/`:
 
 Vor jedem Commit müssen `check`, `lint`, `test`, `build` und `test:e2e` grün sein. Die CI prüft dasselbe.
 
+**Mit Tokens haushalten:**
+- **Gezielt lesen:** Dateien über etwa 300 Zeilen nie ganz lesen. Erst `grep -n`, dann nur den Ausschnitt. Das gilt besonders für `src/legacy/app.js` (~93.000 Tokens) und `src/app.css`.
+- **Kompakte Ausgaben:** `npm test -- --reporter=dot`, `npx playwright test --reporter=dot`, `npm ci --silent`, sonst `… 2>&1 | tail -n 30`. Bei Fehlern die relevante Ausgabe vollständig ansehen.
+- Was die CI für denselben Commit schon geprüft hat, nicht lokal wiederholen.
+
 Der Build braucht `VITE_SUPABASE_URL` und `VITE_SUPABASE_PUBLISHABLE_KEY`. Lokal stehen sie in `frontend/.env.local` (Vorlage: `.env.example`). Für Tests und Screenshots Testwerte verwenden (`https://test-project.supabase.co`, `sb_publishable_test_only_000000000000`). Die E2E-Tests blockieren alle externen Anfragen.
 
 ## Feste Regeln
@@ -92,22 +97,15 @@ Der Workflow `.github/workflows/secret-scan.yml` prüft jeden PR mit gitleaks un
 
 ## Planung (Taiga)
 
-Projekt `fynndow-moach` auf tree.taiga.io, Scrum mit Sprints à 2 Wochen. 1 Story Point = 1 Arbeitstag, geschätzt pro Rolle (UX, Design, Front, Back).
+Projekt `fynndow-moach` auf tree.taiga.io, Scrum mit Sprints à 2 Wochen, 1 Story Point = 1 Arbeitstag, geschätzt pro Rolle (UX, Design, Front, Back). Jede Story hat **Acceptance Criteria** als Checkliste, sie werden wörtlich geprüft. Epics und Wiki: Seite `home`. Fehler tragen den Tag `bug`.
 
-- Epics: Die aktuelle Liste mit Umfang steht im Taiga-Wiki auf der Seite `home` (gegliedert in Fundament, Erlebnis und Funktionen). Neue Stories gehören in das Epic, dessen Thema sie betreffen, nicht in ein Sammel-Epic nach Art (z. B. „Fehler“). Fehler werden über den Tag `bug` gekennzeichnet.
-- Jede Story hat **Acceptance Criteria** als Checkliste. Sie sind verbindlich und werden wörtlich geprüft.
-- **Rollen:** Es gibt **keinen Product Owner, der entscheidet.** Freigaben (Go) zu Epic-Entwürfen, Issue-Vorschlägen und Sprintplanung gibt die Person, die den Skill aufruft. Den Status „Bereit“ setzen die Skills automatisch, wenn die Definition of Ready erfüllt ist. **Fachliche Fragen** (Verhalten für Läufer, Texte, Umfang, Entwurf) beantwortet `lukcy22`: Agenten stellen sie als Kommentar `## Fachliche Fragen an @lukcy22` an die Story bzw. das Issue und warten auf die Antwort. Antwortet er nach 2 Arbeitstagen nicht, darf die aufrufende Person mit einem Kommentar „Entschieden …“ selbst entscheiden. **Technische Fragen, die die Architektur beeinflussen** (neue Abhängigkeiten, Datenmodell, localStorage, Supabase, Sync/Offline/Service Worker, Sicherheit, neue Module und Schnittstellen) entscheidet `fynndow`: im Dialog, oder als Kommentar `## Technische Fragen an @fynndow`, wenn er nicht in der Sitzung ist. Ideen und Fehler melden alle über Taiga-Issues (Wiki `ideen-und-fehler-melden`). Alle übrigen technischen Entscheidungen treffen Agenten selbst und dokumentieren sie an der Story. Fachliche und Architektur-Fragen entscheiden sie nie selbst. `/implement-taiga-ticket` legt zuerst offene Rückfragen an die aufrufende Person aus anderen Stories des laufenden Sprints vor.
-- Story-Status: Neu → Bereit (Definition of Ready erfüllt, automatisch gesetzt) → In Arbeit → Im Test (umgesetzt und gepusht, wartet auf QA) → Im Review (QA bestanden, PR offen) → Abnahme (live, nur bei sichtbaren Änderungen) → Fertig. Task-Status: Neu → In Arbeit → Im Test → Erledigt, oder Blockiert. Erklärungen im Wiki `glossar`.
-- **Kein Pull Request vor bestandener QA.** `/implement-taiga-ticket` pusht nur den Branch, `/qa-taiga-ticket` prüft ihn, erst dann erstellt `/finish-taiga-ticket` den PR und merged.
-- **Abnahme nach der Veröffentlichung:** Stories mit sichtbarer Änderung für Läufer nimmt nach dem Merge in der Live-App eine **andere Person als die zugeordnete** ab (Kommentar „Abgenommen“ oder „Nicht abgenommen: …“). `/finish-taiga-ticket` schließt sie danach ab. Reine Technik braucht keine Abnahme.
-- **Sprint:** Wird eine Story bearbeitet, die nicht im laufenden Sprint ist, zieht `/implement-taiga-ticket` sie in den laufenden Sprint und vermerkt das an der Story. Im Sprint stehen Stories in Bearbeitung (In Arbeit bis Abnahme) oben, offene darunter, fertige unten. Die Skills sortieren nach jedem Statuswechsel mit `.agents/skills/plan-taiga-sprint/scripts/sort_sprint.py`.
-- **Zuordnung:** `/implement-taiga-ticket` ordnet Story und Tasks der Person zu, die den Skill aufruft (Taiga-Konto aus `TAIGA_USERNAME`). Eine Story, die schon jemand anderem gehört, wird nur nach Rückfrage übernommen.
-- **Höchstens eine Story pro Person gleichzeitig in Arbeit** (WIP-Limit). Dringende Fehler in der Live-App laufen mit Tag `hotfix` über den Eilweg (Wiki `hotfix`).
-- Ergebnisse für Menschen (Kommentare in Taiga, PR-Beschreibungen, Berichte) beginnen mit **„Kurz gesagt“**: 2–3 Sätze ohne Fachbegriffe.
-- Die **Definition of Ready** und die **Definition of Done** stehen im Taiga-Wiki (Seiten `definition-of-ready` und `definition-of-done`).
-- Zugriff für Agenten über den MCP-Server in `.mcp.json` (Claude Code) bzw. `.codex/config.toml` (Codex), Zugangsdaten aus der Umgebung: `TAIGA_USERNAME`, `TAIGA_PASSWORD`.
-- **Skills** für Planung, Umsetzung, QA und Abschluss liegen unter `.agents/skills/<name>/SKILL.md` (Standard [Agent Skills](https://agentskills.io)). Codex liest sie dort direkt (Aufruf `$<name>`), Claude Code liest die Kopie in `.claude/skills/` (Aufruf `/<name>`). Skills nur unter `.agents/skills/` ändern und danach `node scripts/sync-skills.mjs` ausführen. Die CI schlägt fehl, wenn die Kopie veraltet ist. `.claude/skills/` nie von Hand bearbeiten. Ein Agent ohne Skill-Unterstützung liest bei „/<name>“ oder „$<name>“ die Datei `.agents/skills/<name>/SKILL.md` und folgt ihr.
-- **Einrichtung von GitHub und Taiga für Agenten:** [docs/agent-setup.md](docs/agent-setup.md). Prüfen mit `./scripts/check-agent-setup.sh`. Schlägt ein Zugriff auf GitHub oder Taiga fehl, zuerst dieses Skript laufen lassen.
+**Den kompletten Ablauf beschreibt [docs/workflow.md](docs/workflow.md):** Rollen und Fragen (fachlich `lukcy22`, Architektur `fynndow`, kein entscheidender Product Owner), Status, Abnahme nach der Veröffentlichung, Sprint-Regeln, Hotfix, Helfer-Skript `scripts/moach_taiga.py`. Die wichtigsten Regeln:
+
+- **Kein Pull Request vor bestandener QA.** `/implement-taiga-ticket` pusht nur, `/qa-taiga-ticket` prüft, `/finish-taiga-ticket` erstellt den PR und merged.
+- Agenten entscheiden fachliche und Architektur-Fragen nie selbst. Übrige technische Entscheidungen treffen sie selbst und dokumentieren sie.
+- Texte für Menschen beginnen mit **„Kurz gesagt“** (2–3 Sätze ohne Fachbegriffe).
+- **Skills** liegen unter `.agents/skills/` (Codex liest sie dort, Claude Code die Kopie in `.claude/skills/`). Nur unter `.agents/skills/` ändern, danach `node scripts/sync-skills.mjs`. Die CI prüft die Kopie.
+- Taiga-Zugriff über `.mcp.json` (Claude Code) bzw. `.codex/config.toml` (Codex), Zugangsdaten aus `TAIGA_USERNAME` und `TAIGA_PASSWORD`. Einrichtung: [docs/agent-setup.md](docs/agent-setup.md), prüfen mit `./scripts/check-agent-setup.sh`.
 
 ## Wenn etwas unklar ist
 
