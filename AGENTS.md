@@ -96,7 +96,8 @@ Projekt `fynndow-moach` auf tree.taiga.io, Scrum mit Sprints à 2 Wochen. 1 Stor
 
 - Epics: Die aktuelle Liste mit Umfang steht im Taiga-Wiki auf der Seite `home` (gegliedert in Fundament, Erlebnis und Funktionen). Neue Stories gehören in das Epic, dessen Thema sie betreffen, nicht in ein Sammel-Epic nach Art (z. B. „Fehler“). Fehler werden über den Tag `bug` gekennzeichnet.
 - Jede Story hat **Acceptance Criteria** als Checkliste. Sie sind verbindlich und werden wörtlich geprüft.
-- Story-Status: New → In progress → In Review (PR offen) → Done (gemergt, live geprüft).
+- Story-Status: New → In progress → In Test (umgesetzt und gepusht, wartet auf QA) → In Review (QA bestanden, PR offen) → Done (gemergt, live geprüft).
+- **Kein Pull Request vor bestandener QA.** `/implement-taiga-ticket` pusht nur den Branch, `/qa-taiga-ticket` prüft ihn, und erst `/finish-taiga-ticket` erstellt den PR, wenn die QA für den aktuellen Head-Commit bestanden ist.
 - Die **Definition of Done** steht im Taiga-Wiki (Seite `definition-of-done`).
 - Zugriff für Agenten über den MCP-Server in `.mcp.json` (Zugangsdaten aus der Umgebung: `TAIGA_USERNAME`, `TAIGA_PASSWORD`).
 - **Einrichtung von GitHub und Taiga für Agenten:** [docs/agent-setup.md](docs/agent-setup.md). Prüfen mit `./scripts/check-agent-setup.sh`. Schlägt ein Zugriff auf GitHub oder Taiga fehl, zuerst dieses Skript laufen lassen.

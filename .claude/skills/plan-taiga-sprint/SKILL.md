@@ -31,7 +31,7 @@ Projekt aus `git remote get-url origin` bestimmen. Ist das Repo nicht in der Tab
 
 1. **Bilanz** (kurz im Chat): geplante Punkte, erledigte Punkte (Status `Done`), Anzahl Stories je Status.
 2. **Unfertige Stories** (Status ungleich `Done`/`Archived`) wandern in den neuen Sprint.
-   - Status **`In Review`** (Umsetzung fertig, nur noch Test bzw. Abschluss offen): Die Punkte sinken **auf 25 %**. Je Rolle anteilig rechnen, dann auf den nächsten Wert der Taiga-Skala aufrunden (½, 1, 2, 3, …). Rollen mit 0 bleiben 0, eine Rolle mit Anteil nie unter ½. Beispiele: 2 → ½, 3 → 1, 1 → ½, Front 2 + Back 1 → Front ½ + Back ½.
+   - Status **`In Test`** oder **`In Review`** (Umsetzung fertig, nur noch QA bzw. Abschluss offen): Die Punkte sinken **auf 25 %**. Je Rolle anteilig rechnen, dann auf den nächsten Wert der Taiga-Skala aufrunden (½, 1, 2, 3, …). Rollen mit 0 bleiben 0, eine Rolle mit Anteil nie unter ½. Beispiele: 2 → ½, 3 → 1, 1 → ½, Front 2 + Back 1 → Front ½ + Back ½.
    - Alle anderen unfertigen Stories behalten ihre vollen Punkte.
    - Zeig die Liste (Nummer, Titel, Status, Punkte alt → neu).
 3. **Retro**, zuerst die Daten berechnen:
