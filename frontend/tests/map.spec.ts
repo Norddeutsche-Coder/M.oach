@@ -246,3 +246,85 @@ test.describe('dark mode', () => {
     expect(lum(styles.color)).toBeGreaterThan(0.75)
   })
 })
+
+test.describe('map style', () => {
+  test('switching to satellite in the run detail keeps the view and applies to the heatmap after reload', async ({
+    page,
+  }) => {
+    const map = await openRunMap(page)
+    const choice = map.getByRole('combobox', { name: 'Kartenart' })
+    await expect(choice).toHaveValue('standard')
+    await expect(choice.locator('option:checked')).toHaveText('Standard-Karte')
+    const choiceBox = (await choice.boundingBox())!,
+      mapBox = (await map.boundingBox())!
+    expect(mapBox.x + mapBox.width - (choiceBox.x + choiceBox.width)).toBeLessThan(20)
+    expect(choiceBox.y - mapBox.y).toBeLessThan(20)
+    const route = await map.locator('.mml').getAttribute('d')
+
+    await choice.selectOption('satellite')
+    await expect(map.locator('.mmi').first()).toHaveAttribute(
+      'src',
+      /\/World_Imagery\/MapServer\/tile\//,
+    )
+    await expect(map.locator('.mmi[src*="World_Topo_Map"]')).toHaveCount(0)
+    await expect(map.locator('.mml')).toHaveAttribute('d', route!)
+    await expect(map.locator('.mma span')).toContainText('Maxar')
+    await expect(map.locator('.mma span')).not.toContainText('HERE')
+
+    await page.reload()
+    const heatChoice = page.locator('#hmm').getByRole('combobox', { name: 'Kartenart' })
+    await expect(heatChoice).toHaveValue('satellite')
+    await expect(page.locator('#hmm .mmi').first()).toHaveAttribute('src', /World_Imagery/)
+  })
+
+  test('the heatmap behind the run detail switches at once', async ({ page }) => {
+    const map = await openRunMap(page)
+    await map.getByRole('combobox', { name: 'Kartenart' }).selectOption('satellite')
+    await page.locator('#rvx').click()
+    await expect(page.locator('#hmm').getByRole('combobox', { name: 'Kartenart' })).toHaveValue(
+      'satellite',
+    )
+    await expect(page.locator('#hmm .mmi').first()).toHaveAttribute('src', /World_Imagery/)
+  })
+
+  test('the choice works with the keyboard', async ({ page }) => {
+    const map = await openRunMap(page)
+    const choice = map.getByRole('combobox', { name: 'Kartenart' })
+    await choice.focus()
+    await expect(choice).toBeFocused()
+    await page.keyboard.press('ArrowDown')
+    await expect(choice).toHaveValue('satellite')
+  })
+
+  test('an invalid saved value starts with the standard map', async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('moach_map_style', 'hybrid'))
+    const map = await openRunMap(page)
+    await expect(map.getByRole('combobox', { name: 'Kartenart' })).toHaveValue('standard')
+    await expect(map.locator('.mmi').first()).toHaveAttribute('src', /World_Topo_Map/)
+  })
+
+  test('switching only adds moach_map_style to the stored data', async ({ page }) => {
+    const map = await openRunMap(page)
+    const snapshot = () =>
+      page.evaluate(() =>
+        Object.fromEntries(Object.keys(localStorage).map((k) => [k, localStorage.getItem(k)])),
+      )
+    const before = await snapshot()
+    await map.getByRole('combobox', { name: 'Kartenart' }).selectOption('satellite')
+    const after = await snapshot()
+    expect(after.moach_map_style).toBe('satellite')
+    delete after.moach_map_style
+    delete before.moach_map_style
+    expect(after).toEqual(before)
+  })
+})
+
+test('the heatmap shows no start or finish points, the run detail does', async ({ page }) => {
+  const map = await openRunMap(page)
+  await expect(map.locator('.mms')).toBeVisible()
+  await expect(map.locator('.mme')).toBeVisible()
+  await page.locator('#rvx').click()
+  await expect(page.locator('#hmm .mmh.h0')).toHaveAttribute('d', /^M/)
+  await expect(page.locator('#hmm .mms')).toBeHidden()
+  await expect(page.locator('#hmm .mme')).toBeHidden()
+})

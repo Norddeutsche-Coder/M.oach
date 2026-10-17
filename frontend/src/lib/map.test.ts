@@ -1,5 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import { fitView, project, scaleBar, tileRange, unproject, type LatLng } from './map'
+import {
+  fitView,
+  MAP_STYLE_KEY,
+  project,
+  readMapStyle,
+  scaleBar,
+  setMapStyle,
+  tileRange,
+  unproject,
+  writeMapStyle,
+  type LatLng,
+} from './map'
 
 // Loop of about 3 km near Cloppenburg
 const route: LatLng[] = [
@@ -108,5 +119,56 @@ describe('scale bar', () => {
 
   it('shows a shorter distance after zooming in', () => {
     expect(scaleBar(53, 13).meters).toBeLessThan(scaleBar(53, 12).meters)
+  })
+})
+
+describe('map style', () => {
+  const memory = (initial: Record<string, string> = {}) => {
+    const data = { ...initial }
+    return {
+      data,
+      getItem: (key: string) => (key in data ? data[key] : null),
+      setItem: (key: string, value: string) => {
+        data[key] = value
+      },
+    }
+  }
+
+  it('starts with the standard map without a saved choice', () => {
+    expect(readMapStyle(memory())).toBe('standard')
+    expect(readMapStyle(null)).toBe('standard')
+  })
+
+  it.each(['', 'Satellit', 'hybrid', 'constructor', '__proto__'])(
+    'falls back to the standard map for the invalid value %j',
+    (value) => {
+      expect(readMapStyle(memory({ [MAP_STYLE_KEY]: value }))).toBe('standard')
+    },
+  )
+
+  it('saves and reads the satellite map under moach_map_style only', () => {
+    const store = memory({ moach_cur: 'test' })
+    writeMapStyle('satellite', store)
+    expect(store.data).toEqual({ moach_cur: 'test', moach_map_style: 'satellite' })
+    expect(readMapStyle(store)).toBe('satellite')
+  })
+
+  it('falls back to the standard map when storage throws', () => {
+    const broken = {
+      getItem: () => {
+        throw new Error('blocked')
+      },
+      setItem: () => {
+        throw new Error('blocked')
+      },
+    }
+    expect(readMapStyle(broken)).toBe('standard')
+    expect(() => writeMapStyle('satellite', broken)).not.toThrow()
+  })
+
+  it('saves the choice when switching the style', () => {
+    const store = memory()
+    setMapStyle('satellite', store)
+    expect(readMapStyle(store)).toBe('satellite')
   })
 })

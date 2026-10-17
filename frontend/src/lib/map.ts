@@ -29,6 +29,8 @@ export interface MapOptions extends Partial<TileSource> {
   coop?: boolean
   view?: MapView | null
   host?: MapHost
+  /** Shows the map style choice and uses the saved style instead of tile/attr. */
+  styleSwitch?: boolean
 }
 export interface MapHandle {
   dispose(): void
@@ -62,6 +64,57 @@ export const TOPO_TILES: TileSource = {
   zmax: 18,
   attr: 'Powered by Esri · Quellen: Esri, HERE, Garmin, Intermap, increment P Corp., GEBCO, USGS, FAO, NPS, NRCAN, GeoBase, IGN, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), © OpenStreetMap-Mitwirkende und die GIS User Community',
 }
+export const SATELLITE_TILES: TileSource = {
+  tile: (z, x, y) =>
+    `https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`,
+  tmax: 18,
+  zmax: 18,
+  attr: 'Powered by Esri · Quellen: Esri, Maxar, Earthstar Geographics und die GIS User Community',
+}
+
+export type MapStyle = 'standard' | 'satellite'
+export const MAP_STYLE_KEY = 'moach_map_style'
+export const MAP_STYLES: Record<MapStyle, { label: string; tiles: TileSource }> = {
+  standard: { label: 'Standard-Karte', tiles: TOPO_TILES },
+  satellite: { label: 'Satellit', tiles: SATELLITE_TILES },
+}
+type KeyValueStore = Pick<Storage, 'getItem' | 'setItem'>
+const browserStore = (): KeyValueStore | null => {
+  try {
+    return window.localStorage
+  } catch {
+    return null
+  }
+}
+const isMapStyle = (value: unknown): value is MapStyle =>
+  typeof value === 'string' && Object.hasOwn(MAP_STYLES, value)
+
+/** Saved map style of this device; anything missing or unknown falls back to the standard map. */
+export function readMapStyle(store: KeyValueStore | null = browserStore()): MapStyle {
+  try {
+    const value = store?.getItem(MAP_STYLE_KEY)
+    return isMapStyle(value) ? value : 'standard'
+  } catch {
+    return 'standard'
+  }
+}
+
+export function writeMapStyle(style: MapStyle, store: KeyValueStore | null = browserStore()) {
+  try {
+    store?.setItem(MAP_STYLE_KEY, style)
+  } catch {
+    // Storage can be full or blocked; the choice then only lasts until reload.
+  }
+}
+
+// Mounted maps with a style switch, so a change in one map updates the others at once.
+const styleListeners = new Set<(style: MapStyle) => void>()
+
+export function setMapStyle(style: MapStyle, store?: KeyValueStore | null) {
+  writeMapStyle(style, store)
+  styleListeners.forEach((listener) => listener(style))
+}
+
 const OSM_TILE = (z: number, x: number, y: number) =>
   `https://tile.openstreetmap.org/${z}/${x}/${y}.png`
 
@@ -174,6 +227,12 @@ const defaultHost: MapHost = {
 
 const CONTROLS =
   '<div class="mmz"><button type="button" data-z="1" aria-label="Vergrößern">+</button><button type="button" data-z="-1" aria-label="Verkleinern">−</button><button type="button" data-z="0" aria-label="Route zentrieren">⌖</button></div><div class="mmsc"><span></span></div><button type="button" class="mma" aria-label="Kartenquellen anzeigen" aria-expanded="false"><b>i</b><span></span></button>'
+const STYLE_SWITCH =
+  '<label class="mmst"><select aria-label="Kartenart">' +
+  Object.entries(MAP_STYLES)
+    .map(([value, { label }]) => `<option value="${value}">${label}</option>`)
+    .join('') +
+  '</select></label>'
 const COOP_HINT =
   '<div class="mmg" hidden>Mit zwei Fingern bewegen<br><small>Mit Strg + Mausrad zoomen</small></div>'
 
@@ -185,8 +244,8 @@ export function mountMap(
 ): MapHandle {
   const opt: MapOptions = { ...options },
     host = opt.host || defaultHost,
-    tileUrl = opt.tile || OSM_TILE,
     tiles = new Map<string, HTMLImageElement>()
+  if (opt.styleSwitch) Object.assign(opt, MAP_STYLES[readMapStyle()].tiles)
   let st: MapView = { z: 12, la: 0, ln: 0 },
     W = 0,
     H = 0,
@@ -202,10 +261,13 @@ export function mountMap(
     '<div class="mmt"></div><svg class="mmo" aria-hidden="true">' +
     paths('mmhc') +
     paths('mmh') +
-    '<path class="mmlc"/><path class="mml"/><circle class="mms" r="5.5"/><circle class="mme" r="5.5"/><circle class="mmk" r="6.5" hidden/></svg>' +
+    '<path class="mmlc"/><path class="mml"/><circle class="mms" r="5.5" hidden/><circle class="mme" r="5.5" hidden/><circle class="mmk" r="6.5" hidden/></svg>' +
     CONTROLS +
+    (opt.styleSwitch ? STYLE_SWITCH : '') +
     (opt.coop ? COOP_HINT : '')
-  el.querySelector('.mma span')!.textContent = opt.attr || '© OpenStreetMap-Mitwirkende'
+  const attribution = el.querySelector('.mma span')!,
+    styleSelect = el.querySelector<HTMLSelectElement>('.mmst select')
+  attribution.textContent = opt.attr || '© OpenStreetMap-Mitwirkende'
   const T = el.querySelector<HTMLElement>('.mmt')!,
     O = el.querySelector<SVGSVGElement>('.mmo')!,
     line = O.querySelector('.mml')!,
@@ -241,7 +303,7 @@ export function mountMap(
           img.onerror = () => {
             img.style.visibility = 'hidden'
           }
-          img.src = tileUrl(range.z, wx, ty)
+          img.src = (opt.tile || OSM_TILE)(range.z, wx, ty)
           T.appendChild(img)
           tiles.set(key, img)
           im = img
@@ -271,6 +333,8 @@ export function mountMap(
       lineCasing.setAttribute('d', d)
       const a = toScreen(...route[0]),
         b = toScreen(...route[route.length - 1])
+      start.removeAttribute('hidden')
+      end.removeAttribute('hidden')
       start.setAttribute('cx', String(a[0]))
       start.setAttribute('cy', String(a[1]))
       end.setAttribute('cx', String(b[0]))
@@ -348,7 +412,7 @@ export function mountMap(
   const pointers = new Map<number, [number, number]>()
   let pinch = 0
   el.addEventListener('pointerdown', (e) => {
-    if ((e.target as Element).closest('.mmz,.mma') || (opt.coop && e.pointerType === 'touch'))
+    if ((e.target as Element).closest('.mmz,.mma,.mmst') || (opt.coop && e.pointerType === 'touch'))
       return
     try {
       el.setPointerCapture(e.pointerId)
@@ -404,6 +468,7 @@ export function mountMap(
     { passive: false },
   )
   el.addEventListener('dblclick', (e) => {
+    if ((e.target as Element).closest('.mmst')) return
     const r = el.getBoundingClientRect()
     zoomAt(e.clientX - r.left, e.clientY - r.top, st.z + 1)
   })
@@ -470,6 +535,21 @@ export function mountMap(
     else zoomAt(W / 2, H / 2, Math.round(st.z) + z)
   })
 
+  // Swaps the tile source in place: zoom and centre stay, cached tiles of the old style go.
+  function applyStyle(style: MapStyle) {
+    Object.assign(opt, MAP_STYLES[style].tiles)
+    if (styleSelect) styleSelect.value = style
+    attribution.textContent = opt.attr || ''
+    for (const im of tiles.values()) im.remove()
+    tiles.clear()
+    render()
+  }
+  if (styleSelect) {
+    styleSelect.value = readMapStyle()
+    styleSelect.addEventListener('change', () => setMapStyle(styleSelect.value as MapStyle))
+    styleListeners.add(applyStyle)
+  }
+
   let observer: ResizeObserver | undefined
   measure()
   if (window.ResizeObserver) {
@@ -490,6 +570,7 @@ export function mountMap(
 
   return {
     dispose: () => {
+      styleListeners.delete(applyStyle)
       observer?.disconnect()
       host.clearTimeout(hintTimer)
     },
