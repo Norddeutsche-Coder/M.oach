@@ -1,6 +1,6 @@
 ---
 name: implement-taiga-ticket
-description: Setzt eine Taiga-User-Story bis zur QA-Bereitschaft um, ohne Pull Request. Aufruf mit der Story-Nummer, z. B. `/implement-taiga-ticket 27`. Prüft die Definition of Ready, plant, legt Branch und Taiga-Tasks an, implementiert, macht schnelle Checks (Typen, Lint, Unit-Tests), wartet auf Freigabe, committet, pusht den Branch, wartet auf die CI und setzt die Story auf Im Test. Danach prüft /qa-taiga-ticket, der Product Owner nimmt ab, und erst /finish-taiga-ticket erstellt den PR.
+description: Setzt eine Taiga-User-Story bis zur QA-Bereitschaft um, ohne Pull Request. Aufruf mit der Story-Nummer, z. B. `/implement-taiga-ticket 27`. Prüft die Definition of Ready, ordnet die Story der aufrufenden Person und dem laufenden Sprint zu, plant, legt Branch und Taiga-Tasks an, implementiert, macht schnelle Checks (Typen, Lint, Unit-Tests), wartet auf Freigabe, committet, pusht den Branch, wartet auf die CI und setzt die Story auf Im Test. Danach prüft /qa-taiga-ticket, erst /finish-taiga-ticket erstellt den PR, und sichtbare Änderungen nimmt nach der Veröffentlichung eine andere Person ab.
 argument-hint: <story-nummer>
 disable-model-invocation: true
 ---
@@ -15,9 +15,9 @@ Arbeite die Phasen der Reihe nach ab. **Zwei Haltepunkte sind Pflicht:** nach de
 
 Dieser Skill macht nur **schnelle Checks** (Typprüfung, Lint, Unit-Tests). Kein Build, keine E2E-Tests, keine Screenshots, kein Abgleich der Acceptance Criteria mit Beleg. Das übernimmt `/qa-taiga-ticket` auf dem gepushten Branch.
 
-**Kein Pull Request vor bestandener QA und Abnahme.** Dieser Skill erstellt nie einen PR, auch nicht als Entwurf. Den PR erstellt erst `/finish-taiga-ticket`.
+**Kein Pull Request vor bestandener QA.** Dieser Skill erstellt nie einen PR, auch nicht als Entwurf. Den PR erstellt erst `/finish-taiga-ticket`.
 
-Ablauf über alle Skills: umsetzen → Checks → Go → Commit + Push → CI grün → **Im Test** → `/qa-taiga-ticket` → bei Befunden zurück zu diesem Skill (Story wieder `In Arbeit`) → bei Bestehen **Abnahme** durch den Product Owner → `/finish-taiga-ticket` (PR, **Im Review**, Merge, Deployment, **Fertig**).
+Ablauf über alle Skills: umsetzen → Checks → Go → Commit + Push → CI grün → **Im Test** → `/qa-taiga-ticket` → bei Befunden zurück zu diesem Skill (Story wieder `In Arbeit`) → bei Bestehen `/finish-taiga-ticket` (PR, **Im Review**, Merge, Deployment) → bei sichtbaren Änderungen **Abnahme** in der Live-App durch eine andere Person → **Fertig**.
 
 ## Projektzuordnung
 
@@ -30,7 +30,7 @@ Bestimme das Projekt aus `git remote get-url origin`. Ist das Repo nicht in der 
 **Fachliche Fragen** (Verhalten, Texte, Umfang, Entwurf) beantwortet `lukcy22`, nicht der Agent und nicht die Entwicklung. Stell sie als Kommentar an die Story mit der Überschrift `## Fachliche Fragen an @lukcy22`: nummeriert, je Frage 2–4 Antwortmöglichkeiten in Alltagssprache, die empfohlene zuerst mit „(Empfehlung)“. Die Erwähnung `@lukcy22` löst die E-Mail von Taiga aus. Danach halte an. Weiter geht es erst, wenn `lukcy22` in einem Kommentar geantwortet hat. Antwortet er nicht, kann der Product Owner ausdrücklich an seiner Stelle entscheiden.
 
 Taiga-Status in diesem Projekt (Name, Slug in Klammern):
-- **User Story:** Neu (`neu`), Bereit (`bereit`, Definition of Ready erfüllt), In Arbeit (`in-arbeit`), Im Test (`im-test`, gepusht, wartet auf QA), Abnahme (`abnahme`, QA bestanden, wartet auf den Product Owner), Im Review (`im-review`, PR offen), Fertig (`fertig`), Archiviert (`archiviert`)
+- **User Story:** Neu (`neu`), Bereit (`bereit`, Definition of Ready erfüllt), In Arbeit (`in-arbeit`), Im Test (`im-test`, gepusht, wartet auf QA), Im Review (`im-review`, PR offen), Abnahme (`abnahme`, live, wartet auf die Abnahme durch eine andere Person), Fertig (`fertig`), Archiviert (`archiviert`)
 - **Task:** Neu, In Arbeit, Im Test (erledigt, wartet auf QA), Im Review, Erledigt (setzt `/qa-taiga-ticket` nach bestandener QA), Blockiert
 
 Lies außerdem die Wiki-Seiten `definition-of-ready` und `definition-of-done` (Taiga-MCP `wiki`, op `get`). Ihre Punkte gelten zusätzlich zu den Acceptance Criteria.
@@ -45,7 +45,7 @@ Lies außerdem die Wiki-Seiten `definition-of-ready` und `definition-of-done` (T
    - `git status`: Gibt es uncommittete Änderungen, die nicht zu dieser Story gehören, halte an und frag.
    - `git fetch origin` und nach einem Branch suchen, der `tg-<nr>-` im Namen trägt (lokal und remote).
 4. **Fortsetzen statt neu anfangen:** Ist die Story schon `In Arbeit` oder gibt es den Branch, wechsle dorthin. Lies die offenen Tasks (vor allem `QA: …`, `Abnahme: …` und `Release: …` mit Geprüft, Erwartet, Tatsächlich, Ursache, Vorschlag), die Kommentare von QA und Product Owner und `git diff origin/<basis>...HEAD` und plane nur noch den Rest. Der Haltepunkt nach dem Plan gilt trotzdem.
-5. Ist die Story `Fertig` oder `Im Review`, oder `Im Test` bzw. `Abnahme` ohne offene Tasks, halte an und melde den Stand. Nächster Schritt ist dann `/qa-taiga-ticket`, die Abnahme durch den Product Owner bzw. `/finish-taiga-ticket`.
+5. Ist die Story `Fertig`, `Im Review` oder `Abnahme`, oder `Im Test` ohne offene Tasks, halte an und melde den Stand. Nächster Schritt ist dann `/qa-taiga-ticket`, `/finish-taiga-ticket` bzw. die Abnahme durch die andere Person. Wurde eine Story „Nicht abgenommen“, steht sie mit `Abnahme: …`-Tasks auf `In Arbeit`. Dann setzt du diese Tasks auf einem neuen Branch um.
 6. **Wer arbeitet:** Die Story gehört der Person, die diesen Skill aufruft. Das ist das Taiga-Konto der Sitzung, angemeldet über `TAIGA_USERNAME` (im Taiga-MCP `assignee: "me"`, in der API `GET /users/me`). Ist die Story schon einer anderen Person zugeordnet, halte an und frag, ob du sie übernehmen sollst. Ohne ausdrückliches Ja wird nicht umgehängt.
 7. **WIP-Limit:** Gibt es außer dieser eine andere Story im Status `In Arbeit`, die der aufrufenden Person zugeordnet ist (`op: list`, `type: story`, `status: In Arbeit`, `assignee: "me"`), halte an und frag, ob die andere zuerst fertig werden soll. Höchstens eine Story pro Person ist gleichzeitig in Arbeit (gilt nicht für `hotfix`).
 8. **Definition of Ready:** Ist die Story `Bereit`, weiter. Ist sie `Neu`, prüf die Punkte der Wiki-Seite `definition-of-ready` und zeig das Ergebnis im Plan. Fehlende fachliche Punkte sind Fragen an `lukcy22`, fehlende Schätzung oder Priorität klärt der Product Owner.
@@ -72,6 +72,7 @@ Untersuche den betroffenen Code selbst, bevor du fragst. Was sich aus dem Code b
 
 1. Branch von aktuellem `origin/<basis>` anlegen. Beim Fortsetzen den vorhandenen nehmen.
 2. Story der aufrufenden Person zuordnen und auf `In Arbeit` setzen (Taiga-MCP `work`, `op: update`, `assignee: "me"`, `status: In Arbeit`).
+   **Laufender Sprint:** Ist die Story nicht im laufenden Sprint, zieh sie hinein (`op: update`, `sprint: <Name>`). Laufend ist der offene Sprint, dessen Zeitraum das heutige Datum enthält (Taiga-MCP `sprints`, `op: list`). Gibt es keinen, halte an und frag, ob ein Sprint angelegt (`/plan-taiga-sprint`) oder ohne Sprint gearbeitet werden soll. Schreib dazu einen Kommentar an die Story: `In Sprint <Name> aufgenommen (vorher: <alter Sprint> | Backlog), <Punkte> Punkte zusätzlich zur Planung.`
 3. Für jeden Planschritt, den es noch nicht gibt, einen Task in der Story anlegen (`op: create`, `type: task`, `parent: #<nr>`, Status `Neu`, `assignee: "me"`, als Batch). Beim Fortsetzen offene Tasks ohne Zuordnung ebenfalls der aufrufenden Person zuordnen.
 
 ## Phase 4: Umsetzen
@@ -114,15 +115,15 @@ Untersuche den betroffenen Code selbst, bevor du fragst. Was sich aus dem Code b
 
 Kurz und auf Deutsch, beginnend mit **Kurz gesagt** (2–3 Sätze ohne Fachbegriffe):
 - Branch, Head-Commit (Kurz-SHA) und Link zum CI-Lauf,
-- Status in Taiga (Story und Tasks),
+- Status in Taiga (Story und Tasks), Zuordnung und Sprint, bei nachträglicher Aufnahme mit dem Hinweis, dass der Sprint jetzt um <Punkte> Punkte über der Planung liegt,
 - erfüllte Acceptance Criteria und gegebenenfalls nicht erfüllte mit Grund,
 - was die QA besonders prüfen sollte,
 - Auffälligkeiten außerhalb des Umfangs als Vorschlag für neue Stories. Lege sie **nicht** selbst an,
-- der Hinweis, dass nach der QA der Product Owner abnimmt und erst dann `/finish-taiga-ticket` den PR erstellt.
+- der Hinweis, dass nach der QA `/finish-taiga-ticket` den PR erstellt und sichtbare Änderungen nach der Veröffentlichung von einer anderen Person abgenommen werden.
 
 ## Grenzen
 
-- **Nie einen Pull Request erstellen**, auch keinen Entwurf. Das macht `/finish-taiga-ticket` nach QA und Abnahme.
+- **Nie einen Pull Request erstellen**, auch keinen Entwurf. Das macht `/finish-taiga-ticket` nach bestandener QA.
 - Nie mergen, die Story nie auf `Abnahme`, `Im Review` oder `Fertig` setzen.
 - Fachliche Fragen nie selbst entscheiden, sondern `lukcy22` vorlegen. Technische Fragen mit Alternativen nie selbst entscheiden, sondern `fynndow` vorlegen.
 - Keine Änderungen an GitHub-, Taiga- oder Supabase-Einstellungen, keine Migrationen gegen das Live-Projekt.

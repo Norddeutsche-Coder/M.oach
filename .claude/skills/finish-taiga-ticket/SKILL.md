@@ -1,6 +1,6 @@
 ---
 name: finish-taiga-ticket
-description: Schließt eine Taiga-User-Story nach bestandener QA und Abnahme durch den Product Owner ab. Aufruf mit der Story-Nummer, z. B. `/finish-taiga-ticket 27`. Prüft CI, QA, Abnahme und Acceptance Criteria auf dem Branch, wartet auf Go, erstellt erst dann den PR, setzt die Story auf Im Review, merged den PR per Squash, wartet auf das Deployment, macht einen Smoke-Test der Live-App, setzt Story und Tasks auf Fertig/Erledigt, schreibt einen Release-Kommentar und eine Neuigkeit in Alltagssprache und räumt den Branch auf. Bei Fehlern nach dem Merge hält er an und bereitet einen Revert vor.
+description: Schließt eine Taiga-User-Story nach bestandener QA ab. Aufruf mit der Story-Nummer, z. B. `/finish-taiga-ticket 27`. Prüft CI, QA und Acceptance Criteria auf dem Branch, wartet auf Go, erstellt erst dann den PR, setzt die Story auf Im Review, merged den PR per Squash, wartet auf das Deployment, macht einen Smoke-Test der Live-App, schreibt einen Release-Kommentar und eine Neuigkeit in Alltagssprache, räumt den Branch auf und setzt die Story auf Fertig oder, bei sichtbaren Änderungen, auf Abnahme durch eine andere Person. Ein zweiter Aufruf schließt die Abnahme ab. Bei Fehlern nach dem Merge hält er an und bereitet einen Revert vor.
 argument-hint: <story-nummer>
 disable-model-invocation: true
 ---
@@ -11,11 +11,13 @@ disable-model-invocation: true
 
 Argument: das Aufruf-Argument ist die Nummer der **User Story**. Fehlt sie, frag danach.
 
-**Ein Haltepunkt:** vor dem PR und dem Merge. Nach dem Go läuft alles bis „Fertig“ durch, außer etwas schlägt fehl.
+**Ein Haltepunkt:** vor dem PR und dem Merge. Nach dem Go läuft alles bis „Fertig“ bzw. „Abnahme“ durch, außer etwas schlägt fehl.
 
-**Erst QA und Abnahme, dann PR.** Der PR wird ausschließlich in diesem Skill erstellt, und nur, wenn `/qa-taiga-ticket` für den aktuellen Head-Commit des Branches mit „bestanden“ durchgelaufen ist und der Product Owner danach „Abgenommen“ kommentiert hat. Fehlt eins davon, wird kein PR erstellt.
+**Steht die Story beim Aufruf auf `Abnahme`**, springe direkt zu **Phase 7: Abnahme abschließen**.
 
-**Product Owner** in diesem Projekt: `fynndow`. Bei Stories mit Tag `hotfix` ist die Abnahme optional, das nennst du im Haltepunkt.
+**Erst QA, dann PR.** Der PR wird ausschließlich in diesem Skill erstellt, und nur, wenn `/qa-taiga-ticket` für den aktuellen Head-Commit des Branches mit „bestanden“ durchgelaufen ist. Fehlt das, wird kein PR erstellt.
+
+**Abnahme nach der Veröffentlichung:** Nur Stories mit einer für Läufer **sichtbaren Änderung** (Oberfläche, Texte, Verhalten in der App, dieselben Kriterien wie für Screenshots im QA-Skill) werden abgenommen, und zwar **in der Live-App nach dem Merge**. Abnehmen darf jedes Projektmitglied **außer der Person, der die Story zugeordnet ist**. Angesprochen wird: Ist `fynndow` zugeordnet, `@lukcy22`, sonst `@fynndow`. Reine Technik-Stories (Tests, CI, Refactoring, Doku) brauchen keine Abnahme. Bei Stories mit Tag `hotfix` ist die Abnahme optional.
 
 ## Projektzuordnung
 
@@ -36,10 +38,7 @@ GitHub: bevorzugt das GitHub-MCP (`pull_request_read`, `merge_pull_request`). F�
    - [ ] **CI grün** für den Head-Commit des Branches (`GET /repos/<repo>/actions/runs?head_sha=<sha>` bzw. `gh run list --commit <sha>`). Läuft sie noch, warte darauf, höchstens 15 Minuten.
    - [ ] **QA bestanden:** Der neueste QA-Kommentar an der Story (`## QA ✅ bestanden · … · Branch <branch> @ <head>`) nennt den aktuellen Head-Commit des Branches (Kurz-SHA). Ein älteres „bestanden“ für einen früheren Commit zählt nicht.
    - [ ] **Basis eingearbeitet:** Die QA hat nur den Branch geprüft. Enthält `origin/<basis>` Commits, die nicht im Branch sind (`git log origin/<branch>..origin/<basis>`), liste sie auf und frag, ob vorher `<basis>` in den Branch gemergt und `/qa-taiga-ticket` erneut ausgeführt werden soll. Empfehlung: ja, wenn diese Commits dieselben Dateien berühren.
-   - [ ] **Abgenommen:** Der neueste Kommentar des Product Owners nach dem letzten QA-Kommentar beginnt mit „Abgenommen“.
-     - Beginnt er mit „Nicht abgenommen“: Lege pro genanntem Punkt einen Task `Abnahme: <Punkt>` (Status `Neu`) an, setze die Story auf `In Arbeit` und halte an. Nächster Schritt ist `/implement-taiga-ticket <nr>`.
-     - Gibt es noch keine Antwort: Halte an und bitte den Product Owner um die Abnahme (Hinweis auf den Abschnitt „Zur Abnahme“ im QA-Kommentar).
-   - [ ] **Story-Status `Abnahme`.**
+   - [ ] **Story-Status `Im Test`.**
    - [ ] **Keine offenen QA- oder Abnahme-Tasks** (`QA: …`, `Abnahme: …` mit Status ungleich `Erledigt`).
    - [ ] **Alle Acceptance Criteria abgehakt** in der Story-Beschreibung (`- [x]`). Ist eine noch `- [ ]`, aber laut QA-Kommentar erfüllt, darfst du sie im Zuge des Abschlusses abhaken. Das sagst du im Haltepunkt ausdrücklich.
    - [ ] **Keine sonstigen offenen Tasks.** Gibt es welche, liste sie auf und frag, ob sie geschlossen, in eine neue Story verschoben oder zuerst erledigt werden sollen.
@@ -55,7 +54,7 @@ Zeig:
 - die geplante Squash-Commit-Nachricht: Titel `<PR-Titel>` (enthält `TG-<nr>`), Text als kurze Zusammenfassung der Änderungen, **ohne** `Co-authored-by:`-Zeilen für KI-Agenten (GitHub schlägt sie beim Squash automatisch vor, entferne sie),
 - was danach automatisch passiert (PR erstellen, Im Review, Checks abwarten, Merge, Deploy abwarten, Smoke-Test, Fertig, Neuigkeit, Aufräumen).
 
-Ist eine Bedingung ❌, **erstelle keinen PR und merge nicht**. Nenn, was fehlt und wer bzw. welcher Skill das erledigt (`/implement-taiga-ticket`, `/qa-taiga-ticket`, Abnahme durch den Product Owner). Ist alles ✅, **halte an** und warte auf ein Go.
+Ist eine Bedingung ❌, **erstelle keinen PR und merge nicht**. Nenn, was fehlt und welcher Skill das erledigt (`/implement-taiga-ticket`, `/qa-taiga-ticket`). Ist alles ✅, **halte an** und warte auf ein Go.
 
 ## Phase 3: PR und Merge (erst nach Go)
 
@@ -65,7 +64,7 @@ Ist eine Bedingung ❌, **erstelle keinen PR und merge nicht**. Nenn, was fehlt 
    - Änderungen,
    - die Acceptance Criteria als abgehakte Checkliste,
    - QA: Link zum QA-Kommentar bzw. „QA bestanden für `<head-kurz-sha>`“,
-   - Abnahme: „Abgenommen durch <Product Owner> am <Datum>“,
+   - Abnahme: „nach der Veröffentlichung durch @<andere Person>“ | „nicht nötig, reine Technik“,
    - Risiken bzw. was beim Review zu beachten ist,
    - abschließend die Attribution-Zeile für PR-Beschreibungen, falls der Agent eine vorgibt.
 2. Den PR-Link in das Story-Feld **„Pull Request“** eintragen. Das MCP kann keine eigenen Felder setzen, deshalb über die Taiga-API mit `TAIGA_USERNAME` und `TAIGA_PASSWORD` aus der Umgebung:
@@ -104,7 +103,7 @@ Ist eine Bedingung ❌, **erstelle keinen PR und merge nicht**. Nenn, was fehlt 
 ## Phase 5: Abschließen (nur wenn Phase 4 erfolgreich)
 
 1. Alle restlichen Tasks der Story auf `Erledigt` setzen.
-2. Story auf `Fertig` setzen.
+2. **Abnahme nötig** (laut QA-Kommentar, sichtbare Änderung, kein `hotfix` ohne Abnahme)? Dann Story auf `Abnahme` setzen. Sonst auf `Fertig`.
 3. Die Screenshots des Smoke-Tests als **eine ZIP-Datei** an die Story hängen, nie als einzelne PNG-Dateien: `python3 -m zipfile -c <tmp>/release-tg-<nr>/live-tg-<nr>.zip <tmp>/release-tg-<nr>/*.png`, dann Taiga-MCP `attachments`, `op: upload`, `type: story`, `filePath` auf die ZIP, Beschreibung z. B. „Live · Smoke-Test · <bundle-name>“.
 4. Release-Kommentar an die Story (Taiga-MCP `comments`, `op: add`):
    ```
@@ -119,7 +118,16 @@ Ist eine Bedingung ❌, **erstelle keinen PR und merge nicht**. Nenn, was fehlt 
    - **Smoke-Test:** <geprüfte Ansicht(en)> · ✅ ohne Konsolenfehler · Screenshots in `live-tg-<nr>.zip` angehängt
    ```
 5. **Neuigkeit eintragen:** Bemerken Läufer die Änderung, oben in der Wiki-Seite `neuigkeiten` eine Zeile ergänzen (Taiga-MCP `wiki`, `op: get`, dann `op: update`): `- <Datum>: <was Läufer davon haben, ohne Fachbegriffe> (#<nr>)`. Reine Technik-Änderungen überspringen.
-6. **Aufräumen:**
+6. **Abnahme anfordern** (nur wenn nötig): Kommentar an die Story:
+   ```
+   ## Zur Abnahme · @<andere Person>
+
+   **Kurz gesagt:** <was sich für Läufer geändert hat>
+   **Was du ausprobieren kannst:** <1–3 Schritte in Alltagssprache aus dem QA-Kommentar>
+   **Wo:** in der Live-App <Live-URL>, Screenshots in `live-tg-<nr>.zip`
+   **So antwortest du:** Kommentar an diese Story mit „Abgenommen“ oder „Nicht abgenommen: <was fehlt oder stört>“.
+   ```
+7. **Aufräumen:**
    - Remote-Branch löschen, falls GitHub ihn nicht automatisch gelöscht hat (`git push origin --delete <branch>`),
    - lokal auf den Basis-Branch wechseln, `git pull --ff-only`, lokalen Branch löschen (`git branch -d`, nicht `-D`). Weigert sich Git, halte an und frag,
    - temporäre Ordner unter `<tmp>` bleiben bestehen.
@@ -136,6 +144,14 @@ Story **nicht** auf Fertig setzen. Sie bleibt `Im Review`.
 3. Im Chat melden: was fehlgeschlagen ist (die fünf Angaben), der Link zum Revert-PR, und die Frage, ob reverted oder vorwärts korrigiert werden soll (`/implement-taiga-ticket <nr>` arbeitet den Release-Task ab).
 4. Auf Go zum Revert: Revert-PR mergen (Squash), Deployment abwarten, Smoke-Test wiederholen und das Ergebnis als Kommentar an die Story. Die Story auf `In Arbeit` setzen.
 
+## Phase 7: Abnahme abschließen (Story steht auf `Abnahme`)
+
+1. Kommentare der Story laden (Taiga-MCP `comments`, `op: list`) und den neuesten Kommentar nach „Zur Abnahme“ suchen, der mit „Abgenommen“ oder „Nicht abgenommen“ beginnt.
+2. **Er stammt von der Person, der die Story zugeordnet ist?** Zählt nicht. Halte an und weise darauf hin, dass eine andere Person abnehmen muss.
+3. **„Abgenommen“** von einer anderen Person: Story auf `Fertig` setzen, kurzer Kommentar `Abnahme bestätigt durch @<Person> · <Datum>`.
+4. **„Nicht abgenommen: …“**: Pro genanntem Punkt einen Task `Abnahme: <Punkt>` (Status `Neu`, der zugeordneten Person) anlegen, Story auf `In Arbeit` setzen. Nächster Schritt ist `/implement-taiga-ticket <nr>` (neuer Branch, wieder über QA und PR). Ist die Änderung für Läufer schädlich, schlag einen Revert oder `hotfix` vor (Wiki `hotfix`).
+5. **Noch keine Antwort:** Halte an und nenne, wer angesprochen ist und seit wann.
+
 ## Abschlussbericht
 
 - **Kurz gesagt** (1–2 Sätze ohne Fachbegriffe),
@@ -147,8 +163,8 @@ Story **nicht** auf Fertig setzen. Sie bleibt `Im Review`.
 
 ## Grenzen
 
-- Nie einen PR erstellen ohne bestandene QA für den aktuellen Head-Commit des Branches und ohne Abnahme (außer `hotfix`).
-- Nie selbst abnehmen. Die Abnahme ist ein Kommentar des Product Owners.
+- Nie einen PR erstellen ohne bestandene QA für den aktuellen Head-Commit des Branches.
+- Nie selbst abnehmen. Die Abnahme ist ein Kommentar einer Person, der die Story nicht zugeordnet ist.
 - Nie einen PR erstellen oder mergen ohne Go und nie bei einer nicht erfüllten Bedingung. Schutzregeln nie umgehen.
 - Nie force-pushen, nie direkt auf den Basis-Branch pushen (der Revert läuft immer über einen PR).
 - Kein automatischer Revert ohne Go.

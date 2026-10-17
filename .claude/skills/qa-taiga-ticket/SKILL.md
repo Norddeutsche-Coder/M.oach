@@ -1,6 +1,6 @@
 ---
 name: qa-taiga-ticket
-description: Unabhängige Qualitätsprüfung einer Taiga-User-Story. Aufruf mit optionaler Story-Nummer, z. B. `/qa-taiga-ticket 27`. Führt alle automatischen Prüfungen aus, prüft jede Acceptance Criteria mit Beleg, macht bei Änderungen an Oberfläche oder Logik Vorher/Nachher-Screenshots, reviewt den Diff, berichtet im Chat und in Taiga und setzt die Story bei Befunden zurück auf In Arbeit, bei Bestehen auf Abnahme durch den Product Owner. Prüft den gepushten Branch, bevor es einen PR gibt. Behebt selbst nichts.
+description: Unabhängige Qualitätsprüfung einer Taiga-User-Story. Aufruf mit optionaler Story-Nummer, z. B. `/qa-taiga-ticket 27`. Führt alle automatischen Prüfungen aus, prüft jede Acceptance Criteria mit Beleg, macht bei Änderungen an Oberfläche oder Logik Vorher/Nachher-Screenshots, reviewt den Diff, berichtet im Chat und in Taiga und setzt die Story bei Befunden zurück auf In Arbeit, bei Bestehen schließt sie die Tasks und legt fest, ob nach der Veröffentlichung eine Abnahme nötig ist. Prüft den gepushten Branch, bevor es einen PR gibt. Behebt selbst nichts.
 argument-hint: [story-nummer]
 disable-model-invocation: true
 ---
@@ -21,7 +21,7 @@ Du bist die unabhängige Prüfinstanz. **Du behebst nichts**, auch keine Kleinig
 
 2. Story-Nummer: das Aufruf-Argument. Fehlt sie, aus dem Branch-Namen lesen (`…/tg-<nr>-…`). Gibt es keine, prüf nur den Diff gegen den Basis-Branch, ohne Taiga-Schritte, und sag das zu Beginn.
 3. Story laden (Taiga-MCP `work`, `op: get`, `type: story`), außerdem ihre Tasks und das Wiki „definition-of-done“ (Taiga-MCP `wiki`, `op: get`).
-4. **Prüfstand bestimmen.** Geprüft wird der **gepushte Branch** der Story (`origin/<branch>`, Branch `…/tg-<nr>-…`), genau in dem Stand, den `/implement-taiga-ticket` hinterlassen hat. Einen PR gibt es zu diesem Zeitpunkt noch nicht. Ihn erstellt erst `/finish-taiga-ticket` nach bestandener QA und Abnahme.
+4. **Prüfstand bestimmen.** Geprüft wird der **gepushte Branch** der Story (`origin/<branch>`, Branch `…/tg-<nr>-…`), genau in dem Stand, den `/implement-taiga-ticket` hinterlassen hat. Einen PR gibt es zu diesem Zeitpunkt noch nicht. Ihn erstellt erst `/finish-taiga-ticket` nach bestandener QA.
    - `git fetch origin` und einen Worktree `<tmp>/qa-tg-<nr>/branch-src` von `origin/<branch>` anlegen. **Alle Prüfungen (1–4) laufen in diesem Worktree**, nicht im Arbeitsverzeichnis. Im App-Ordner `npm ci`. Ist `package-lock.json` identisch mit dem aktuellen Stand, darf `node_modules` verlinkt werden.
    - Merke den Head-Commit des Branches (Kurz-SHA). Er steht im Bericht und im QA-Kommentar, `/finish-taiga-ticket` gleicht ihn ab.
    - Diff = `git diff origin/<basis>...origin/<branch>`.
@@ -91,7 +91,9 @@ Jeder Befund wird überall (Chat, Taiga-Kommentar, QA-Task) mit denselben fünf 
 1. Story auf `In Arbeit` setzen (Taiga-MCP `work`, `op: update`, `status: In Arbeit`).
 2. Pro Befund einen Task in der Story anlegen, Titel `QA: <kurze Beschreibung>`, Status `Neu`. Die Beschreibung enthält die fünf Pflichtangaben (Geprüft, Erwartet, Tatsächlich, Ursache, Vorschlag). Mehrere als Batch (`op: create`, `type: task`, `items`). Gibt es einen gleichnamigen offenen QA-Task schon, lege keinen doppelten an, sondern ergänze ihn als Kommentar.
 
-**Gibt es keinen Befund:** Story auf `Abnahme` setzen. Alle Tasks der Story mit Status `Im Test` auf `Erledigt` setzen, auch behobene QA- und Abnahme-Tasks.
+**Gibt es keinen Befund:** Der Story-Status bleibt `Im Test`. Alle Tasks der Story mit Status `Im Test` auf `Erledigt` setzen, auch behobene QA- und Abnahme-Tasks.
+
+**Abnahme nach der Veröffentlichung:** Nur Stories mit einer für Läufer **sichtbaren Änderung** (Oberfläche, Texte, Verhalten in der App, dieselben Kriterien wie für Screenshots im QA-Skill) werden abgenommen, und zwar **in der Live-App nach dem Merge**. Abnehmen darf jedes Projektmitglied **außer der Person, der die Story zugeordnet ist**. Angesprochen wird: Ist `fynndow` zugeordnet, `@lukcy22`, sonst `@fynndow`. Reine Technik-Stories (Tests, CI, Refactoring, Doku) brauchen keine Abnahme. Entscheide, ob die Story abgenommen werden muss, und schreib es in den Kommentar.
 
 **In beiden Fällen:**
 1. Die Screenshots als **eine ZIP-Datei** an die Story hängen, nie als einzelne PNG-Dateien:
@@ -130,23 +132,22 @@ Jeder Befund wird überall (Chat, Taiga-Kommentar, QA-Task) mit denselben fünf 
    ### Hinweise
    - … | keine
 
-   ### Zur Abnahme (nur bei bestanden)
-   **Was du ausprobieren kannst:** <1–3 Schritte in Alltagssprache, z. B. „Öffne Heute und tippe auf …“>
-   **Wo:** <Vorschau-URL des Branches, falls vorhanden> | in der angehängten ZIP mit den Screenshots (Ordner `vorher/` und `nachher/`)
-   **So antwortest du:** Kommentar an diese Story mit „Abgenommen“ oder „Nicht abgenommen: <was fehlt oder stört>“.
+   ### Abnahme nach der Veröffentlichung (nur bei bestanden)
+   **Nötig:** ja, sichtbare Änderung | nein, reine Technik
+   **Was ausprobiert werden soll:** <1–3 Schritte in Alltagssprache, z. B. „Öffne Heute und tippe auf …“> (nur wenn nötig)
    ```
-   Bei „bestanden“ entfällt der Abschnitt „Befunde“, bei „nicht bestanden“ der Abschnitt „Zur Abnahme“. Der Abschnitt „Was geprüft wurde“ bleibt immer vollständig.
+   Bei „bestanden“ entfällt der Abschnitt „Befunde“, bei „nicht bestanden“ der Abschnitt „Abnahme nach der Veröffentlichung“. Der Abschnitt „Was geprüft wurde“ bleibt immer vollständig.
 
 ## 6. Bericht im Chat
 
 Derselbe Inhalt wie der Kommentar, also immer vollständig, was geprüft wurde, und je Befund die fünf Pflichtangaben. Zusätzlich:
 - die Pfade der wichtigsten Screenshots. Zeig 2–4 aussagekräftige Bilder direkt (Bild öffnen, in Claude Code mit dem Read-Tool),
 - bei Befunden: die angelegten QA-Tasks mit Nummer und den Hinweis, dass `/implement-taiga-ticket <nr>` beim Fortsetzen die offenen QA-Tasks abarbeitet,
-- bei bestanden: dass die Story jetzt auf `Abnahme` steht. Der Product Owner probiert sie aus und antwortet mit „Abgenommen“ oder „Nicht abgenommen: …“. Danach erstellt `/finish-taiga-ticket <nr>` den PR und veröffentlicht.
+- bei bestanden: dass jetzt `/finish-taiga-ticket <nr>` den PR erstellen und veröffentlichen kann, und ob danach eine Abnahme in der Live-App nötig ist.
 
 ## Grenzen
 
-- Nichts beheben, nichts committen, pushen oder mergen, keinen PR erstellen. Nur QA-Tasks, Kommentare, Anhänge, den Story-Status `In Arbeit` bei Befunden bzw. `Abnahme` bei bestandener QA und den Task-Status `Erledigt` (von `Im Test`) in Taiga anlegen bzw. setzen.
+- Nichts beheben, nichts committen, pushen oder mergen, keinen PR erstellen. Nur QA-Tasks, Kommentare, Anhänge, den Story-Status `In Arbeit` bei Befunden und den Task-Status `Erledigt` (von `Im Test`) bei bestandener QA in Taiga anlegen bzw. setzen.
 - Story nie auf `Im Review` oder `Fertig` setzen und nie selbst abnehmen.
 - Keine echten Zugangsdaten für Builds oder Screenshots verwenden. Keine Anfragen an Live-Systeme (das Skript blockiert externe Hosts).
 - Kann ein Schritt nicht ausgeführt werden (z. B. Build schlägt fehl, deshalb keine Screenshots), ist das ein Befund. Weiterprüfen, was noch geht.
