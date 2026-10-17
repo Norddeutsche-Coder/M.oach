@@ -3,3 +3,9 @@ command = "npx"
 args = ["-y", "mcp-taiga@1.0.0"]
 env_vars = ["TAIGA_USERNAME", "TAIGA_PASSWORD"]
 env = { TAIGA_API_URL = "https://api.taiga.io/api/v1" }
+
+[mcp_servers.taiga.tools.sprints]
+approval_mode = "approve"
+
+[mcp_servers.taiga.tools.work]
+approval_mode = "approve"
