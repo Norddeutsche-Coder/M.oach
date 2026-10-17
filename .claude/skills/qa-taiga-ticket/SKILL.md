@@ -94,7 +94,10 @@ Jeder Befund wird überall (Chat, Taiga-Kommentar, QA-Task) mit denselben fünf 
 **Gibt es keinen Befund:** Story auf `Abnahme` setzen. Alle Tasks der Story mit Status `Im Test` auf `Erledigt` setzen, auch behobene QA- und Abnahme-Tasks.
 
 **In beiden Fällen:**
-1. Relevante Screenshots an die Story hängen (Taiga-MCP `attachments`, `op: upload`, `type: story`, `filePath`). Gemeint sind die Nachher-Bilder, die Befunde oder die beabsichtigte Änderung zeigen, und dazu die Vorher-Bilder für den Vergleich. Höchstens 8, mit Beschreibung wie „Nachher · Handy · dunkel · Readiness 8“.
+1. Die Screenshots als **eine ZIP-Datei** an die Story hängen, nie als einzelne PNG-Dateien:
+   - Alle Vorher- und Nachher-Bilder in die ZIP, in den Ordnern `vorher/` und `nachher/`. Die Dateinamen beschreiben das Szenario, z. B. `heute-readiness-8-handy-dunkel.png`.
+   - Erstellen plattformunabhängig mit Python: `python3 -m zipfile -c <tmp>/qa-tg-<nr>/screenshots-tg-<nr>-<head-kurz-sha>.zip <tmp>/qa-tg-<nr>/vorher <tmp>/qa-tg-<nr>/nachher` (vorher die Ordner `basis/` und `branch/` entsprechend benennen oder kopieren).
+   - Hochladen mit Taiga-MCP `attachments`, `op: upload`, `type: story`, `filePath` auf die ZIP, Beschreibung z. B. „QA-Screenshots · Vorher/Nachher · <head-kurz-sha> · 12 Bilder“.
 2. Einen Kommentar an die Story (Taiga-MCP `comments`, `op: add`):
    ```
    ## QA <✅ bestanden | ❌ nicht bestanden> · <Datum> · Branch <branch> @ <head-kurz-sha>
@@ -113,7 +116,7 @@ Jeder Befund wird überall (Chat, Taiga-Kommentar, QA-Task) mit denselben fünf 
    - ✅/❌ <AC im Wortlaut> – <Beleg bzw. Grund>
 
    **Definition of Done:** <erfüllt / Abweichungen>
-   **Screenshots:** <Szenarien in Kurzform, z. B. „Heute · Handy/Desktop · hell/dunkel · Readiness 8“>, Vorher/Nachher, <Anzahl> angehängt | keine nötig, weil <Grund>
+   **Screenshots:** <Szenarien in Kurzform, z. B. „Heute · Handy/Desktop · hell/dunkel · Readiness 8“>, Vorher/Nachher, <Anzahl> Bilder in `screenshots-tg-<nr>-<sha>.zip` angehängt | keine nötig, weil <Grund>
    **Code-Review:** <geprüfte Bereiche in einem Satz>
 
    ### Befunde (→ QA-Tasks #…)
@@ -129,7 +132,7 @@ Jeder Befund wird überall (Chat, Taiga-Kommentar, QA-Task) mit denselben fünf 
 
    ### Zur Abnahme (nur bei bestanden)
    **Was du ausprobieren kannst:** <1–3 Schritte in Alltagssprache, z. B. „Öffne Heute und tippe auf …“>
-   **Wo:** <Vorschau-URL des Branches, falls vorhanden> | in den angehängten Screenshots (Vorher/Nachher)
+   **Wo:** <Vorschau-URL des Branches, falls vorhanden> | in der angehängten ZIP mit den Screenshots (Ordner `vorher/` und `nachher/`)
    **So antwortest du:** Kommentar an diese Story mit „Abgenommen“ oder „Nicht abgenommen: <was fehlt oder stört>“.
    ```
    Bei „bestanden“ entfällt der Abschnitt „Befunde“, bei „nicht bestanden“ der Abschnitt „Zur Abnahme“. Der Abschnitt „Was geprüft wurde“ bleibt immer vollständig.

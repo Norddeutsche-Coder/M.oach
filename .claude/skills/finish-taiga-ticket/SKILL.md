@@ -105,7 +105,7 @@ Ist eine Bedingung ❌, **erstelle keinen PR und merge nicht**. Nenn, was fehlt 
 
 1. Alle restlichen Tasks der Story auf `Erledigt` setzen.
 2. Story auf `Fertig` setzen.
-3. Screenshot(s) des Smoke-Tests an die Story hängen (Taiga-MCP `attachments`, `op: upload`, `type: story`, Beschreibung „Live · Handy · hell“ o. Ä.).
+3. Die Screenshots des Smoke-Tests als **eine ZIP-Datei** an die Story hängen, nie als einzelne PNG-Dateien: `python3 -m zipfile -c <tmp>/release-tg-<nr>/live-tg-<nr>.zip <tmp>/release-tg-<nr>/*.png`, dann Taiga-MCP `attachments`, `op: upload`, `type: story`, `filePath` auf die ZIP, Beschreibung z. B. „Live · Smoke-Test · <bundle-name>“.
 4. Release-Kommentar an die Story (Taiga-MCP `comments`, `op: add`):
    ```
    ## Released ✅ · <Datum>
@@ -116,7 +116,7 @@ Ist eine Bedingung ❌, **erstelle keinen PR und merge nicht**. Nenn, was fehlt 
    - **Merge-Commit:** <kurz-sha> <Link>
    - **Deployment:** <Link zum Deploy-Lauf> · <Dauer>
    - **Live:** <Live-URL> · Version <bundle-name>
-   - **Smoke-Test:** <geprüfte Ansicht(en)> · ✅ ohne Konsolenfehler · Screenshot angehängt
+   - **Smoke-Test:** <geprüfte Ansicht(en)> · ✅ ohne Konsolenfehler · Screenshots in `live-tg-<nr>.zip` angehängt
    ```
 5. **Neuigkeit eintragen:** Bemerken Läufer die Änderung, oben in der Wiki-Seite `neuigkeiten` eine Zeile ergänzen (Taiga-MCP `wiki`, `op: get`, dann `op: update`): `- <Datum>: <was Läufer davon haben, ohne Fachbegriffe> (#<nr>)`. Reine Technik-Änderungen überspringen.
 6. **Aufräumen:**
