@@ -94,7 +94,7 @@ Der Workflow `.github/workflows/secret-scan.yml` prüft jeden PR mit gitleaks un
 
 Projekt `fynndow-moach` auf tree.taiga.io, Scrum mit Sprints à 2 Wochen. 1 Story Point = 1 Arbeitstag, geschätzt pro Rolle (UX, Design, Front, Back).
 
-- Epics: „Frontend 2.0“, „Logikfehler“, „Plattform & Sicherheit“.
+- Epics: Die aktuelle Liste mit Umfang steht im Taiga-Wiki auf der Seite `home` (gegliedert in Fundament, Erlebnis und Funktionen). Neue Stories gehören in das Epic, dessen Thema sie betreffen, nicht in ein Sammel-Epic nach Art (z. B. „Fehler“). Fehler werden über den Tag `bug` gekennzeichnet.
 - Jede Story hat **Acceptance Criteria** als Checkliste. Sie sind verbindlich und werden wörtlich geprüft.
 - Story-Status: New → In progress → In Review (PR offen) → Done (gemergt, live geprüft).
 - Die **Definition of Done** steht im Taiga-Wiki (Seite `definition-of-done`).
