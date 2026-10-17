@@ -23,9 +23,11 @@ Ablauf über alle Skills: umsetzen → Checks → Go → Commit + Push → CI gr
 
 Bestimme das Projekt aus `git remote get-url origin`. Ist das Repo nicht in der Tabelle, halte an und frag nach. Rate nie.
 
-| Repo | Taiga-Projekt | Basis-Branch | App-Ordner | Schnelle Checks | Product Owner |
-|---|---|---|---|---|---|
-| `Norddeutsche-Coder/m.oach` | `fynndow-moach` | `main` | `frontend/` | `npm run check`, `npm run lint`, `npm test` | `fynndow` |
+| Repo | Taiga-Projekt | Basis-Branch | App-Ordner | Schnelle Checks | Product Owner | Fachliche Fragen |
+|---|---|---|---|---|---|---|
+| `Norddeutsche-Coder/m.oach` | `fynndow-moach` | `main` | `frontend/` | `npm run check`, `npm run lint`, `npm test` | `fynndow` | `lukcy22` |
+
+**Fachliche Fragen** (Verhalten, Texte, Umfang, Entwurf) beantwortet `lukcy22`, nicht der Agent und nicht die Entwicklung. Stell sie als Kommentar an die Story mit der Überschrift `## Fachliche Fragen an @lukcy22`: nummeriert, je Frage 2–4 Antwortmöglichkeiten in Alltagssprache, die empfohlene zuerst mit „(Empfehlung)“. Die Erwähnung `@lukcy22` löst die E-Mail von Taiga aus. Danach halte an. Weiter geht es erst, wenn `lukcy22` in einem Kommentar geantwortet hat. Antwortet er nicht, kann der Product Owner ausdrücklich an seiner Stelle entscheiden.
 
 Taiga-Status in diesem Projekt (Name, Slug in Klammern):
 - **User Story:** Neu (`neu`), Bereit (`bereit`, Definition of Ready erfüllt), In Arbeit (`in-arbeit`), Im Test (`im-test`, gepusht, wartet auf QA), Abnahme (`abnahme`, QA bestanden, wartet auf den Product Owner), Im Review (`im-review`, PR offen), Fertig (`fertig`), Archiviert (`archiviert`)
@@ -45,8 +47,8 @@ Lies außerdem die Wiki-Seiten `definition-of-ready` und `definition-of-done` (T
 4. **Fortsetzen statt neu anfangen:** Ist die Story schon `In Arbeit` oder gibt es den Branch, wechsle dorthin. Lies die offenen Tasks (vor allem `QA: …`, `Abnahme: …` und `Release: …` mit Geprüft, Erwartet, Tatsächlich, Ursache, Vorschlag), die Kommentare von QA und Product Owner und `git diff origin/<basis>...HEAD` und plane nur noch den Rest. Der Haltepunkt nach dem Plan gilt trotzdem.
 5. Ist die Story `Fertig` oder `Im Review`, oder `Im Test` bzw. `Abnahme` ohne offene Tasks, halte an und melde den Stand. Nächster Schritt ist dann `/qa-taiga-ticket`, die Abnahme durch den Product Owner bzw. `/finish-taiga-ticket`.
 6. **WIP-Limit:** Gibt es außer dieser eine andere Story im Status `In Arbeit` (`op: list`, `type: story`, `status: In Arbeit`), halte an und frag, ob die andere zuerst fertig werden soll. Höchstens eine Story ist gleichzeitig in Arbeit (gilt nicht für `hotfix`).
-7. **Definition of Ready:** Ist die Story `Bereit`, weiter. Ist sie `Neu`, prüf die Punkte der Wiki-Seite `definition-of-ready` und zeig das Ergebnis im Plan. Fehlende Punkte sind offene Fragen an den Product Owner.
-8. **Entwurf bei Oberflächen-Stories:** Betrifft die Story die Oberfläche (sichtbare Ansichten, Texte, Layout), braucht sie einen freigegebenen Entwurf: einen Link (z. B. Figma) oder ein Bild in der Story und einen Kommentar des Product Owners „Entwurf freigegeben“ oder „Kein Entwurf nötig“. Fehlt das, ist es eine offene fachliche Frage im Plan.
+7. **Definition of Ready:** Ist die Story `Bereit`, weiter. Ist sie `Neu`, prüf die Punkte der Wiki-Seite `definition-of-ready` und zeig das Ergebnis im Plan. Fehlende fachliche Punkte sind Fragen an `lukcy22`, fehlende Schätzung oder Priorität klärt der Product Owner.
+8. **Entwurf bei Oberflächen-Stories:** Betrifft die Story die Oberfläche (sichtbare Ansichten, Texte, Layout), braucht sie einen freigegebenen Entwurf: einen Link (z. B. Figma) oder ein Bild in der Story und einen Kommentar des Product Owners „Entwurf freigegeben“ oder „Kein Entwurf nötig“. Fehlt das, ist es eine fachliche Frage an `lukcy22`.
 
 ## Phase 2: Plan (Haltepunkt 1)
 
@@ -58,12 +60,12 @@ Untersuche den betroffenen Code selbst, bevor du fragst. Was sich aus dem Code b
 - **Acceptance Criteria** einzeln, jeweils mit: wie du sie erfüllst.
 - **Schritte** als nummerierte Liste. Sie werden zu Taiga-Tasks, deshalb jeder Schritt klar abgegrenzt und höchstens ein halber Tag.
 - **Betroffene Dateien.**
-- **Fachliche Fragen an den Product Owner:** Verhalten, Texte, Umfang, Entwurf, fehlende Punkte der Definition of Ready. Jeweils mit deinem Vorschlag, in Alltagssprache.
+- **Fachliche Fragen an `lukcy22`:** Verhalten, Texte, Umfang, Entwurf, fehlende fachliche Punkte der Definition of Ready. Jeweils mit deinem Vorschlag, in Alltagssprache. Gibt es welche, schreib sie wie oben beschrieben als Kommentar an die Story und halte an. Bereits beantwortete Fragen übernimmst du aus den Kommentaren.
 - **Technische Entscheidungen:** was du technisch vorhast, wo es Alternativen gibt, jeweils mit Empfehlung. Diese entscheidet die Entwicklung.
 - **Risiken**, z. B. Änderungen an localStorage-Schlüsseln, Supabase, Service Worker.
 - **Branch-Name:** `<typ>/tg-<nr>-<kurztitel>`. Typ `fix`, wenn die Story den Tag `bug` oder `hotfix` hat, `chore` für reine Infrastruktur oder Doku, sonst `feat`. Der Kurztitel ist englisch, kleingeschrieben, mit Bindestrichen, höchstens 5 Wörter.
 
-**Halte an** und warte auf ein Go. Das Go des Product Owners zum Plan gilt auch als Freigabe der fehlenden Punkte der Definition of Ready, wenn er sie beantwortet hat. Schreib die Antworten auf fachliche Fragen und die technischen Entscheidungen danach als Kommentar an die Story (Taiga-MCP `comments`).
+**Halte an** und warte auf ein Go. Ein Go zum Plan gibt es erst, wenn alle fachlichen Fragen von `lukcy22` (oder ausdrücklich vom Product Owner) beantwortet sind. Schreib die technischen Entscheidungen danach als Kommentar an die Story (Taiga-MCP `comments`).
 
 ## Phase 3: Vorbereiten (erst nach Go zum Plan)
 
@@ -121,7 +123,7 @@ Kurz und auf Deutsch, beginnend mit **Kurz gesagt** (2–3 Sätze ohne Fachbegri
 
 - **Nie einen Pull Request erstellen**, auch keinen Entwurf. Das macht `/finish-taiga-ticket` nach QA und Abnahme.
 - Nie mergen, die Story nie auf `Abnahme`, `Im Review` oder `Fertig` setzen.
-- Fachliche Fragen nie selbst entscheiden, sondern dem Product Owner vorlegen.
+- Fachliche Fragen nie selbst entscheiden, sondern `lukcy22` vorlegen.
 - Keine Änderungen an GitHub-, Taiga- oder Supabase-Einstellungen, keine Migrationen gegen das Live-Projekt.
 - Keine Zugangsdaten, Tokens oder Secrets in Code, Commits oder Taiga-Kommentaren.
 - Geht etwas außerhalb des Plans schief, oder erfordert die Story Schritte, die nicht im freigegebenen Plan standen, halte an und frag.

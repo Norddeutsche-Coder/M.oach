@@ -15,9 +15,9 @@ Meldungen kommen von allen Beteiligten, auch ohne Technikkenntnis, nach der Vorl
 
 Projekt aus `git remote get-url origin` bestimmen. Ist das Repo nicht in der Tabelle, halte an und frag.
 
-| Repo | Taiga-Projekt | Product Owner |
-|---|---|---|
-| `Norddeutsche-Coder/m.oach` | `fynndow-moach` | `fynndow` |
+| Repo | Taiga-Projekt | Product Owner | Fachliche Fragen |
+|---|---|---|---|
+| `Norddeutsche-Coder/m.oach` | `fynndow-moach` | `fynndow` | `lukcy22` |
 
 Issue-Arten: Fehler, Idee, Frage. Issue-Status: Neu, In Klärung, Rückfrage (wartet auf die meldende Person), Übernommen (Story angelegt oder ergänzt), Erledigt (ohne Story beantwortet), Abgelehnt, Zurückgestellt.
 
@@ -40,7 +40,7 @@ Zeig je Issue in einer kurzen Tabelle: Nummer, Art, Titel, meldende Person und e
 - **Rückfrage** an die meldende Person (Frage in Alltagssprache) → Status `Rückfrage`,
 - **Ablehnen** oder **Zurückstellen**, mit Begründung in Alltagssprache.
 
-Ist ein Issue unklar, stell zuerst fachliche Fragen an den Product Owner über das Auswahl-Werkzeug (Einzelauswahl, höchstens 4 pro Runde, empfohlene Option zuerst mit „(Recommended)“). **Halte an** und warte auf ein Go des Product Owners. Änderungswünsche arbeitest du ein und zeigst den Vorschlag erneut.
+Ist ein Issue fachlich unklar (was soll für Läufer passieren, welche Texte, welcher Umfang), stell die Fragen an `lukcy22`: als Kommentar `## Fachliche Fragen an @lukcy22` am Issue, nummeriert, je Frage 2–4 Antwortmöglichkeiten, Empfehlung zuerst. Setz das Issue auf `In Klärung` und verarbeite es erst nach seiner Antwort. Fragen zu Priorität und Umsetzung klärst du mit dem Product Owner über das Auswahl-Werkzeug (Einzelauswahl, höchstens 4 pro Runde, empfohlene Option zuerst mit „(Recommended)“). **Halte an** und warte auf ein Go des Product Owners. Änderungswünsche arbeitest du ein und zeigst den Vorschlag erneut.
 
 ## Phase 3: Umsetzen (erst nach Go)
 
