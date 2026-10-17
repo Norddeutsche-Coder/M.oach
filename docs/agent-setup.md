@@ -91,4 +91,8 @@ In Claude Code zusätzlich `/mcp` aufrufen: **github** und **taiga** müssen als
 
 ## Andere Agenten (Codex)
 
-Codex liest die Projektregeln aus `AGENTS.md` automatisch. MCP-Server richtet Codex in der eigenen Konfiguration ein (`~/.codex/config.toml`), nicht über `.mcp.json`. Befehl und Argumente für Taiga sind dieselben wie in `.mcp.json` (`npx -y mcp-taiga@1.0.0`, Variablen `TAIGA_USERNAME` und `TAIGA_PASSWORD`). Das genaue Format steht in der aktuellen Codex-Dokumentation.
+Codex liest die Projektregeln aus `AGENTS.md` automatisch. Den Taiga-Server bekommt Codex über die Projektdatei `.codex/config.toml`, das Gegenstück zu `.mcp.json`:
+- gleicher Befehl und gleiche Version (`npx -y mcp-taiga@1.0.0`),
+- `env_vars` reicht nur die **Namen** `TAIGA_USERNAME` und `TAIGA_PASSWORD` aus der eigenen Umgebung weiter, die Werte stehen nie in der Datei.
+
+Die Zugangsdaten kommen wie für Claude Code aus `~/.zshrc` (Abschnitt 4). Ändert sich die Version von `mcp-taiga`, beide Dateien gemeinsam anpassen.
