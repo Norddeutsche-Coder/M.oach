@@ -73,6 +73,7 @@ Untersuche den betroffenen Code selbst, bevor du fragst. Was sich aus dem Code b
 1. Branch von aktuellem `origin/<basis>` anlegen. Beim Fortsetzen den vorhandenen nehmen.
 2. Story der aufrufenden Person zuordnen und auf `In Arbeit` setzen (Taiga-MCP `work`, `op: update`, `assignee: "me"`, `status: In Arbeit`).
    **Laufender Sprint:** Ist die Story nicht im laufenden Sprint, zieh sie hinein (`op: update`, `sprint: <Name>`). Laufend ist der offene Sprint, dessen Zeitraum das heutige Datum enthält (Taiga-MCP `sprints`, `op: list`). Gibt es keinen, halte an und frag, ob ein Sprint angelegt (`/plan-taiga-sprint`) oder ohne Sprint gearbeitet werden soll. Schreib dazu einen Kommentar an die Story: `In Sprint <Name> aufgenommen (vorher: <alter Sprint> | Backlog), <Punkte> Punkte zusätzlich zur Planung.`
+   **Sprint sortieren:** `python3 -I <repo>/.agents/skills/plan-taiga-sprint/scripts/sort_sprint.py <slug>` ausführen (`<repo>` ist das Wurzelverzeichnis des Repositorys). Stories in Bearbeitung (In Arbeit, Im Test, Im Review, Abnahme) stehen dann oben, offene darunter, fertige unten.
 3. Für jeden Planschritt, den es noch nicht gibt, einen Task in der Story anlegen (`op: create`, `type: task`, `parent: #<nr>`, Status `Neu`, `assignee: "me"`, als Batch). Beim Fortsetzen offene Tasks ohne Zuordnung ebenfalls der aufrufenden Person zuordnen.
 
 ## Phase 4: Umsetzen
