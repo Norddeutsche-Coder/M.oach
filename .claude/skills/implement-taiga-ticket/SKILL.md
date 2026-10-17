@@ -41,10 +41,10 @@ Lies außerdem die Wiki-Seiten `definition-of-ready` und `definition-of-done` (T
 
 ## Phase 0: Offene Rückfragen an die aufrufende Person
 
-Bevor du die Story lädst, prüfst du, ob in **anderen** Stories oder Issues noch Fragen an die aufrufende Person unbeantwortet sind. Sie sollen beantwortet werden, bevor neue Arbeit beginnt, sonst bleiben andere Stories stehen.
+Bevor du die Story lädst, prüfst du, ob in **anderen Stories des laufenden Sprints** noch Fragen an die aufrufende Person unbeantwortet sind. Sie sollen beantwortet werden, bevor neue Arbeit beginnt, sonst bleiben andere Stories stehen.
 
 1. Aufrufende Person bestimmen: Taiga-Konto der Sitzung (`GET /users/me`).
-2. Alle offenen Stories (Status nicht `Fertig`/`Archiviert`) und offenen Issues durchsuchen. Offen ist eine Frage, wenn ein Kommentar mit `## Fachliche Fragen an @<person>` oder `## Technische Fragen an @<person>` beginnt und danach kein Kommentar dieser Person folgt. Das MCP kann Kommentare nicht projektweit durchsuchen, deshalb über die Taiga-API (Zugangsdaten aus `TAIGA_USERNAME` und `TAIGA_PASSWORD`, nie ausgeben):
+2. Nur die offenen Stories (Status nicht `Fertig`/`Archiviert`) im **laufenden Sprint** durchsuchen, also im offenen Sprint, dessen Zeitraum das heutige Datum enthält. Backlog, andere Sprints und Issues nicht. Gibt es keinen laufenden Sprint, entfällt Phase 0. Offen ist eine Frage, wenn ein Kommentar mit `## Fachliche Fragen an @<person>` oder `## Technische Fragen an @<person>` beginnt und danach kein Kommentar dieser Person folgt. Das MCP kann Kommentare nicht projektweit durchsuchen, deshalb über die Taiga-API (Zugangsdaten aus `TAIGA_USERNAME` und `TAIGA_PASSWORD`, nie ausgeben):
    ```python
    # python3 -I -
    import json, os, urllib.request
@@ -57,17 +57,22 @@ Bevor du die Story lädst, prüfst du, ob in **anderen** Stories oder Issues noc
    t = call("POST", "/auth", {"type": "normal", "username": os.environ["TAIGA_USERNAME"], "password": os.environ["TAIGA_PASSWORD"]})["auth_token"]
    me = call("GET", "/users/me", t=t)["username"]
    pid = call("GET", f"/projects/by_slug?slug={SLUG}", t=t)["id"]
+   import datetime
+   today = datetime.date.today().isoformat()
+   sprint = next((s for s in call("GET", f"/milestones?project={pid}&closed=false", t=t)
+                  if s["estimated_start"] <= today <= s["estimated_finish"]), None)
+   if not sprint:
+       raise SystemExit("Kein laufender Sprint, Phase 0 entfällt.")
    heads = (f"## Fachliche Fragen an @{me}", f"## Technische Fragen an @{me}")
-   for kind, items in (("userstory", call("GET", f"/userstories?project={pid}", t=t)), ("issue", call("GET", f"/issues?project={pid}", t=t))):
-       for it in items:
-           if it["status_extra_info"]["is_closed"] or it["ref"] == NR:
-               continue
-           comments = sorted((h for h in call("GET", f"/history/{kind}/{it['id']}?type=comment", t=t) if h.get("comment")), key=lambda h: h["created_at"])
-           asked = [i for i, h in enumerate(comments) if h["comment"].lstrip().startswith(heads)]
-           if asked and not any(h["user"]["username"] == me for h in comments[asked[-1] + 1:]):
-               print(kind, it["ref"], it["subject"], comments[asked[-1]]["created_at"][:10])
+   for it in call("GET", f"/userstories?project={pid}&milestone={sprint['id']}", t=t):
+       if it["status_extra_info"]["is_closed"] or it["ref"] == NR:
+           continue
+       comments = sorted((h for h in call("GET", f"/history/userstory/{it['id']}?type=comment", t=t) if h.get("comment")), key=lambda h: h["created_at"])
+       asked = [i for i, h in enumerate(comments) if h["comment"].lstrip().startswith(heads)]
+       if asked and not any(h["user"]["username"] == me for h in comments[asked[-1] + 1:]):
+           print(sprint["name"], it["ref"], it["subject"], comments[asked[-1]]["created_at"][:10])
    ```
-3. **Gibt es offene Fragen:** Zeig sie zuerst, je Story bzw. Issue mit Nummer, Titel und den Fragen samt Antwortmöglichkeiten. Frag über das Auswahl-Werkzeug, ob sie jetzt beantwortet werden (Empfehlung) oder erst später. Antwortet die Person im Dialog, schreib die Antworten als Kommentar an die jeweilige Story bzw. das jeweilige Issue: `Antworten von @<person> (im Dialog mit <Agent>): 1: …, 2: …`. Danach geht es mit der aufgerufenen Story weiter.
+3. **Gibt es offene Fragen:** Zeig sie zuerst, je Story mit Nummer, Titel und den Fragen samt Antwortmöglichkeiten. Frag über das Auswahl-Werkzeug, ob sie jetzt beantwortet werden (Empfehlung) oder erst später. Antwortet die Person im Dialog, schreib die Antworten als Kommentar an die jeweilige Story: `Antworten von @<person> (im Dialog mit <Agent>): 1: …, 2: …`. Danach geht es mit der aufgerufenen Story weiter.
 4. **Keine offenen Fragen:** kurz melden und mit Phase 1 weitermachen.
 
 ## Phase 1: Story laden und Lage prüfen
