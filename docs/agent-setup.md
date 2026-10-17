@@ -4,17 +4,19 @@ Diese Anleitung richtet Claude Code so ein, dass es mit GitHub (Pull Requests, C
 
 Am Ende prüft `scripts/check-agent-setup.sh`, ob alles funktioniert.
 
+Die Schritte sind für macOS beschrieben. **Unter Windows** gelten die Abweichungen aus dem [Abschnitt Windows](#windows).
+
 ## 1. Voraussetzungen
 
 - **Node 22** (siehe `.nvmrc`, mindestens 20.19) und **npm 11**: `node -v`, `npm -v`. Ist npm älter: `npm install --global npm@11`.
 - **Claude Code** (CLI oder VS-Code-Erweiterung).
-- **Python 3**, nur für das Prüfskript (auf macOS vorhanden).
+- **Python 3**, nur für das Prüfskript (auf macOS vorhanden, unter Windows siehe [Windows](#windows)).
 
 ## 2. GitHub
 
 Claude Code nutzt das offizielle **GitHub-Plugin**. Es ist nicht im Repository eingetragen, sondern wird pro Person installiert.
 
-1. **Plugin installieren:** In Claude Code `/plugin` aufrufen, im Marketplace `claude-plugins-official` das Plugin **github** wählen und für den eigenen Account installieren.
+1. **Plugin installieren:** In Claude Code `/plugin` aufrufen, im Marketplace `claude-plugins-official` das Plugin **github** wählen und für den eigenen Account installieren. Fehlt der Marketplace, ihn über „Add marketplace“ mit der Quelle `anthropics/claude-plugins-official` hinzufügen. Der Name allein führt zum Fehler „Invalid marketplace source format“.
 2. **Token anlegen:** https://github.com/settings/personal-access-tokens/new (Fine-grained token)
    - **Resource owner:** `Norddeutsche-Coder`
    - **Repository access:** Only select repositories → `m.oach`
@@ -84,10 +86,19 @@ In Claude Code zusätzlich `/mcp` aufrufen: **github** und **taiga** müssen als
 
 | Meldung | Ursache und Lösung |
 |---|---|
-| GitHub: „Authorization header is badly formatted“ | `GITHUB_PERSONAL_ACCESS_TOKEN` ist im laufenden Claude-Prozess leer. Schreibweise in `~/.zshrc` prüfen (Abschnitt 4), dann VS Code mit Cmd + Q neu starten. |
+| GitHub: „Authorization header is badly formatted“ | `GITHUB_PERSONAL_ACCESS_TOKEN` ist im laufenden Claude-Prozess leer. Schreibweise in `~/.zshrc` prüfen (Abschnitt 4), dann VS Code mit Cmd + Q (Windows: Datei → Beenden) neu starten. |
 | Taiga: „401 … No active account found with the given credentials“ | Variablen fehlen im Prozess (wie oben) oder die Zugangsdaten stimmen nicht. Auf https://tree.taiga.io/login mit E-Mail und Passwort testen, nicht über „Login with GitHub“. |
 | Prüfskript meldet die Variablen, `/mcp` aber nicht verbunden | Claude Code läuft noch mit der alten Umgebung. Komplett beenden und neu starten. |
 | GitHub 404 auf das Repository | Der Token hat keinen Zugriff auf `m.oach`, ist noch nicht freigegeben, oder der Resource owner ist nicht `Norddeutsche-Coder`. |
+
+## Windows
+
+Unter Windows weichen nur Werkzeuge, Variablen und Neustart ab. Token und Taiga-Passwort legst du wie in Abschnitt 2 und 3 an.
+
+- **Werkzeuge:** [Git for Windows](https://git-scm.com/download/win) bringt Git Bash mit. Darin läuft das Prüfskript. Python 3 z. B. mit `winget install Python.Python.3.13` installieren. Der Eintrag `python3` aus dem Microsoft Store öffnet ohne Installation nur den Store.
+- **Variablen statt `~/.zshrc`:** Windows-Taste, `Umgebungsvariablen` tippen, „Umgebungsvariablen für dieses Konto bearbeiten“ wählen. Unter „Benutzervariablen“ mit „Neu…“ `GITHUB_PERSONAL_ACCESS_TOKEN`, `TAIGA_USERNAME` und `TAIGA_PASSWORD` anlegen. Werte ohne Anführungszeichen eintragen und beide Fenster mit **OK** schließen. Nicht mit `setx` im Terminal setzen, sonst steht der Wert in der Shell-History.
+- **Neu starten:** Alle VS-Code-Fenster schließen (Datei → Beenden) und VS Code neu öffnen. Ein einzelnes Fenster zu schließen reicht nicht.
+- **Prüfen:** In Git Bash im Hauptordner `bash scripts/check-agent-setup.sh` ausführen. Die Prüfung der Schreibweise in `~/.zshrc` entfällt, wenn die Datei fehlt.
 
 ## Andere Agenten (Codex)
 
