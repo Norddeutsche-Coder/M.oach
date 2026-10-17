@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { fitView, project, tileRange, unproject, type LatLng } from './map'
+import { fitView, project, scaleBar, tileRange, unproject, type LatLng } from './map'
 
 // Loop of about 3 km near Cloppenburg
 const route: LatLng[] = [
@@ -82,5 +82,31 @@ describe('tile range', () => {
 
   it('keeps tile rows inside the world', () => {
     expect(tileRange({ z: 0, la: 0, ln: 0 }, 1280, 800)).toMatchObject({ y0: 0, y1: 0 })
+  })
+})
+
+describe('scale bar', () => {
+  it.each([
+    [10, 10000, '10 km', 108.7],
+    [12, 2000, '2 km', 86.9],
+    [15, 200, '200 m', 69.6],
+  ])('shows a round distance at latitude 53° and zoom %i', (z, meters, label, px) => {
+    const bar = scaleBar(53, z)
+    expect(bar).toMatchObject({ meters, label })
+    expect(bar.px).toBeCloseTo(px, 0)
+  })
+
+  it('stays between 50 and 125 px with values of 1, 2 or 5 × 10ⁿ m at every zoom', () => {
+    for (const lat of [0, 30, 53, 70])
+      for (let z = 3; z <= 18; z += 0.25) {
+        const { meters, px } = scaleBar(lat, z)
+        expect(px).toBeGreaterThanOrEqual(50)
+        expect(px).toBeLessThanOrEqual(125)
+        expect([1, 2, 5]).toContain(meters / 10 ** Math.floor(Math.log10(meters)))
+      }
+  })
+
+  it('shows a shorter distance after zooming in', () => {
+    expect(scaleBar(53, 13).meters).toBeLessThan(scaleBar(53, 12).meters)
   })
 })

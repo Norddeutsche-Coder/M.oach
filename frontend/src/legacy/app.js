@@ -3,7 +3,7 @@
 // render imperatively; migrate them individually instead of disguising this as TS.
 import { createLifecycle } from '../lib/lifecycle'
 import { iso, parse, addD, mon, fp, ft } from '../lib/format'
-import { mountMap, GRAY_TILES } from '../lib/map'
+import { mountMap, TOPO_TILES } from '../lib/map'
 import { supabaseConfig } from '../config/supabase'
 
 export function initializeLegacyApp({ onTabChange, onCoachChange, onTodayChange }) {
@@ -1231,7 +1231,7 @@ function rvPaint(state){
  $('#rvx').onclick=rvClose;const re_=$('#rve');if(re_)re_.onclick=()=>{const k=re_.dataset.d;rvClose();openM(k)};const rr=$('#rvr');if(rr)rr.onclick=()=>openRun(RVR.id,1);
  const s=RVD&&RVD.s;
  if(RVM){RVM.dispose();RVM=null}
- const el=$('#rvm');if(el&&s&&s.rt)RVM=mountMap(el,s.rt,{...GRAY_TILES,host:lifecycle});
+ const el=$('#rvm');if(el&&s&&s.rt)RVM=mountMap(el,s.rt,{...TOPO_TILES,host:lifecycle});
  if(s)rdBind()}
 async function openRun(id,force){
  const r=allRuns().find(x=>String(x.id)==String(id));if(!r)return;
@@ -1295,7 +1295,7 @@ function hmDraw(){
  if(rs.length){const o=rs[0].p[0],near=rs.filter(x=>{const q=x.p[0],dy=(q[0]-o[0])*111,dx=(q[1]-o[1])*111*Math.cos(o[0]*Math.PI/180);return dx*dx+dy*dy<2500});
   fit=[];near.forEach(x=>x.p.forEach(q=>fit.push(q)))}
  if(HMM){HMM.layers(L,fit,!rs.length);return}
- HMM=mountMap(el,null,{layers:L,fit:fit||[],coop:true,view:HMV,...GRAY_TILES,host:lifecycle})}
+ HMM=mountMap(el,null,{layers:L,fit:fit||[],coop:true,view:HMV,...TOPO_TILES,host:lifecycle})}
 async function hmFetch(){
  if(HM.busy||!ICU.key||navigator.onLine===false||(HM.retry&&Date.now()<HM.retry))return;
  const cache=hmLoadC(),todo=hmRuns().filter(r=>!(String(r.id) in cache));
