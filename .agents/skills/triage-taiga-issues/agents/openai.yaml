@@ -1,0 +1,5 @@
+interface:
+  display_name: "Ideen und Fehler aus Taiga-Issues übernehmen"
+  short_description: "Verarbeitet neue Ideen und Fehlermeldungen aus Taiga-Issues"
+policy:
+  allow_implicit_invocation: false

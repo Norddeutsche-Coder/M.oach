@@ -1,6 +1,6 @@
 ---
 name: plan-taiga-sprint
-description: Schließt den laufenden Taiga-Sprint ab (Bilanz, unfertige Stories, Retro im Wiki) und plant den nächsten nach Kapazität, Velocity und festen Prioritätsregeln. Aufruf `/plan-taiga-sprint`. Fragt per Auswahl nach Abweichungen, Änderungen und Freigabe und legt erst nach Go an.
+description: Schließt den laufenden Taiga-Sprint ab (Bilanz, unfertige Stories, Retro und Sprint-Bericht in Alltagssprache im Wiki) und plant den nächsten nach Kapazität, Velocity und festen Prioritätsregeln. Aufruf `/plan-taiga-sprint`. Fragt per Auswahl nach Abweichungen, Änderungen und Freigabe und legt erst nach Go an.
 argument-hint: (keine)
 disable-model-invocation: true
 ---
@@ -31,22 +31,23 @@ Projekt aus `git remote get-url origin` bestimmen. Ist das Repo nicht in der Tab
 
 ## Phase 2: Abschluss des laufenden Sprints
 
-1. **Bilanz** (kurz im Chat): geplante Punkte, erledigte Punkte (Status `Done`), Anzahl Stories je Status.
-2. **Unfertige Stories** (Status ungleich `Done`/`Archived`) wandern in den neuen Sprint.
-   - Status **`In Test`** oder **`In Review`** (Umsetzung fertig, nur noch QA bzw. Abschluss offen): Die Punkte sinken **auf 25 %**. Je Rolle anteilig rechnen, dann auf den nächsten Wert der Taiga-Skala aufrunden (½, 1, 2, 3, …). Rollen mit 0 bleiben 0, eine Rolle mit Anteil nie unter ½. Beispiele: 2 → ½, 3 → 1, 1 → ½, Front 2 + Back 1 → Front ½ + Back ½.
+1. **Bilanz** (kurz im Chat): geplante Punkte, erledigte Punkte (Status `Fertig`), Anzahl Stories je Status.
+2. **Unfertige Stories** (Status ungleich `Fertig`/`Archiviert`) wandern in den neuen Sprint.
+   - Status **`Im Test`**, **`Abnahme`** oder **`Im Review`** (Umsetzung fertig, nur noch QA, Abnahme bzw. Abschluss offen): Die Punkte sinken **auf 25 %**. Je Rolle anteilig rechnen, dann auf den nächsten Wert der Taiga-Skala aufrunden (½, 1, 2, 3, …). Rollen mit 0 bleiben 0, eine Rolle mit Anteil nie unter ½. Beispiele: 2 → ½, 3 → 1, 1 → ½, Front 2 + Back 1 → Front ½ + Back ½.
    - Alle anderen unfertigen Stories behalten ihre vollen Punkte.
    - Zeig die Liste (Nummer, Titel, Status, Punkte alt → neu).
 3. **Retro**, zuerst die Daten berechnen:
    - geplant und erledigt, als Verhältnis in Prozent,
    - Velocity der letzten bis zu 3 Sprints,
-   - Schätzabweichungen: Stories, die deutlich länger dauerten. Anhaltspunkte sind die Zeitspanne von „In progress“ bis „Done“ laut Historie bzw. Kommentaren, die Zahl der QA-Runden (QA-Tasks) und Release-Tasks.
+   - Schätzabweichungen: Stories, die deutlich länger dauerten. Anhaltspunkte sind die Zeitspanne von „In Arbeit“ bis „Fertig“ laut Historie bzw. Kommentaren, die Zahl der QA-Runden (QA-Tasks), Abnahme-Runden (Abnahme-Tasks) und Release-Tasks.
 
    Dann nacheinander drei Fragen über das Auswahl-Werkzeug des Agenten (siehe Hinweis oben), je mit 2–3 vorformulierten Antwortvorschlägen aus den Daten (der Nutzer kann frei antworten): **Was lief gut? Was lief schlecht? Was änderst du im nächsten Sprint?**
-4. **Freigabe Abschluss:** Zeig kurz, was passieren wird (Punkte senken, Stories verschieben, Sprint schließen, Retro-Eintrag), und frag nach Go. Erst danach Phase 2.5.
+4. **Sprint-Bericht in Alltagssprache** entwerfen, für alle Beteiligten ohne Technikkenntnis: was fertig ist und was Läufer davon haben, was sich verschoben hat und warum, was im nächsten Sprint kommt. Höchstens 10 Zeilen, keine Fachbegriffe (kein PR, CI, Merge), Story-Nummern nur in Klammern.
+5. **Freigabe Abschluss:** Zeig kurz, was passieren wird (Punkte senken, Stories verschieben, Sprint schließen, Retro-Eintrag, Sprint-Bericht), und frag nach Go. Erst danach Phase 2.5.
 
 ### Phase 2.5: Abschluss ausführen (nach Go)
 
-- Punkte senken über die Taiga-API (siehe „API-Helfer“). Vorher pro betroffener Story einen Kommentar anlegen: `Punkte für Sprint <neu> von <alt> auf <neu> gesenkt (Umsetzung fertig, nur noch Test/Abschluss offen).`
+- Punkte senken über die Taiga-API (siehe „API-Helfer“). Vorher pro betroffener Story einen Kommentar anlegen: `Punkte für Sprint <neu> von <alt> auf <neu> gesenkt (Umsetzung fertig, nur noch QA, Abnahme bzw. Abschluss offen).`
 - Die Stories werden erst in Phase 4 dem neuen Sprint zugeordnet, wenn der neue Sprint existiert.
 - Den alten Sprint schließen (API: `PATCH /milestones/{id}` mit `{"closed": true}`).
 - Retro-Eintrag in die Wiki-Seite `retrospektiven` (Taiga-MCP `wiki`, `op: get`, dann `op: update`). Gibt es schon einen Abschnitt für diesen Sprint mit Platzhaltern, fülle ihn aus, sonst füge oben einen neuen ein. Format:
@@ -59,22 +60,25 @@ Projekt aus `git remote get-url origin` bestimmen. Ist das Repo nicht in der Tab
   **Schätzung:** <deutliche Abweichungen mit Story-Nummer und vermutetem Grund> | keine Auffälligkeiten
   **Übernommen in Sprint <n+1>:** #… (Punkte alt → neu)
   ```
+- Sprint-Bericht oben in die Wiki-Seite `sprint-berichte` einfügen (`op: get`, dann `op: update`), Überschrift `## Sprint <n> · <start>–<ende>`. Dazu im Chat der Vorschlag für eine Sprint-Vorführung von 15 Minuten: welche 2–3 Stories gezeigt werden und wo (Live-App oder Screenshots).
 
 ## Phase 3: Planning des nächsten Sprints
 
 1. **Kapazität:** Standard 14 Tage. Frage einmal: „Fehlen im nächsten Sprint Tage (Urlaub, Rennen, Krankheit)?“ mit Optionen wie „Nein, 14 Tage (Recommended)“, „2–3 Tage weniger“, „eine Woche weniger“ und freier Eingabe.
 2. **Planungsziel = Velocity:** Durchschnitt der erledigten Punkte der letzten bis zu 3 abgeschlossenen Sprints, gedeckelt auf die Kapazität. Gibt es noch keinen abgeschlossenen Sprint, gelten 90 % der Kapazität (abgerundet auf ½). Nenn die Zahl und woraus sie entsteht.
 3. **Vorschlag zusammenstellen** in dieser festen Reihenfolge, bis das Planungsziel erreicht ist:
-   1. unfertige Stories aus dem letzten Sprint (mit den ggf. gesenkten Punkten),
-   2. Stories mit Tag `sicherheit`, `rls` oder `datenverlust`,
-   3. Stories mit Tag `bug`,
-   4. alle übrigen Stories, deren Abhängigkeiten erledigt oder im selben Sprint vor ihnen eingeplant sind. Reihenfolge nach Epic, wie es im Backlog steht, innerhalb des Epics nach Story-Nummer.
+   1. Stories mit Tag `hotfix`,
+   2. unfertige Stories aus dem letzten Sprint (mit den ggf. gesenkten Punkten),
+   3. Stories mit Tag `sicherheit`, `rls` oder `datenverlust`,
+   4. Stories mit Tag `bug`,
+   5. alle übrigen Stories, deren Abhängigkeiten erledigt oder im selben Sprint vor ihnen eingeplant sind. Reihenfolge nach Epic, wie es im Backlog steht, innerhalb des Epics nach Story-Nummer.
 
    Regeln:
    - Eine Story, deren Abhängigkeit weder erledigt noch eingeplant ist, kommt nicht in den Sprint.
+   - **Nur Stories im Status `Bereit`** (Definition of Ready erfüllt, Wiki `definition-of-ready`) kommen in den Vorschlag, außer übernommene und `hotfix`. Passende Stories im Status `Neu` listest du als „vor dem Einplanen klären“ mit dem jeweils fehlenden Punkt der Definition of Ready. Der Product Owner kann sie in der Anpassungsrunde auf `Bereit` setzen lassen.
    - Ungeschätzte Stories (`?` oder 0 Punkte) schlägst du nicht vor, du listest sie als „vor dem Einplanen schätzen“.
    - Überschreitet die nächste Story das Ziel, prüfe kleinere Stories weiter unten in der Reihenfolge, statt sofort aufzuhören. Das Ziel wird nicht überschritten.
-4. **Vorschlag zeigen** als kurze Tabelle (Reihenfolge, Nummer, Titel, Punkte, Grund der Auswahl: „übernommen“, „Sicherheit“, „Bug“, „Abhängigkeit erfüllt“), dazu die Summe gegen das Planungsziel und die 3–5 nächsten Kandidaten, die knapp nicht hineinpassen.
+4. **Vorschlag zeigen** als kurze Tabelle (Reihenfolge, Nummer, Titel, Punkte, Grund der Auswahl: „Hotfix“, „übernommen“, „Sicherheit“, „Bug“, „Abhängigkeit erfüllt“), dazu die Summe gegen das Planungsziel und die 3–5 nächsten Kandidaten, die knapp nicht hineinpassen.
 5. **Anpassen per Auswahl:** Frag in einer Runde: „Passt der Vorschlag?“ (Go / Story tauschen / Ziel ändern), und bei Bedarf gezielt, welche Story raus und welche rein soll. Wiederholen bis zum Go.
 
 ## Phase 4: Anlegen (nach Go)
@@ -114,7 +118,7 @@ call("PATCH", f"/milestones/{SPRINT_ID}", {"closed": True, "version": ms.get("ve
 
 ## Abschlussbericht
 
-- Abschluss (falls erfolgt): Bilanz, übernommene Stories mit Punkten alt → neu, Link zur Retro-Seite,
+- Abschluss (falls erfolgt): Bilanz, übernommene Stories mit Punkten alt → neu, Links zur Retro-Seite und zum Sprint-Bericht,
 - neuer Sprint: Name, Zeitraum, Link zum Taskboard (`https://tree.taiga.io/project/<slug>/taskboard/<sprint-slug>`),
 - Stories mit Punkten und Summe gegen Planungsziel und Kapazität,
 - Stories, die vor dem Einplanen geschätzt werden müssen,
@@ -122,6 +126,6 @@ call("PATCH", f"/milestones/{SPRINT_ID}", {"closed": True, "version": ms.get("ve
 
 ## Grenzen
 
-- Nichts löschen, keine Stories anlegen oder inhaltlich ändern (außer Punkte senken nach Go).
+- Nichts löschen, keine Stories anlegen oder inhaltlich ändern (außer Punkte senken und Status `Bereit` nach Go des Product Owners).
 - Keinen Sprint ohne Go anlegen, schließen oder befüllen.
 - Keinen Code ändern.
