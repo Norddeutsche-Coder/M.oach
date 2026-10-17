@@ -75,7 +75,7 @@ Projekt aus `git remote get-url origin` bestimmen. Ist das Repo nicht in der Tab
 
    Regeln:
    - Eine Story, deren Abhängigkeit weder erledigt noch eingeplant ist, kommt nicht in den Sprint.
-   - **Nur Stories im Status `Bereit`** (Definition of Ready erfüllt, Wiki `definition-of-ready`) kommen in den Vorschlag, außer übernommene und `hotfix`. Passende Stories im Status `Neu` listest du als „vor dem Einplanen klären“ mit dem jeweils fehlenden Punkt der Definition of Ready. Der Product Owner kann sie in der Anpassungsrunde auf `Bereit` setzen lassen.
+   - **Nur Stories im Status `Bereit`** (Definition of Ready erfüllt, Wiki `definition-of-ready`) kommen in den Vorschlag, außer übernommene und `hotfix`. Stories im Status `Neu` prüfst du gegen die Definition of Ready: Ist sie erfüllt, setzt du sie selbst auf `Bereit` (mit Kommentar) und nimmst sie in den Vorschlag auf. Sonst listest du sie als „vor dem Einplanen klären“ mit dem fehlenden Punkt.
    - Ungeschätzte Stories (`?` oder 0 Punkte) schlägst du nicht vor, du listest sie als „vor dem Einplanen schätzen“.
    - Überschreitet die nächste Story das Ziel, prüfe kleinere Stories weiter unten in der Reihenfolge, statt sofort aufzuhören. Das Ziel wird nicht überschritten.
 4. **Vorschlag zeigen** als kurze Tabelle (Reihenfolge, Nummer, Titel, Punkte, Grund der Auswahl: „Hotfix“, „übernommen“, „Sicherheit“, „Bug“, „Abhängigkeit erfüllt“), dazu die Summe gegen das Planungsziel und die 3–5 nächsten Kandidaten, die knapp nicht hineinpassen.
@@ -126,6 +126,6 @@ call("PATCH", f"/milestones/{SPRINT_ID}", {"closed": True, "version": ms.get("ve
 
 ## Grenzen
 
-- Nichts löschen, keine Stories anlegen oder inhaltlich ändern (außer Punkte senken und Status `Bereit` nach Go des Product Owners).
+- Nichts löschen, keine Stories anlegen oder inhaltlich ändern (außer Punkte senken nach Go der aufrufenden Person und Status `Bereit` bei erfüllter Definition of Ready).
 - Keinen Sprint ohne Go anlegen, schließen oder befüllen.
 - Keinen Code ändern.
