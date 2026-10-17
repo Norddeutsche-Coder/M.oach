@@ -86,6 +86,7 @@ Projekt aus `git remote get-url origin` bestimmen. Ist das Repo nicht in der Tab
 1. Neuen Sprint anlegen (Taiga-MCP `sprints`, `op: create`): Name `Sprint <n+1>`, Start = Tag nach dem Ende des letzten Sprints (bzw. das genannte Startdatum), Ende = Start + 13 Tage.
 2. Die Stories dem Sprint zuordnen (Taiga-MCP `work`, `op: update`, `sprint`).
 3. Prüfen (`op: get` auf den Sprint): Die Punktsumme entspricht dem Vorschlag.
+4. **Sprint sortieren:** `python3 -I <repo>/.agents/skills/plan-taiga-sprint/scripts/sort_sprint.py <slug>` ausführen (`<repo>` ist das Wurzelverzeichnis des Repositorys). Stories in Bearbeitung (In Arbeit, Im Test, Im Review, Abnahme) stehen dann oben, offene darunter, fertige unten.
 
 ## API-Helfer (Punkte senken, Sprint schließen)
 

@@ -104,6 +104,7 @@ Ist eine Bedingung ❌, **erstelle keinen PR und merge nicht**. Nenn, was fehlt 
 
 1. Alle restlichen Tasks der Story auf `Erledigt` setzen.
 2. **Abnahme nötig** (laut QA-Kommentar, sichtbare Änderung, kein `hotfix` ohne Abnahme)? Dann Story auf `Abnahme` setzen. Sonst auf `Fertig`.
+   **Sprint sortieren:** `python3 -I <repo>/.agents/skills/plan-taiga-sprint/scripts/sort_sprint.py <slug>` ausführen (`<repo>` ist das Wurzelverzeichnis des Repositorys). Stories in Bearbeitung (In Arbeit, Im Test, Im Review, Abnahme) stehen dann oben, offene darunter, fertige unten.
 3. Die Screenshots des Smoke-Tests als **eine ZIP-Datei** an die Story hängen, nie als einzelne PNG-Dateien: `python3 -m zipfile -c <tmp>/release-tg-<nr>/live-tg-<nr>.zip <tmp>/release-tg-<nr>/*.png`, dann Taiga-MCP `attachments`, `op: upload`, `type: story`, `filePath` auf die ZIP, Beschreibung z. B. „Live · Smoke-Test · <bundle-name>“.
 4. Release-Kommentar an die Story (Taiga-MCP `comments`, `op: add`):
    ```
@@ -150,6 +151,7 @@ Story **nicht** auf Fertig setzen. Sie bleibt `Im Review`.
 2. **Er stammt von der Person, der die Story zugeordnet ist?** Zählt nicht. Halte an und weise darauf hin, dass eine andere Person abnehmen muss.
 3. **„Abgenommen“** von einer anderen Person: Story auf `Fertig` setzen, kurzer Kommentar `Abnahme bestätigt durch @<Person> · <Datum>`.
 4. **„Nicht abgenommen: …“**: Pro genanntem Punkt einen Task `Abnahme: <Punkt>` (Status `Neu`, der zugeordneten Person) anlegen, Story auf `In Arbeit` setzen. Nächster Schritt ist `/implement-taiga-ticket <nr>` (neuer Branch, wieder über QA und PR). Ist die Änderung für Läufer schädlich, schlag einen Revert oder `hotfix` vor (Wiki `hotfix`).
+   Nach Schritt 3 oder 4: **Sprint sortieren:** `python3 -I <repo>/.agents/skills/plan-taiga-sprint/scripts/sort_sprint.py <slug>` ausführen (`<repo>` ist das Wurzelverzeichnis des Repositorys). Stories in Bearbeitung (In Arbeit, Im Test, Im Review, Abnahme) stehen dann oben, offene darunter, fertige unten.
 5. **Noch keine Antwort:** Halte an und nenne, wer angesprochen ist und seit wann.
 
 ## Abschlussbericht
