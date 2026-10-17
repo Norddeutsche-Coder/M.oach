@@ -27,7 +27,7 @@ Bestimme das Projekt aus `git remote get-url origin`. Ist das Repo nicht in der 
 
 Taiga-Status (Slugs) in diesem Projekt:
 - **User Story:** `new`, `ready-to-implement`, `in-progress`, `in-test` (umgesetzt, wartet auf QA), `in-review` (QA bestanden, PR offen), `done`
-- **Task:** `New`, `In progress`, `In Review`, `Closed`, `Blockiert`
+- **Task:** `New`, `In progress`, `In Test` (erledigt, wartet auf QA), `In Review`, `Closed` (setzt `/qa-taiga-ticket` nach bestandener QA), `Blockiert`
 
 Lies außerdem das Wiki „definition-of-done“ des Taiga-Projekts (`mcp__taiga__wiki`, op `get`). Seine Punkte gelten zusätzlich zu den Acceptance Criteria.
 
@@ -63,7 +63,7 @@ Untersuche den betroffenen Code selbst, bevor du fragst. Was sich aus dem Code b
 
 ## Phase 4: Umsetzen
 
-- Arbeite die Tasks der Reihe nach ab. Setz jeden beim Beginn auf `In progress` und nach Abschluss auf `Closed`.
+- Arbeite die Tasks der Reihe nach ab. Setz jeden beim Beginn auf `In progress` und nach Abschluss auf `In Test`. Auf `Closed` setzt sie erst `/qa-taiga-ticket` nach bestandener QA.
 - Halte dich an den Stil des umgebenden Codes. Ändere nichts außerhalb des Umfangs der Story. Fällt dir etwas anderes auf, notier es für den Abschlussbericht.
 - Kann ein Task nicht abgeschlossen werden, setz ihn auf `Blockiert`, schreib den Grund als Kommentar und halte an.
 
@@ -83,7 +83,7 @@ Untersuche den betroffenen Code selbst, bevor du fragst. Was sich aus dem Code b
 
 1. Committen. Die Nachricht im Format `<typ>: <beschreibung> TG-<nr>`, z. B. `fix: stop suggesting to move the race TG-17`. **Keinen** Status-Befehl wie `#in-test` an den Commit hängen, den Status setzt dieser Skill selbst. Mehrere sinnvolle Commits sind erlaubt, jeder mit `TG-<nr>`. **Keine `Co-Authored-By:`-Zeile für KI-Agenten** (siehe AGENTS.md des Projekts).
 2. `git push -u origin <branch>`. Niemals auf den Basis-Branch pushen, niemals force-pushen. **Keinen PR erstellen.**
-3. **Fortsetzung nach QA-Befunden:** Die behobenen QA-Tasks auf `Closed` setzen und einen Kommentar an die Story schreiben: `Nachbesserung nach QA · <Branch> @ <head-kurz-sha>` mit den behobenen QA-Tasks und je einem Satz zur Behebung.
+3. **Fortsetzung nach QA-Befunden:** Die behobenen QA-Tasks auf `In Test` setzen und einen Kommentar an die Story schreiben: `Nachbesserung nach QA · <Branch> @ <head-kurz-sha>` mit den behobenen QA-Tasks und je einem Satz zur Behebung.
 4. **CI abwarten:** Die CI läuft bei jedem Push. Den Lauf für den Head-Commit des Branches abfragen (`gh run list --branch <branch> --commit <sha>` bzw. `GET /repos/<repo>/actions/runs?head_sha=<sha>`), höchstens 15 Minuten, etwa jede Minute. Ist sie rot, zeig den fehlgeschlagenen Job mit Ursache und halte an. Nach deinem Go zur Behebung geht es zurück zu Phase 4, die Story bleibt `In progress`.
 5. Ist die CI grün, die Story auf `In Test` setzen. Nächster Schritt: `/qa-taiga-ticket <nr>`.
 
