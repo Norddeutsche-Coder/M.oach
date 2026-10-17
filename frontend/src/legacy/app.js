@@ -3,6 +3,7 @@
 // render imperatively; migrate them individually instead of disguising this as TS.
 import { createLifecycle } from '../lib/lifecycle'
 import { iso, parse, addD, mon, fp, ft } from '../lib/format'
+import { mountMap, GRAY_TILES } from '../lib/map'
 import { supabaseConfig } from '../config/supabase'
 
 export function initializeLegacyApp({ onTabChange, onCoachChange, onTodayChange }) {
@@ -1091,60 +1092,6 @@ function runCardH(r,k,when){
  const pc=r.sec>0&&r.km>0?r.sec/r.km:null,t=(v,l)=>v==null||v===''?'':'<div class="tl"><b>'+v+'</b><span>'+l+'</span></div>';
  return'<div class="card nrun nrc2" data-orun="'+esc(r.id)+'" role="button" tabindex="0" aria-label="Lauf öffnen: '+esc(r.n||'Lauf')+'" style="--kc:'+KCOL[k]+'"><div class="nrk"><span class="kt" style="background:'+KCOL[k]+'">'+KIND[k]+'</span> '+when+'</div><div class="nrh"><div class="nrn">'+esc(r.n||'Lauf')+'</div><span class="nrgo" aria-hidden="true">›</span></div>'
   +'<div class="nrb">'+dec(r.km,2)+'<small>km</small></div><div class="tiles">'+t(r.sec?dur(r.sec):null,'Dauer')+t(pc?fp(pc)+' /km':null,'Pace')+'</div></div>'}
-/* ===== Lauf-Detail: eigene Karte (ohne Fremdbibliothek) ===== */
-const mmP=(la,ln,z)=>{const s=256*Math.pow(2,z),sn=Math.sin(la*Math.PI/180);return[(ln+180)/360*s,(.5-Math.log((1+sn)/(1-sn))/(4*Math.PI))*s]};
-const mmU=(x,y,z)=>{const s=256*Math.pow(2,z);return[Math.atan(Math.sinh(Math.PI*(1-2*y/s)))*180/Math.PI,x/s*360-180]};
-const isDarkUI=()=>{const t=document.documentElement.getAttribute('data-theme');return t=='dark'||(t!='light'&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)};
-const MAPGRAY={gray:true,tile:(z,x,y)=>'https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/'+z+'/'+y+'/'+x,tmax:16,zmax:17,attr:'Karte © Esri, © OpenStreetMap-Mitwirkende'};
-function miniMap(el,pts,opt){
- opt=opt||{};
- const st={z:12,la:0,ln:0,W:0,H:0},tl=new Map(),dark=isDarkUI();el.classList.toggle('mmd',dark&&!opt.gray);el.classList.toggle('mmn',!!opt.gray);
- el.innerHTML='<div class="mmt"></div><svg class="mmo" aria-hidden="true">'+(opt.layers||[]).map((l,i)=>'<path class="mmh h'+i+'"/>').join('')+'<path class="mml"/><circle class="mms" r="5.5"/><circle class="mme" r="5.5"/><circle class="mmk" r="6.5" hidden/></svg><div class="mmz"><button type="button" data-z="1" aria-label="Vergrößern">+</button><button type="button" data-z="-1" aria-label="Verkleinern">−</button><button type="button" data-z="0" aria-label="Route zentrieren">⌖</button></div><button type="button" class="mma" aria-label="Kartenquellen anzeigen" aria-expanded="false"><b>i</b><span>'+(opt.attr||'© OpenStreetMap-Mitwirkende')+'</span></button>'+(opt.coop?'<div class="mmg" hidden>Mit zwei Fingern bewegen<br><small>Mit Strg + Mausrad zoomen</small></div>':'');
- const T=el.querySelector('.mmt'),O=el.querySelector('.mmo'),L=O.querySelector('.mml'),S0=O.querySelector('.mms'),E0=O.querySelector('.mme'),MK=O.querySelector('.mmk');
- let mk=null,moved=false;
- const meas=()=>{st.W=el.clientWidth;st.H=el.clientHeight;O.setAttribute('viewBox','0 0 '+st.W+' '+st.H)};
- const tileUrl=opt.tile||((z,x,y)=>'https://tile.openstreetmap.org/'+z+'/'+x+'/'+y+'.png');
- function render(){
-  if(!st.W)return;
-  const zt=Math.max(0,Math.min(opt.tmax||19,Math.round(st.z))),sc=Math.pow(2,st.z-zt),[cx,cy]=mmP(st.la,st.ln,zt),n=Math.pow(2,zt);
-  {
-  const x0=Math.floor((cx-st.W/2/sc)/256),x1=Math.floor((cx+st.W/2/sc)/256),y0=Math.max(0,Math.floor((cy-st.H/2/sc)/256)),y1=Math.min(n-1,Math.floor((cy+st.H/2/sc)/256)),used=new Set();
-  for(let tx=x0;tx<=x1;tx++)for(let ty=y0;ty<=y1;ty++){
-   const wx=((tx%n)+n)%n,key=zt+'/'+tx+'/'+ty;used.add(key);let im=tl.get(key);
-   if(!im){im=new Image();im.className='mmi';im.alt='';im.draggable=false;im.decoding='async';im.onerror=()=>{im.style.visibility='hidden'};im.src=tileUrl(zt,wx,ty);T.appendChild(im);tl.set(key,im)}
-   im.style.width=im.style.height=(256*sc+.6)+'px';im.style.transform='translate('+Math.round(((tx*256-cx)*sc+st.W/2)*10)/10+'px,'+Math.round(((ty*256-cy)*sc+st.H/2)*10)/10+'px)'}
-  for(const[k,im]of tl)if(!used.has(k)){im.remove();tl.delete(k)}}
-  const [ox,oy]=mmP(st.la,st.ln,st.z),pr=(a,b)=>{const q=mmP(a,b,st.z);return[q[0]-ox+st.W/2,q[1]-oy+st.H/2]};
-  if(pts&&pts.length>1){let d='';pts.forEach((p,i)=>{const q=pr(p[0],p[1]);d+=(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)});L.setAttribute('d',d);
-   const a=pr(pts[0][0],pts[0][1]),b=pr(pts[pts.length-1][0],pts[pts.length-1][1]);S0.setAttribute('cx',a[0]);S0.setAttribute('cy',a[1]);E0.setAttribute('cx',b[0]);E0.setAttribute('cy',b[1])}
-  if(opt.layers){const sc=256*Math.pow(2,st.z);O.querySelectorAll('.mmh').forEach((pe,i)=>{let d='';for(const pl of opt.layers[i]||[]){const b=pl.bb;if(b[1]*sc-ox+st.W/2<-8||b[0]*sc-ox+st.W/2>st.W+8||b[3]*sc-oy+st.H/2<-8||b[2]*sc-oy+st.H/2>st.H+8)continue;const p=pl.p;d+='M';for(let k=0;k<p.length;k+=2)d+=(k?'L':'')+(p[k]*sc-ox+st.W/2).toFixed(1)+' '+(p[k+1]*sc-oy+st.H/2).toFixed(1)}pe.setAttribute('d',d)})}
-  if(mk){const q=pr(mk[0],mk[1]);MK.setAttribute('cx',q[0]);MK.setAttribute('cy',q[1]);MK.removeAttribute('hidden')}else MK.setAttribute('hidden','')}
- function setC(wx,wy,z){const u=mmU(wx,wy,z);st.la=Math.max(-84,Math.min(84,u[0]));st.ln=u[1];st.z=z}
- function zoomAt(px,py,z){moved=true;z=Math.max(3,Math.min(opt.zmax||18,z));const[ox,oy]=mmP(st.la,st.ln,st.z),wx=ox+px-st.W/2,wy=oy+py-st.H/2,k=Math.pow(2,z-st.z);setC(wx*k-(px-st.W/2),wy*k-(py-st.H/2),z);render()}
- function fit(){
-  moved=false;const fp_=pts&&pts.length?pts:opt.fit;
-  if(!fp_||!fp_.length){st.la=51;st.ln=10;st.z=4;render();return}
-  let a=90,b=-90,c=180,d=-180;fp_.forEach(p=>{a=Math.min(a,p[0]);b=Math.max(b,p[0]);c=Math.min(c,p[1]);d=Math.max(d,p[1])});
-  const pad=28;let z=17;for(;z>3;z--){const p=mmP(b,c,z),q=mmP(a,d,z);if(q[0]-p[0]<=st.W-2*pad&&q[1]-p[1]<=st.H-2*pad)break}
-  const p=mmP(b,c,z),q=mmP(a,d,z);setC((p[0]+q[0])/2,(p[1]+q[1])/2,z);render()}
- const ptr=new Map();let pd=0;
- el.addEventListener('pointerdown',e=>{if(e.target.closest('.mmz,.mma')||(opt.coop&&e.pointerType=='touch'))return;try{el.setPointerCapture(e.pointerId)}catch(x){}ptr.set(e.pointerId,[e.clientX,e.clientY]);if(ptr.size==2){const v=[...ptr.values()];pd=Math.hypot(v[0][0]-v[1][0],v[0][1]-v[1][1])}});
- el.addEventListener('pointermove',e=>{const o=ptr.get(e.pointerId);if(!o)return;const r=el.getBoundingClientRect();
-  if(ptr.size==1){moved=true;const[ox,oy]=mmP(st.la,st.ln,st.z);setC(ox-(e.clientX-o[0]),oy-(e.clientY-o[1]),st.z);ptr.set(e.pointerId,[e.clientX,e.clientY]);render()}
-  else if(ptr.size==2){ptr.set(e.pointerId,[e.clientX,e.clientY]);const v=[...ptr.values()],dd=Math.hypot(v[0][0]-v[1][0],v[0][1]-v[1][1]);if(pd>0&&dd>0){zoomAt((v[0][0]+v[1][0])/2-r.left,(v[0][1]+v[1][1])/2-r.top,st.z+Math.log2(dd/pd))}pd=dd}});
- const up=e=>{ptr.delete(e.pointerId);pd=0};el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
- el.addEventListener('wheel',e=>{if(opt.coop&&!(e.ctrlKey||e.metaKey)){const g=el.querySelector('.mmg');if(g){g.hidden=false;clearTimeout(g._t);g._t=setTimeout(()=>{g.hidden=true},1300)}return}e.preventDefault();const r=el.getBoundingClientRect();zoomAt(e.clientX-r.left,e.clientY-r.top,st.z+(e.deltaY<0?.6:-.6))},{passive:false});
- el.addEventListener('dblclick',e=>{const r=el.getBoundingClientRect();zoomAt(e.clientX-r.left,e.clientY-r.top,st.z+1)});
- if(opt.coop){let t0=null;const tp=e=>{const r=el.getBoundingClientRect(),a=e.touches[0],b=e.touches[1];return{x:(a.clientX+b.clientX)/2-r.left,y:(a.clientY+b.clientY)/2-r.top,d:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)}};
-  el.addEventListener('touchstart',e=>{t0=e.touches.length==2?tp(e):null;if(t0)e.preventDefault()},{passive:false});
-  el.addEventListener('touchmove',e=>{if(e.touches.length>=2){e.preventDefault();const t=tp(e);if(t0){const[ox,oy]=mmP(st.la,st.ln,st.z);setC(ox-(t.x-t0.x),oy-(t.y-t0.y),st.z);moved=true;if(t0.d>0&&t.d>0)zoomAt(t.x,t.y,st.z+Math.log2(t.d/t0.d));else render()}t0=t}
-   else{const g=el.querySelector('.mmg');if(g){g.hidden=false;clearTimeout(g._t);g._t=setTimeout(()=>{g.hidden=true},1300)}}},{passive:false});
-  el.addEventListener('touchend',()=>{t0=null});el.addEventListener('touchcancel',()=>{t0=null})}
- el.querySelector('.mma').addEventListener('click',e=>{e.stopPropagation();const a=e.currentTarget,o=!a.classList.contains('open');a.classList.toggle('open',o);a.setAttribute('aria-expanded',o);a.setAttribute('aria-label',o?'Kartenquellen ausblenden':'Kartenquellen anzeigen')});
- el.querySelector('.mmz').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;e.stopPropagation();const z=+b.dataset.z;if(z==0)fit();else zoomAt(st.W/2,st.H/2,Math.round(st.z)+z)});
- let mapObserver;meas();if(window.ResizeObserver)(mapObserver=lifecycle.resizeObserver(()=>{const w=st.W;meas();if(!w&&st.W)fit();else render()})).observe(el);
- if(opt.view&&isFinite(opt.view.z)){st.z=opt.view.z;st.la=opt.view.la;st.ln=opt.view.ln;moved=true;render()}else fit();
- return{dispose:()=>mapObserver?.disconnect(),fit,layers:(L,f)=>{opt.layers=L;if(f&&f.length)opt.fit=f;if(!moved&&opt.fit&&opt.fit.length)fit();else render()},view:()=>moved?{z:st.z,la:st.la,ln:st.ln}:null,marker:(p)=>{mk=p;render()},tiles:()=>tl.size}}
 /* ===== Lauf-Detail ===== */
 const RDK='moach_rd_',RDF={};let RVM=null,RVD=null,RVR=null;
 const rdLoad=()=>{try{return JSON.parse(LS.get(RDK+UID)||'{}')||{}}catch(e){return{}}};
@@ -1283,8 +1230,8 @@ function rvPaint(state){
  const v=$('#rv'),keep=v.scrollTop;v.innerHTML=rvHtml(RVR,RVD,state);v.scrollTop=keep;
  $('#rvx').onclick=rvClose;const re_=$('#rve');if(re_)re_.onclick=()=>{const k=re_.dataset.d;rvClose();openM(k)};const rr=$('#rvr');if(rr)rr.onclick=()=>openRun(RVR.id,1);
  const s=RVD&&RVD.s;
- if(RVM){RVM=null}
- const el=$('#rvm');if(el&&s&&s.rt)RVM=miniMap(el,s.rt,Object.assign({},MAPGRAY));
+ if(RVM){RVM.dispose();RVM=null}
+ const el=$('#rvm');if(el&&s&&s.rt)RVM=mountMap(el,s.rt,{...GRAY_TILES,host:lifecycle});
  if(s)rdBind()}
 async function openRun(id,force){
  const r=allRuns().find(x=>String(x.id)==String(id));if(!r)return;
@@ -1297,7 +1244,7 @@ async function openRun(id,force){
  rvPaint('load');
  try{const d=await rdFetch(r);if(!RVR||String(RVR.id)!=String(r.id))return;RVD=d;rdSave(String(r.id),d);rvPaint('ok')}
  catch(e){if(RVR&&String(RVR.id)==String(r.id))rvPaint('err')}}
-function rvClose(){RVM=null;RVD=null;RVR=null;const v=$('#rv');v.hidden=true;v.innerHTML='';document.body.classList.remove('rvo')}
+function rvClose(){if(RVM)RVM.dispose();RVM=null;RVD=null;RVR=null;const v=$('#rv');v.hidden=true;v.innerHTML='';document.body.classList.remove('rvo')}
 lifecycle.listen(document,'click',e=>{const t=e.target.closest&&e.target.closest('[data-orun]');if(!t||e.target.closest('button[data-go]'))return;e.preventDefault();openRun(t.dataset.orun)});
 lifecycle.listen(document,'keydown',e=>{if(e.key=='Escape'&&!$('#rv').hidden)rvClose();else if((e.key=='Enter'||e.key==' ')&&e.target.matches&&e.target.matches('[data-orun]')){e.preventDefault();openRun(e.target.dataset.orun)}});
 
@@ -1348,7 +1295,7 @@ function hmDraw(){
  if(rs.length){const o=rs[0].p[0],near=rs.filter(x=>{const q=x.p[0],dy=(q[0]-o[0])*111,dx=(q[1]-o[1])*111*Math.cos(o[0]*Math.PI/180);return dx*dx+dy*dy<2500});
   fit=[];near.forEach(x=>x.p.forEach(q=>fit.push(q)))}
  if(HMM){HMM.layers(L,fit,!rs.length);return}
- HMM=miniMap(el,null,Object.assign({layers:L,fit:fit||[],coop:true,view:HMV},MAPGRAY))}
+ HMM=mountMap(el,null,{layers:L,fit:fit||[],coop:true,view:HMV,...GRAY_TILES,host:lifecycle})}
 async function hmFetch(){
  if(HM.busy||!ICU.key||navigator.onLine===false||(HM.retry&&Date.now()<HM.retry))return;
  const cache=hmLoadC(),todo=hmRuns().filter(r=>!(String(r.id) in cache));
@@ -1365,7 +1312,7 @@ async function hmFetch(){
  await Promise.all([w(),w(),w()]);
  hmSaveC(cache);HM.busy=false;HM.fail=bad>=4;if(HM.fail)HM.retry=Date.now()+3e5;hmDraw()}
 function hmInit(){
- if(HMM){try{HMV=HMM.view()}catch(e){}}HMM=null;
+ if(HMM){try{HMV=HMM.view()}catch(e){}HMM.dispose()}HMM=null;
  if(!$('#hmm'))return;hmDraw();hmFetch()}
 
 /* ---- Race-Day-Chance ---- */
