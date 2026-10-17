@@ -1,6 +1,6 @@
 ---
 name: implement-taiga-ticket
-description: Setzt eine Taiga-User-Story vollständig bis zum Pull Request um. Aufruf mit der Story-Nummer, z. B. `/implement-taiga-ticket 27`. Lädt Story und Acceptance Criteria, plant, legt Branch und Taiga-Tasks an, implementiert, macht schnelle Checks (Typen, Lint, Unit-Tests), wartet auf Freigabe, committet, öffnet den PR, wartet auf die CI und setzt die Story auf In Review. Die gründliche Prüfung macht danach /qa-taiga-ticket auf dem Merge-Stand des PR.
+description: Setzt eine Taiga-User-Story bis zur QA-Bereitschaft um, ohne Pull Request. Aufruf mit der Story-Nummer, z. B. `/implement-taiga-ticket 27`. Lädt Story und Acceptance Criteria, plant, legt Branch und Taiga-Tasks an, implementiert, macht schnelle Checks (Typen, Lint, Unit-Tests), wartet auf Freigabe, committet, pusht den Branch, wartet auf die CI und setzt die Story auf In Test. Die gründliche Prüfung macht danach /qa-taiga-ticket auf dem Branch, den PR erstellt erst /finish-taiga-ticket nach bestandener QA.
 argument-hint: <story-nummer>
 disable-model-invocation: true
 ---
@@ -11,9 +11,11 @@ Argument: `$ARGUMENTS` ist die Nummer einer **User Story** (z. B. `27` oder `#27
 
 Arbeite die Phasen der Reihe nach ab. **Zwei Haltepunkte sind Pflicht:** nach dem Plan (Phase 2) und nach der Umsetzung (Phase 5). Dort hältst du an und wartest auf ein ausdrückliches Go. Ein Go zum Plan ist kein Go zum Commit.
 
-Dieser Skill macht nur **schnelle Checks** (Typprüfung, Lint, Unit-Tests). Kein Build, keine E2E-Tests, keine Screenshots, kein Abgleich der Acceptance Criteria mit Beleg. Das übernimmt `/qa-taiga-ticket`, nachdem der PR offen ist, auf dem Merge-Stand des PR (also dem späteren `main`, noch nicht live).
+Dieser Skill macht nur **schnelle Checks** (Typprüfung, Lint, Unit-Tests). Kein Build, keine E2E-Tests, keine Screenshots, kein Abgleich der Acceptance Criteria mit Beleg. Das übernimmt `/qa-taiga-ticket` auf dem gepushten Branch.
 
-Ablauf über alle Skills: umsetzen → Checks → Go → Commit + PR → CI grün → **In Review** → `/qa-taiga-ticket` → bei Befunden zurück zu diesem Skill (Story wieder `In progress`, QA-Tasks offen) → bei Bestehen `/finish-taiga-ticket` (Merge, Deployment, Done).
+**Kein Pull Request vor bestandener QA.** Dieser Skill erstellt nie einen PR, auch nicht als Entwurf. Den PR erstellt erst `/finish-taiga-ticket`, nachdem `/qa-taiga-ticket` für den aktuellen Head-Commit des Branches mit „bestanden“ durchgelaufen ist und alles geprüft hat.
+
+Ablauf über alle Skills: umsetzen → Checks → Go → Commit + Push → CI grün auf dem Branch → **In Test** → `/qa-taiga-ticket` → bei Befunden zurück zu diesem Skill (Story wieder `In progress`, QA-Tasks offen) → bei Bestehen `/finish-taiga-ticket` (PR erstellen, **In Review**, Merge, Deployment, Done).
 
 ## Projektzuordnung
 
@@ -24,7 +26,7 @@ Bestimme das Projekt aus `git remote get-url origin`. Ist das Repo nicht in der 
 | `Norddeutsche-Coder/m.oach` | `fynndow-moach` | `main` | `frontend/` | `npm run check`, `npm run lint`, `npm test` |
 
 Taiga-Status (Slugs) in diesem Projekt:
-- **User Story:** `new`, `ready-to-implement`, `in-progress`, `in-review`, `done`
+- **User Story:** `new`, `ready-to-implement`, `in-progress`, `in-test` (umgesetzt, wartet auf QA), `in-review` (QA bestanden, PR offen), `done`
 - **Task:** `New`, `In progress`, `In Review`, `Closed`, `Blockiert`
 
 Lies außerdem das Wiki „definition-of-done“ des Taiga-Projekts (`mcp__taiga__wiki`, op `get`). Seine Punkte gelten zusätzlich zu den Acceptance Criteria.
@@ -36,8 +38,8 @@ Lies außerdem das Wiki „definition-of-done“ des Taiga-Projekts (`mcp__taiga
 3. Git-Lage prüfen:
    - `git status`: Gibt es uncommittete Änderungen, die nicht zu dieser Story gehören, halte an und frag.
    - `git fetch origin` und nach einem Branch suchen, der `tg-<nr>-` im Namen trägt (lokal und remote).
-4. **Fortsetzen statt neu anfangen:** Ist die Story schon `in-progress` oder gibt es den Branch, wechsle dorthin. Lies die offenen Tasks (vor allem `QA: …` und `Release: …` mit Geprüft, Erwartet, Tatsächlich, Ursache, Vorschlag), den QA-Kommentar und `git diff origin/<basis>...HEAD` und plane nur noch den Rest. Der Haltepunkt nach dem Plan gilt trotzdem. Gibt es schon einen offenen PR, wird er in Phase 6 weiterverwendet.
-5. Ist die Story `done`, oder `in-review` ohne offene QA-Tasks, halte an und melde den Stand. Nächster Schritt ist dann `/qa-taiga-ticket` bzw. `/finish-taiga-ticket`.
+4. **Fortsetzen statt neu anfangen:** Ist die Story schon `in-progress` oder gibt es den Branch, wechsle dorthin. Lies die offenen Tasks (vor allem `QA: …` und `Release: …` mit Geprüft, Erwartet, Tatsächlich, Ursache, Vorschlag), den QA-Kommentar und `git diff origin/<basis>...HEAD` und plane nur noch den Rest. Der Haltepunkt nach dem Plan gilt trotzdem.
+5. Ist die Story `done` oder `in-review`, oder `in-test` ohne offene QA-Tasks, halte an und melde den Stand. Nächster Schritt ist dann `/qa-taiga-ticket` bzw. `/finish-taiga-ticket`.
 
 ## Phase 2: Plan (Haltepunkt 1)
 
@@ -77,52 +79,28 @@ Untersuche den betroffenen Code selbst, bevor du fragst. Was sich aus dem Code b
 
 **Halte an** und warte auf ein Go. **Ohne Go wird nichts committet oder gepusht.**
 
-## Phase 6: Committen und PR (erst nach Go)
+## Phase 6: Committen und pushen (erst nach Go)
 
-1. Committen. Die Nachricht im Format `<typ>: <beschreibung> TG-<nr>`, z. B. `fix: stop suggesting to move the race TG-17`. **Keinen** Status-Befehl wie `#in-review` an den Commit hängen, den Status setzt dieser Skill selbst. Mehrere sinnvolle Commits sind erlaubt, jeder mit `TG-<nr>`. **Keine `Co-Authored-By:`-Zeile für KI-Agenten** (siehe AGENTS.md des Projekts).
-2. `git push -u origin <branch>`. Niemals auf den Basis-Branch pushen, niemals force-pushen.
-3. **Gibt es für den Branch schon einen offenen PR** (Fortsetzung nach QA-Befunden), aktualisiert der Push ihn. Ergänze die PR-Beschreibung um einen Abschnitt „Nachbesserung nach QA“ mit den behobenen QA-Tasks und setze diese auf `Closed`. Weiter mit Schritt 5.
-   **Sonst** PR nach `<basis>` öffnen. Bevorzugt mit dem GitHub-MCP (`create_pull_request`). Gibt es eine PR-Vorlage im Repo, nutz sie. Titel: `<Story-Titel> (TG-<nr>)`. Die Beschreibung ist auf Deutsch:
-   - Worum es geht (1–2 Sätze) und ein Link zur Story `https://tree.taiga.io/project/<slug>/us/<nr>`,
-   - Änderungen,
-   - die Acceptance Criteria als abgehakte Checkliste,
-   - Risiken bzw. was beim Review zu beachten ist,
-   - abschließend die Attribution-Zeile der Sitzung für PR-Beschreibungen.
-
-   Ist das GitHub-MCP nicht verbunden, öffne die Vergleichsseite mit vorausgefülltem Titel und Text im Browser (`open "https://github.com/<repo>/compare/<basis>...<branch>?expand=1&title=…&body=…"`) und sag, dass der Klick auf „Create pull request“ noch fehlt.
-4. Den PR-Link in das Story-Feld **„Pull Request“** eintragen. Das MCP kann keine eigenen Felder setzen, deshalb über die Taiga-API mit `TAIGA_USERNAME` und `TAIGA_PASSWORD` aus der Umgebung:
-   ```python
-   # python3 -I - ; Zugangsdaten nie ausgeben
-   import json, os, urllib.request
-   API = os.environ.get("TAIGA_API_URL", "https://api.taiga.io/api/v1")
-   def call(m, p, b=None, t=None):
-       r = urllib.request.Request(API + p, method=m, data=json.dumps(b).encode() if b is not None else None,
-           headers={"Content-Type": "application/json", **({"Authorization": "Bearer " + t} if t else {})})
-       with urllib.request.urlopen(r) as x: return json.load(x)
-   t = call("POST", "/auth", {"type": "normal", "username": os.environ["TAIGA_USERNAME"], "password": os.environ["TAIGA_PASSWORD"]})["auth_token"]
-   pid = call("GET", f"/projects/by_slug?slug={SLUG}", t=t)["id"]
-   us = call("GET", f"/userstories/by_ref?project={pid}&ref={NR}", t=t)
-   attr = next(a for a in call("GET", f"/userstory-custom-attributes?project={pid}", t=t) if a["name"] == "Pull Request")
-   cur = call("GET", f"/userstories/custom-attributes-values/{us['id']}", t=t)
-   vals = {**cur["attributes_values"], str(attr["id"]): PR_URL}
-   call("PATCH", f"/userstories/custom-attributes-values/{us['id']}", {"attributes_values": vals, "version": cur["version"]}, t=t)
-   ```
-   Wird der PR erst durch einen Klick im Browser angelegt, trägst du den Link ein, sobald es ihn gibt (`gh` bzw. GitHub-MCP oder die öffentliche API zum Nachsehen).
-5. **CI abwarten:** den Status des PR-Head-Commits abfragen (GitHub-MCP `pull_request_read`, Methode `get_status`), höchstens 15 Minuten, etwa jede Minute. Ist sie rot, zeig den fehlgeschlagenen Job mit Ursache und halte an. Nach deinem Go zur Behebung geht es zurück zu Phase 4, die Story bleibt `In progress`.
-6. Ist die CI grün, die Story auf `In Review` setzen. Nächster Schritt: `/qa-taiga-ticket <nr>`.
+1. Committen. Die Nachricht im Format `<typ>: <beschreibung> TG-<nr>`, z. B. `fix: stop suggesting to move the race TG-17`. **Keinen** Status-Befehl wie `#in-test` an den Commit hängen, den Status setzt dieser Skill selbst. Mehrere sinnvolle Commits sind erlaubt, jeder mit `TG-<nr>`. **Keine `Co-Authored-By:`-Zeile für KI-Agenten** (siehe AGENTS.md des Projekts).
+2. `git push -u origin <branch>`. Niemals auf den Basis-Branch pushen, niemals force-pushen. **Keinen PR erstellen.**
+3. **Fortsetzung nach QA-Befunden:** Die behobenen QA-Tasks auf `Closed` setzen und einen Kommentar an die Story schreiben: `Nachbesserung nach QA · <Branch> @ <head-kurz-sha>` mit den behobenen QA-Tasks und je einem Satz zur Behebung.
+4. **CI abwarten:** Die CI läuft bei jedem Push. Den Lauf für den Head-Commit des Branches abfragen (`gh run list --branch <branch> --commit <sha>` bzw. `GET /repos/<repo>/actions/runs?head_sha=<sha>`), höchstens 15 Minuten, etwa jede Minute. Ist sie rot, zeig den fehlgeschlagenen Job mit Ursache und halte an. Nach deinem Go zur Behebung geht es zurück zu Phase 4, die Story bleibt `In progress`.
+5. Ist die CI grün, die Story auf `In Test` setzen. Nächster Schritt: `/qa-taiga-ticket <nr>`.
 
 ## Abschlussbericht
 
 Kurz und auf Deutsch:
-- PR-Link und Branch,
+- Branch, Head-Commit (Kurz-SHA) und Link zum CI-Lauf,
 - Status in Taiga (Story und Tasks),
 - erfüllte Acceptance Criteria und gegebenenfalls nicht erfüllte mit Grund,
-- was beim Review zu beachten ist,
-- Auffälligkeiten außerhalb des Umfangs als Vorschlag für neue Stories. Lege sie **nicht** selbst an.
+- was die QA besonders prüfen sollte,
+- Auffälligkeiten außerhalb des Umfangs als Vorschlag für neue Stories. Lege sie **nicht** selbst an,
+- der Hinweis, dass der PR erst nach bestandener QA durch `/finish-taiga-ticket` entsteht.
 
 ## Grenzen
 
-- Nie mergen, nie die Story auf `done` setzen. Beides macht `/finish-taiga-ticket` nach bestandener QA.
+- **Nie einen Pull Request erstellen**, auch keinen Entwurf. Das macht `/finish-taiga-ticket` nach bestandener QA.
+- Nie mergen, die Story nie auf `In Review` oder `Done` setzen.
 - Keine Änderungen an GitHub-, Taiga- oder Supabase-Einstellungen, keine Migrationen gegen das Live-Projekt.
-- Keine Zugangsdaten, Tokens oder Secrets in Code, Commits, PR-Texten oder Taiga-Kommentaren.
+- Keine Zugangsdaten, Tokens oder Secrets in Code, Commits oder Taiga-Kommentaren.
 - Geht etwas außerhalb des Plans schief, oder erfordert die Story Schritte, die nicht im freigegebenen Plan standen, halte an und frag.

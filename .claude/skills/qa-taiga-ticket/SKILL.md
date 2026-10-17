@@ -1,6 +1,6 @@
 ---
 name: qa-taiga-ticket
-description: Unabhängige Qualitätsprüfung einer Taiga-User-Story. Aufruf mit optionaler Story-Nummer, z. B. `/qa-taiga-ticket 27`. Führt alle automatischen Prüfungen aus, prüft jede Acceptance Criteria mit Beleg, macht bei Änderungen an Oberfläche oder Logik Vorher/Nachher-Screenshots, reviewt den Diff, berichtet im Chat und in Taiga und setzt die Story bei Befunden zurück auf In progress. Behebt selbst nichts.
+description: Unabhängige Qualitätsprüfung einer Taiga-User-Story. Aufruf mit optionaler Story-Nummer, z. B. `/qa-taiga-ticket 27`. Führt alle automatischen Prüfungen aus, prüft jede Acceptance Criteria mit Beleg, macht bei Änderungen an Oberfläche oder Logik Vorher/Nachher-Screenshots, reviewt den Diff, berichtet im Chat und in Taiga und setzt die Story bei Befunden zurück auf In progress. Prüft den gepushten Branch, bevor es einen PR gibt. Behebt selbst nichts.
 argument-hint: [story-nummer]
 disable-model-invocation: true
 ---
@@ -19,14 +19,13 @@ Du bist die unabhängige Prüfinstanz. **Du behebst nichts**, auch keine Kleinig
 
 2. Story-Nummer: `$ARGUMENTS`. Fehlt sie, aus dem Branch-Namen lesen (`…/tg-<nr>-…`). Gibt es keine, prüf nur den Diff gegen den Basis-Branch, ohne Taiga-Schritte, und sag das zu Beginn.
 3. Story laden (`mcp__taiga__work`, `op: get`, `type: story`), außerdem ihre Tasks und das Wiki „definition-of-done“ (`mcp__taiga__wiki`, `op: get`).
-4. **Prüfstand bestimmen.** Geprüft wird der **Merge-Stand des PR**, also genau der Code, der nach dem Merge auf `<basis>` läge, aber noch nicht live ist:
-   - PR finden (Story-Feld „Pull Request“, sonst über den Branch `…/tg-<nr>-…`). Story-Status sollte `In Review` sein. Ist sie `In progress`, sag das zu Beginn, prüfe aber trotzdem.
-   - Ist der PR nicht mergebar (Konflikte), ist das ein **Befund**. Prüfe dann ersatzweise den Head des PR und sag das.
-   - GitHub berechnet den Merge-Stand erst bei Bedarf: zuerst den PR abfragen (`pull_request_read`, Methode `get`) und warten, bis `mergeable` nicht mehr leer ist (höchstens 1 Minute). Dann `git fetch origin pull/<pr>/merge:refs/remotes/origin/pr-<pr>-merge` und einen Worktree `<scratchpad>/qa-tg-<nr>/merge` von diesem Stand anlegen. **Alle Prüfungen (1–4) laufen in diesem Worktree**, nicht im Arbeitsverzeichnis. Im App-Ordner `npm ci`. Ist `package-lock.json` identisch mit dem aktuellen Stand, darf `node_modules` verlinkt werden.
-   - Merke den Head-Commit des PR (Kurz-SHA) und den Commit des Merge-Stands. Beide stehen im Bericht.
-   - Diff = `git diff origin/<basis>...origin/pr-<pr>-merge`.
-   - Gibt es keinen PR, prüfe den aktuellen Branch gegen `<basis>` (inklusive uncommitteter Änderungen) und sag zu Beginn, dass das nicht der Merge-Stand ist.
-   - Gibt es für den PR eine **Vorschau-URL** (Check oder Kommentar im PR, z. B. Cloudflare Pages, siehe #52), notiere sie für Abschnitt 3.
+4. **Prüfstand bestimmen.** Geprüft wird der **gepushte Branch** der Story (`origin/<branch>`, Branch `…/tg-<nr>-…`), genau in dem Stand, den `/implement-taiga-ticket` hinterlassen hat. Einen PR gibt es zu diesem Zeitpunkt noch nicht. Ihn erstellt erst `/finish-taiga-ticket` nach bestandener QA.
+   - `git fetch origin` und einen Worktree `<scratchpad>/qa-tg-<nr>/branch-src` von `origin/<branch>` anlegen. **Alle Prüfungen (1–4) laufen in diesem Worktree**, nicht im Arbeitsverzeichnis. Im App-Ordner `npm ci`. Ist `package-lock.json` identisch mit dem aktuellen Stand, darf `node_modules` verlinkt werden.
+   - Merke den Head-Commit des Branches (Kurz-SHA). Er steht im Bericht und im QA-Kommentar, `/finish-taiga-ticket` gleicht ihn ab.
+   - Diff = `git diff origin/<basis>...origin/<branch>`.
+   - Story-Status sollte `In Test` sein. Ist sie `In progress`, sag das zu Beginn, prüfe aber trotzdem.
+   - Hat der lokale Branch Commits, die noch nicht gepusht sind, oder uncommittete Änderungen, prüfe trotzdem nur `origin/<branch>` und sag das zu Beginn.
+   - **Gibt es für den Branch schon einen PR**, ist das ein **Befund** (Verstoß gegen den Ablauf: kein PR vor bestandener QA). Prüfe trotzdem weiter.
 
 ## 1. Automatische Prüfungen
 
@@ -46,7 +45,7 @@ Prüfe ebenso die Punkte der Definition of Done, soweit sie vor dem Merge prüfb
 
 **Vorgehen (Vorher/Nachher):**
 1. Arbeitsordner im Scratchpad der Sitzung anlegen, z. B. `<scratchpad>/qa-tg-<nr>/`, darin `branch/`, `basis/` und `szenarien.json`.
-2. **Nachher:** Im App-Ordner des Merge-Stands (Worktree aus Abschnitt 0) mit Testwerten bauen, dann `npx vite preview --host 127.0.0.1 --port 4181 --strictPort` im Hintergrund starten.
+2. **Nachher:** Im App-Ordner des Prüfstands (Worktree aus Abschnitt 0) mit Testwerten bauen, dann `npx vite preview --host 127.0.0.1 --port 4181 --strictPort` im Hintergrund starten.
 3. **Vorher:** `git worktree add <scratchpad>/qa-tg-<nr>/worktree origin/<basis>`. Im App-Ordner des Worktrees `npm ci`. Ist `package-lock.json` identisch, darf stattdessen `node_modules` vom aktuellen Stand verlinkt werden. Dann bauen und auf Port 4182 starten.
 4. `szenarien.json` schreiben: pro betroffener Ansicht und Fall ein Szenario, jeweils **Handy und Desktop, hell und dunkel**. Testdaten für M.oach werden über localStorage gesetzt, Vorlage siehe `frontend/tests/today.spec.ts` (Funktion `seed`) und `frontend/tests/fixtures/`. Immer mit festem Datum.
 5. Für beide Stände ausführen:
@@ -56,8 +55,7 @@ Prüfe ebenso die Punkte der Definition of Done, soweit sie vor dem Merge prüfb
    - Gibt es Regressionen: Überlappungen, abgeschnittener Text, unschöne Umbrüche (z. B. Wert und Einheit getrennt), leere Bereiche, falsche Farben, Dunkelmodus, Inhalt hinter der Navigation?
    - Konsolenfehler, die das Skript meldet?
    Fehler sind **Befunde**, reine Geschmacksfragen **Hinweise**.
-7. **Vorschau-URL (falls vorhanden):** Dieselben Nachher-Szenarien zusätzlich gegen die Vorschau-URL ausführen (Ausgabeordner `vorschau/`). Das bestätigt, dass der ausgelieferte Build sich wie der lokale verhält. Abweichungen zwischen lokal und Vorschau sind **Befunde**.
-8. Aufräumen: Preview-Server beenden und alle Worktrees mit `git worktree remove` entfernen. Die Screenshots bleiben im Scratchpad.
+7. Aufräumen: Preview-Server beenden und alle Worktrees mit `git worktree remove` entfernen. Die Screenshots bleiben im Scratchpad.
 
 ## 4. Code-Review
 
@@ -94,7 +92,7 @@ Jeder Befund wird überall (Chat, Taiga-Kommentar, QA-Task) mit denselben fünf 
 1. Relevante Screenshots an die Story hängen (`mcp__taiga__attachments`, `op: upload`, `type: story`, `filePath`). Gemeint sind die Nachher-Bilder, die Befunde oder die beabsichtigte Änderung zeigen, und dazu die Vorher-Bilder für den Vergleich. Höchstens 8, mit Beschreibung wie „Nachher · Handy · dunkel · Readiness 8“.
 2. Einen Kommentar an die Story (`mcp__taiga__comments`, `op: add`):
    ```
-   ## QA <✅ bestanden | ❌ nicht bestanden> · <Datum> · PR #<pr> @ <head-kurz-sha> · Merge-Stand <merge-kurz-sha>
+   ## QA <✅ bestanden | ❌ nicht bestanden> · <Datum> · Branch <branch> @ <head-kurz-sha>
 
    ### Was geprüft wurde
    **Automatische Prüfungen**
@@ -129,11 +127,11 @@ Jeder Befund wird überall (Chat, Taiga-Kommentar, QA-Task) mit denselben fünf 
 Derselbe Inhalt wie der Kommentar, also immer vollständig, was geprüft wurde, und je Befund die fünf Pflichtangaben. Zusätzlich:
 - die Pfade der wichtigsten Screenshots. Zeig 2–4 aussagekräftige Bilder direkt (Read-Tool),
 - bei Befunden: die angelegten QA-Tasks mit Nummer und den Hinweis, dass `/implement-taiga-ticket <nr>` beim Fortsetzen die offenen QA-Tasks abarbeitet,
-- bei bestanden: dass jetzt `/finish-taiga-ticket <nr>` mergen und veröffentlichen kann. Die Story bleibt `In Review`.
+- bei bestanden: dass jetzt `/finish-taiga-ticket <nr>` den PR erstellen, mergen und veröffentlichen kann. Die Story bleibt `In Test`.
 
 ## Grenzen
 
-- Nichts beheben, nichts committen, pushen oder mergen. Nur QA-Tasks, Kommentare, Anhänge und den Status `In progress` bei Befunden in Taiga anlegen bzw. setzen.
+- Nichts beheben, nichts committen, pushen oder mergen, keinen PR erstellen. Nur QA-Tasks, Kommentare, Anhänge und den Status `In progress` bei Befunden in Taiga anlegen bzw. setzen.
 - Story nie auf `In Review` oder `Done` setzen.
 - Keine echten Zugangsdaten für Builds oder Screenshots verwenden. Keine Anfragen an Live-Systeme (das Skript blockiert externe Hosts).
 - Kann ein Schritt nicht ausgeführt werden (z. B. Build schlägt fehl, deshalb keine Screenshots), ist das ein Befund. Weiterprüfen, was noch geht.
