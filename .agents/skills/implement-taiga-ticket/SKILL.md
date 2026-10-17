@@ -46,9 +46,10 @@ Lies außerdem die Wiki-Seiten `definition-of-ready` und `definition-of-done` (T
    - `git fetch origin` und nach einem Branch suchen, der `tg-<nr>-` im Namen trägt (lokal und remote).
 4. **Fortsetzen statt neu anfangen:** Ist die Story schon `In Arbeit` oder gibt es den Branch, wechsle dorthin. Lies die offenen Tasks (vor allem `QA: …`, `Abnahme: …` und `Release: …` mit Geprüft, Erwartet, Tatsächlich, Ursache, Vorschlag), die Kommentare von QA und Product Owner und `git diff origin/<basis>...HEAD` und plane nur noch den Rest. Der Haltepunkt nach dem Plan gilt trotzdem.
 5. Ist die Story `Fertig` oder `Im Review`, oder `Im Test` bzw. `Abnahme` ohne offene Tasks, halte an und melde den Stand. Nächster Schritt ist dann `/qa-taiga-ticket`, die Abnahme durch den Product Owner bzw. `/finish-taiga-ticket`.
-6. **WIP-Limit:** Gibt es außer dieser eine andere Story im Status `In Arbeit` (`op: list`, `type: story`, `status: In Arbeit`), halte an und frag, ob die andere zuerst fertig werden soll. Höchstens eine Story ist gleichzeitig in Arbeit (gilt nicht für `hotfix`).
-7. **Definition of Ready:** Ist die Story `Bereit`, weiter. Ist sie `Neu`, prüf die Punkte der Wiki-Seite `definition-of-ready` und zeig das Ergebnis im Plan. Fehlende fachliche Punkte sind Fragen an `lukcy22`, fehlende Schätzung oder Priorität klärt der Product Owner.
-8. **Entwurf bei Oberflächen-Stories:** Betrifft die Story die Oberfläche (sichtbare Ansichten, Texte, Layout), braucht sie einen freigegebenen Entwurf: einen Link (z. B. Figma) oder ein Bild in der Story und einen Kommentar des Product Owners „Entwurf freigegeben“ oder „Kein Entwurf nötig“. Fehlt das, ist es eine fachliche Frage an `lukcy22`.
+6. **Wer arbeitet:** Die Story gehört der Person, die diesen Skill aufruft. Das ist das Taiga-Konto der Sitzung, angemeldet über `TAIGA_USERNAME` (im Taiga-MCP `assignee: "me"`, in der API `GET /users/me`). Ist die Story schon einer anderen Person zugeordnet, halte an und frag, ob du sie übernehmen sollst. Ohne ausdrückliches Ja wird nicht umgehängt.
+7. **WIP-Limit:** Gibt es außer dieser eine andere Story im Status `In Arbeit`, die der aufrufenden Person zugeordnet ist (`op: list`, `type: story`, `status: In Arbeit`, `assignee: "me"`), halte an und frag, ob die andere zuerst fertig werden soll. Höchstens eine Story pro Person ist gleichzeitig in Arbeit (gilt nicht für `hotfix`).
+8. **Definition of Ready:** Ist die Story `Bereit`, weiter. Ist sie `Neu`, prüf die Punkte der Wiki-Seite `definition-of-ready` und zeig das Ergebnis im Plan. Fehlende fachliche Punkte sind Fragen an `lukcy22`, fehlende Schätzung oder Priorität klärt der Product Owner.
+9. **Entwurf bei Oberflächen-Stories:** Betrifft die Story die Oberfläche (sichtbare Ansichten, Texte, Layout), braucht sie einen freigegebenen Entwurf: einen Link (z. B. Figma) oder ein Bild in der Story und einen Kommentar des Product Owners „Entwurf freigegeben“ oder „Kein Entwurf nötig“. Fehlt das, ist es eine fachliche Frage an `lukcy22`.
 
 ## Phase 2: Plan (Haltepunkt 1)
 
@@ -70,8 +71,8 @@ Untersuche den betroffenen Code selbst, bevor du fragst. Was sich aus dem Code b
 ## Phase 3: Vorbereiten (erst nach Go zum Plan)
 
 1. Branch von aktuellem `origin/<basis>` anlegen. Beim Fortsetzen den vorhandenen nehmen.
-2. Story auf `In Arbeit` setzen (Taiga-MCP `work`, `op: update`, `status: In Arbeit`).
-3. Für jeden Planschritt, den es noch nicht gibt, einen Task in der Story anlegen (`op: create`, `type: task`, `parent: #<nr>`, Status `Neu`, als Batch).
+2. Story der aufrufenden Person zuordnen und auf `In Arbeit` setzen (Taiga-MCP `work`, `op: update`, `assignee: "me"`, `status: In Arbeit`).
+3. Für jeden Planschritt, den es noch nicht gibt, einen Task in der Story anlegen (`op: create`, `type: task`, `parent: #<nr>`, Status `Neu`, `assignee: "me"`, als Batch). Beim Fortsetzen offene Tasks ohne Zuordnung ebenfalls der aufrufenden Person zuordnen.
 
 ## Phase 4: Umsetzen
 
