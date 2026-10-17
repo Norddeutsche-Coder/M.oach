@@ -23,11 +23,13 @@ Ablauf über alle Skills: umsetzen → Checks → Go → Commit + Push → CI gr
 
 Bestimme das Projekt aus `git remote get-url origin`. Ist das Repo nicht in der Tabelle, halte an und frag nach. Rate nie.
 
-| Repo | Taiga-Projekt | Basis-Branch | App-Ordner | Schnelle Checks | Product Owner | Fachliche Fragen | Technische Fragen |
+| Repo | Taiga-Projekt | Basis-Branch | App-Ordner | Schnelle Checks | Product Owner | Fachliche Fragen | Technische Fragen (nur Architektur) |
 |---|---|---|---|---|---|---|---|
 | `Norddeutsche-Coder/m.oach` | `fynndow-moach` | `main` | `frontend/` | `npm run check`, `npm run lint`, `npm test` | `fynndow` | `lukcy22` | `fynndow` |
 
 **Fachliche Fragen** (Verhalten, Texte, Umfang, Entwurf) beantwortet `lukcy22`, nicht der Agent und nicht die Entwicklung. Stell sie als Kommentar an die Story mit der Überschrift `## Fachliche Fragen an @lukcy22`: nummeriert, je Frage 2–4 Antwortmöglichkeiten in Alltagssprache, die empfohlene zuerst mit „(Empfehlung)“. Die Erwähnung `@lukcy22` löst die E-Mail von Taiga aus. Danach halte an. Weiter geht es erst, wenn `lukcy22` in einem Kommentar geantwortet hat. Antwortet er nicht, kann der Product Owner ausdrücklich an seiner Stelle entscheiden.
+
+**Technische Fragen** gehen nur an `fynndow`, wenn sie die **Architektur** beeinflussen: neue Abhängigkeiten oder Bibliotheken, Datenmodell, localStorage-Schlüssel und -Format, Supabase (Schema, RLS, Edge Functions), Sync, Offline und Service Worker, Sicherheit, neue Module oder Ordner und Schnittstellen zwischen Features, Aufteilung zwischen Legacy-Modul und React. Stell sie im Dialog über das Auswahl-Werkzeug, mit Empfehlung. Läuft die Sitzung ohne ihn, als Kommentar `## Technische Fragen an @fynndow` an die Story, dann anhalten. **Alle übrigen technischen Entscheidungen triffst du selbst** (Umsetzung innerhalb eines Features, Benennung, Aufteilung in Komponenten und Funktionen, Testaufbau) und dokumentierst sie im Plan und im Kommentar „Technische Entscheidungen“.
 
 Taiga-Status in diesem Projekt (Name, Slug in Klammern):
 - **User Story:** Neu (`neu`), Bereit (`bereit`, Definition of Ready erfüllt), In Arbeit (`in-arbeit`), Im Test (`im-test`, gepusht, wartet auf QA), Im Review (`im-review`, PR offen), Abnahme (`abnahme`, live, wartet auf die Abnahme durch eine andere Person), Fertig (`fertig`), Archiviert (`archiviert`)
@@ -36,6 +38,37 @@ Taiga-Status in diesem Projekt (Name, Slug in Klammern):
 Lies außerdem die Wiki-Seiten `definition-of-ready` und `definition-of-done` (Taiga-MCP `wiki`, op `get`). Ihre Punkte gelten zusätzlich zu den Acceptance Criteria.
 
 **Hotfix:** Trägt die Story den Tag `hotfix` (dringender Fehler in der Live-App), entfallen die Prüfung der Definition of Ready, das WIP-Limit und der Entwurf. Alles andere gilt unverändert. Ablauf siehe Wiki-Seite `hotfix`.
+
+## Phase 0: Offene Rückfragen an die aufrufende Person
+
+Bevor du die Story lädst, prüfst du, ob in **anderen** Stories oder Issues noch Fragen an die aufrufende Person unbeantwortet sind. Sie sollen beantwortet werden, bevor neue Arbeit beginnt, sonst bleiben andere Stories stehen.
+
+1. Aufrufende Person bestimmen: Taiga-Konto der Sitzung (`GET /users/me`).
+2. Alle offenen Stories (Status nicht `Fertig`/`Archiviert`) und offenen Issues durchsuchen. Offen ist eine Frage, wenn ein Kommentar mit `## Fachliche Fragen an @<person>` oder `## Technische Fragen an @<person>` beginnt und danach kein Kommentar dieser Person folgt. Das MCP kann Kommentare nicht projektweit durchsuchen, deshalb über die Taiga-API (Zugangsdaten aus `TAIGA_USERNAME` und `TAIGA_PASSWORD`, nie ausgeben):
+   ```python
+   # python3 -I -
+   import json, os, urllib.request
+   API = os.environ.get("TAIGA_API_URL", "https://api.taiga.io/api/v1")
+   def call(m, p, b=None, t=None):
+       r = urllib.request.Request(API + p, method=m, data=json.dumps(b).encode() if b is not None else None,
+           headers={"Content-Type": "application/json", "x-disable-pagination": "True", **({"Authorization": "Bearer " + t} if t else {})})
+       with urllib.request.urlopen(r) as x:
+           s = x.read(); return json.loads(s) if s else {}
+   t = call("POST", "/auth", {"type": "normal", "username": os.environ["TAIGA_USERNAME"], "password": os.environ["TAIGA_PASSWORD"]})["auth_token"]
+   me = call("GET", "/users/me", t=t)["username"]
+   pid = call("GET", f"/projects/by_slug?slug={SLUG}", t=t)["id"]
+   heads = (f"## Fachliche Fragen an @{me}", f"## Technische Fragen an @{me}")
+   for kind, items in (("userstory", call("GET", f"/userstories?project={pid}", t=t)), ("issue", call("GET", f"/issues?project={pid}", t=t))):
+       for it in items:
+           if it["status_extra_info"]["is_closed"] or it["ref"] == NR:
+               continue
+           comments = sorted((h for h in call("GET", f"/history/{kind}/{it['id']}?type=comment", t=t) if h.get("comment")), key=lambda h: h["created_at"])
+           asked = [i for i, h in enumerate(comments) if h["comment"].lstrip().startswith(heads)]
+           if asked and not any(h["user"]["username"] == me for h in comments[asked[-1] + 1:]):
+               print(kind, it["ref"], it["subject"], comments[asked[-1]]["created_at"][:10])
+   ```
+3. **Gibt es offene Fragen:** Zeig sie zuerst, je Story bzw. Issue mit Nummer, Titel und den Fragen samt Antwortmöglichkeiten. Frag über das Auswahl-Werkzeug, ob sie jetzt beantwortet werden (Empfehlung) oder erst später. Antwortet die Person im Dialog, schreib die Antworten als Kommentar an die jeweilige Story bzw. das jeweilige Issue: `Antworten von @<person> (im Dialog mit <Agent>): 1: …, 2: …`. Danach geht es mit der aufgerufenen Story weiter.
+4. **Keine offenen Fragen:** kurz melden und mit Phase 1 weitermachen.
 
 ## Phase 1: Story laden und Lage prüfen
 
@@ -62,11 +95,12 @@ Untersuche den betroffenen Code selbst, bevor du fragst. Was sich aus dem Code b
 - **Schritte** als nummerierte Liste. Sie werden zu Taiga-Tasks, deshalb jeder Schritt klar abgegrenzt und höchstens ein halber Tag.
 - **Betroffene Dateien.**
 - **Fachliche Fragen an `lukcy22`:** Verhalten, Texte, Umfang, Entwurf, fehlende fachliche Punkte der Definition of Ready. Jeweils mit deinem Vorschlag, in Alltagssprache. Gibt es welche, schreib sie wie oben beschrieben als Kommentar an die Story und halte an. Bereits beantwortete Fragen übernimmst du aus den Kommentaren.
-- **Technische Fragen an `fynndow`:** was du technisch vorhast, wo es Alternativen gibt (Architektur, Bibliotheken, Datenmodell, localStorage, Supabase, Tests), jeweils mit Empfehlung. Sie entscheidet `fynndow`, im Dialog über das Auswahl-Werkzeug. Läuft die Sitzung ohne ihn, als Kommentar `## Technische Fragen an @fynndow` an die Story, dann anhalten.
+- **Technische Fragen an `fynndow`** (nur Architektur, siehe oben): jeweils mit Alternativen und Empfehlung.
+- **Technische Entscheidungen**, die du selbst triffst: kurz aufgelistet, damit sie nachvollziehbar sind.
 - **Risiken**, z. B. Änderungen an localStorage-Schlüsseln, Supabase, Service Worker.
 - **Branch-Name:** `<typ>/tg-<nr>-<kurztitel>`. Typ `fix`, wenn die Story den Tag `bug` oder `hotfix` hat, `chore` für reine Infrastruktur oder Doku, sonst `feat`. Der Kurztitel ist englisch, kleingeschrieben, mit Bindestrichen, höchstens 5 Wörter.
 
-**Halte an** und warte auf ein Go. Ein Go zum Plan gibt es erst, wenn alle fachlichen Fragen von `lukcy22` (oder ausdrücklich vom Product Owner) beantwortet sind. Ebenso müssen die technischen Fragen von `fynndow` entschieden sein. Schreib die technischen Entscheidungen danach als Kommentar an die Story (Taiga-MCP `comments`).
+**Halte an** und warte auf ein Go. Ein Go zum Plan gibt es erst, wenn alle fachlichen Fragen von `lukcy22` (oder ausdrücklich vom Product Owner) beantwortet sind. Ebenso müssen die Architektur-Fragen von `fynndow` entschieden sein. Schreib die technischen Entscheidungen danach als Kommentar an die Story (Taiga-MCP `comments`).
 
 ## Phase 3: Vorbereiten (erst nach Go zum Plan)
 
@@ -125,7 +159,7 @@ Kurz und auf Deutsch, beginnend mit **Kurz gesagt** (2–3 Sätze ohne Fachbegri
 
 - **Nie einen Pull Request erstellen**, auch keinen Entwurf. Das macht `/finish-taiga-ticket` nach bestandener QA.
 - Nie mergen, die Story nie auf `Abnahme`, `Im Review` oder `Fertig` setzen.
-- Fachliche Fragen nie selbst entscheiden, sondern `lukcy22` vorlegen. Technische Fragen mit Alternativen nie selbst entscheiden, sondern `fynndow` vorlegen.
+- Fachliche Fragen nie selbst entscheiden, sondern `lukcy22` vorlegen. Technische Fragen, die die Architektur beeinflussen, nie selbst entscheiden, sondern `fynndow` vorlegen. Andere technische Fragen nicht vorlegen, sondern selbst entscheiden und dokumentieren.
 - Keine Änderungen an GitHub-, Taiga- oder Supabase-Einstellungen, keine Migrationen gegen das Live-Projekt.
 - Keine Zugangsdaten, Tokens oder Secrets in Code, Commits oder Taiga-Kommentaren.
 - Geht etwas außerhalb des Plans schief, oder erfordert die Story Schritte, die nicht im freigegebenen Plan standen, halte an und frag.

@@ -15,7 +15,7 @@ Meldungen kommen von allen Beteiligten, auch ohne Technikkenntnis, nach der Vorl
 
 Projekt aus `git remote get-url origin` bestimmen. Ist das Repo nicht in der Tabelle, halte an und frag.
 
-| Repo | Taiga-Projekt | Product Owner | Fachliche Fragen | Technische Fragen |
+| Repo | Taiga-Projekt | Product Owner | Fachliche Fragen | Technische Fragen (nur Architektur) |
 |---|---|---|---|---|
 | `Norddeutsche-Coder/m.oach` | `fynndow-moach` | `fynndow` | `lukcy22` | `fynndow` |
 
