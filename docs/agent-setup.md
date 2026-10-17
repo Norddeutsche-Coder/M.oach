@@ -98,6 +98,7 @@ Unter Windows weichen nur Werkzeuge, Variablen und Neustart ab. Token und Taiga-
 - **Werkzeuge:** [Git for Windows](https://git-scm.com/download/win) bringt Git Bash mit. Darin läuft das Prüfskript. Python 3 z. B. mit `winget install Python.Python.3.13` installieren. Der Eintrag `python3` aus dem Microsoft Store öffnet ohne Installation nur den Store.
 - **Variablen statt `~/.zshrc`:** Windows-Taste, `Umgebungsvariablen` tippen, „Umgebungsvariablen für dieses Konto bearbeiten“ wählen. Unter „Benutzervariablen“ mit „Neu…“ `GITHUB_PERSONAL_ACCESS_TOKEN`, `TAIGA_USERNAME` und `TAIGA_PASSWORD` anlegen. Werte ohne Anführungszeichen eintragen und beide Fenster mit **OK** schließen. Nicht mit `setx` im Terminal setzen, sonst steht der Wert in der Shell-History.
 - **Neu starten:** Alle VS-Code-Fenster schließen (Datei → Beenden) und VS Code neu öffnen. Ein einzelnes Fenster zu schließen reicht nicht.
+- **Symlinks für Skills:** `.claude/skills/` enthält Symlinks auf `.agents/skills/`. Damit Git sie unter Windows als Links anlegt, den Entwicklermodus einschalten (Einstellungen → System → Für Entwickler) und vor dem Klonen `git config --global core.symlinks true` setzen. Bei einem bestehenden Klon danach `git checkout -- .claude/skills` ausführen. Ohne Symlinks findet Claude Code die Skills nicht, Codex schon.
 - **Prüfen:** In Git Bash im Hauptordner `bash scripts/check-agent-setup.sh` ausführen. Die Prüfung der Schreibweise in `~/.zshrc` entfällt, wenn die Datei fehlt.
 
 ## Andere Agenten (Codex)
@@ -107,3 +108,5 @@ Codex liest die Projektregeln aus `AGENTS.md` automatisch. Den Taiga-Server beko
 - `env_vars` reicht nur die **Namen** `TAIGA_USERNAME` und `TAIGA_PASSWORD` aus der eigenen Umgebung weiter, die Werte stehen nie in der Datei.
 
 Die Zugangsdaten kommen wie für Claude Code aus `~/.zshrc` (Abschnitt 4). Ändert sich die Version von `mcp-taiga`, beide Dateien gemeinsam anpassen.
+
+Die Skills (`plan-taiga-epic`, `plan-taiga-sprint`, `implement-taiga-ticket`, `qa-taiga-ticket`, `finish-taiga-ticket`) liegen unter `.agents/skills/`. Dort findet Codex sie automatisch. Aufruf mit `$<name>`, z. B. `$implement-taiga-ticket 27`, oder über `/skills`. `agents/openai.yaml` verhindert, dass Codex sie ungefragt startet.

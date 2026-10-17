@@ -1,0 +1,5 @@
+interface:
+  display_name: "QA einer Taiga-Story"
+  short_description: "Unabhängige Qualitätsprüfung einer Taiga-User-Story"
+policy:
+  allow_implicit_invocation: false

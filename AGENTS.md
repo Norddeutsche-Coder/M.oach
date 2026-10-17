@@ -99,7 +99,8 @@ Projekt `fynndow-moach` auf tree.taiga.io, Scrum mit Sprints à 2 Wochen. 1 Stor
 - Story-Status: New → In progress → In Test (umgesetzt und gepusht, wartet auf QA) → In Review (QA bestanden, PR offen) → Done (gemergt, live geprüft).
 - **Kein Pull Request vor bestandener QA.** `/implement-taiga-ticket` pusht nur den Branch, `/qa-taiga-ticket` prüft ihn, und erst `/finish-taiga-ticket` erstellt den PR, wenn die QA für den aktuellen Head-Commit bestanden ist.
 - Die **Definition of Done** steht im Taiga-Wiki (Seite `definition-of-done`).
-- Zugriff für Agenten über den MCP-Server in `.mcp.json` (Zugangsdaten aus der Umgebung: `TAIGA_USERNAME`, `TAIGA_PASSWORD`).
+- Zugriff für Agenten über den MCP-Server in `.mcp.json` (Claude Code) bzw. `.codex/config.toml` (Codex), Zugangsdaten aus der Umgebung: `TAIGA_USERNAME`, `TAIGA_PASSWORD`.
+- **Skills** für Planung, Umsetzung, QA und Abschluss liegen unter `.agents/skills/<name>/SKILL.md` (Standard [Agent Skills](https://agentskills.io)). Codex liest sie dort direkt (Aufruf `$<name>`), Claude Code über die Symlinks in `.claude/skills/` (Aufruf `/<name>`). Skills nur unter `.agents/skills/` ändern. Ein Agent ohne Skill-Unterstützung liest bei „/<name>“ oder „$<name>“ die Datei `.agents/skills/<name>/SKILL.md` und folgt ihr.
 - **Einrichtung von GitHub und Taiga für Agenten:** [docs/agent-setup.md](docs/agent-setup.md). Prüfen mit `./scripts/check-agent-setup.sh`. Schlägt ein Zugriff auf GitHub oder Taiga fehl, zuerst dieses Skript laufen lassen.
 
 ## Wenn etwas unklar ist

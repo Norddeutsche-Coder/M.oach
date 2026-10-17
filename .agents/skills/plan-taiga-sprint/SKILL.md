@@ -7,7 +7,9 @@ disable-model-invocation: true
 
 # Taiga-Sprint abschließen und planen
 
-Du arbeitest im Dialog nach der grill-me-Methode: kurze Zusammenfassungen, Entscheidungen per `AskUserQuestion`, **immer Einzelauswahl** (`multiSelect: false`), höchstens 4 Fragen pro Runde, die empfohlene Option zuerst mit „(Recommended)“. Keine langen Textblöcke zum Durchlesen. Tabellen kurz halten. In Taiga wird **erst nach Go** etwas geändert.
+> **Für alle Agenten** (Claude Code, Codex u. a.). Aufruf in Claude Code mit `/plan-taiga-sprint`, in Codex mit `$plan-taiga-sprint`, jeweils gefolgt vom Argument. „Taiga-MCP `work`“ meint das Werkzeug `work` des MCP-Servers `taiga` (Claude Code: `mcp__taiga__work`). GitHub-Schritte bevorzugt über das GitHub-MCP, sonst mit `gh`. `<tmp>` ist ein temporärer Arbeitsordner außerhalb des Repositorys (Claude Code: Scratchpad der Sitzung, sonst `${TMPDIR:-/tmp}/moach`). Rückfragen mit Auswahl stellst du über das Auswahl-Werkzeug des Agenten (Claude Code: `AskUserQuestion`). Gibt es keins, stell sie als nummerierte Optionen im Chat und warte auf die Antwort.
+
+Du arbeitest im Dialog nach der grill-me-Methode: kurze Zusammenfassungen, Entscheidungen über das Auswahl-Werkzeug des Agenten (siehe Hinweis oben), **immer Einzelauswahl** (in Claude Code `multiSelect: false`), höchstens 4 Fragen pro Runde, die empfohlene Option zuerst mit „(Recommended)“. Keine langen Textblöcke zum Durchlesen. Tabellen kurz halten. In Taiga wird **erst nach Go** etwas geändert.
 
 ## Projektzuordnung
 
@@ -19,8 +21,8 @@ Projekt aus `git remote get-url origin` bestimmen. Ist das Repo nicht in der Tab
 
 ## Phase 1: Lage erfassen
 
-1. Sprints laden (`mcp__taiga__sprints`, `op: list`) und den laufenden bzw. zuletzt offenen Sprint bestimmen, mit Details und Stories (`op: get`, `op: stats`).
-2. Alle Stories laden (`mcp__taiga__work`, `op: list`, `type: story`) mit Status, Punkten, Sprint, Tags und Epic. Für Abhängigkeiten die Zeile `**Abhängig von:**` in der Beschreibung lesen (`op: get`).
+1. Sprints laden (Taiga-MCP `sprints`, `op: list`) und den laufenden bzw. zuletzt offenen Sprint bestimmen, mit Details und Stories (`op: get`, `op: stats`).
+2. Alle Stories laden (Taiga-MCP `work`, `op: list`, `type: story`) mit Status, Punkten, Sprint, Tags und Epic. Für Abhängigkeiten die Zeile `**Abhängig von:**` in der Beschreibung lesen (`op: get`).
 3. Epics laden (`type: epic`).
 4. Entscheiden:
    - Endet der laufende Sprint in höchstens 2 Tagen oder ist er vorbei → **Phase 2 (Abschluss)**, danach Phase 3.
@@ -39,7 +41,7 @@ Projekt aus `git remote get-url origin` bestimmen. Ist das Repo nicht in der Tab
    - Velocity der letzten bis zu 3 Sprints,
    - Schätzabweichungen: Stories, die deutlich länger dauerten. Anhaltspunkte sind die Zeitspanne von „In progress“ bis „Done“ laut Historie bzw. Kommentaren, die Zahl der QA-Runden (QA-Tasks) und Release-Tasks.
 
-   Dann nacheinander drei Fragen per `AskUserQuestion`, je mit 2–3 vorformulierten Antwortvorschlägen aus den Daten (der Nutzer kann frei antworten): **Was lief gut? Was lief schlecht? Was änderst du im nächsten Sprint?**
+   Dann nacheinander drei Fragen über das Auswahl-Werkzeug des Agenten (siehe Hinweis oben), je mit 2–3 vorformulierten Antwortvorschlägen aus den Daten (der Nutzer kann frei antworten): **Was lief gut? Was lief schlecht? Was änderst du im nächsten Sprint?**
 4. **Freigabe Abschluss:** Zeig kurz, was passieren wird (Punkte senken, Stories verschieben, Sprint schließen, Retro-Eintrag), und frag nach Go. Erst danach Phase 2.5.
 
 ### Phase 2.5: Abschluss ausführen (nach Go)
@@ -47,7 +49,7 @@ Projekt aus `git remote get-url origin` bestimmen. Ist das Repo nicht in der Tab
 - Punkte senken über die Taiga-API (siehe „API-Helfer“). Vorher pro betroffener Story einen Kommentar anlegen: `Punkte für Sprint <neu> von <alt> auf <neu> gesenkt (Umsetzung fertig, nur noch Test/Abschluss offen).`
 - Die Stories werden erst in Phase 4 dem neuen Sprint zugeordnet, wenn der neue Sprint existiert.
 - Den alten Sprint schließen (API: `PATCH /milestones/{id}` mit `{"closed": true}`).
-- Retro-Eintrag in die Wiki-Seite `retrospektiven` (`mcp__taiga__wiki`, `op: get`, dann `op: update`). Gibt es schon einen Abschnitt für diesen Sprint mit Platzhaltern, fülle ihn aus, sonst füge oben einen neuen ein. Format:
+- Retro-Eintrag in die Wiki-Seite `retrospektiven` (Taiga-MCP `wiki`, `op: get`, dann `op: update`). Gibt es schon einen Abschnitt für diesen Sprint mit Platzhaltern, fülle ihn aus, sonst füge oben einen neuen ein. Format:
   ```
   ## Sprint <n> · <start>–<ende>
   **Geplant:** x Punkte · **Erledigt:** y Punkte (z %) · **Velocity (Ø 3 Sprints):** v
@@ -77,8 +79,8 @@ Projekt aus `git remote get-url origin` bestimmen. Ist das Repo nicht in der Tab
 
 ## Phase 4: Anlegen (nach Go)
 
-1. Neuen Sprint anlegen (`mcp__taiga__sprints`, `op: create`): Name `Sprint <n+1>`, Start = Tag nach dem Ende des letzten Sprints (bzw. das genannte Startdatum), Ende = Start + 13 Tage.
-2. Die Stories dem Sprint zuordnen (`mcp__taiga__work`, `op: update`, `sprint`).
+1. Neuen Sprint anlegen (Taiga-MCP `sprints`, `op: create`): Name `Sprint <n+1>`, Start = Tag nach dem Ende des letzten Sprints (bzw. das genannte Startdatum), Ende = Start + 13 Tage.
+2. Die Stories dem Sprint zuordnen (Taiga-MCP `work`, `op: update`, `sprint`).
 3. Prüfen (`op: get` auf den Sprint): Die Punktsumme entspricht dem Vorschlag.
 
 ## API-Helfer (Punkte senken, Sprint schließen)

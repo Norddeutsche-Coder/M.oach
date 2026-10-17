@@ -7,7 +7,9 @@ disable-model-invocation: true
 
 # Taiga-Story umsetzen
 
-Argument: `$ARGUMENTS` ist die Nummer einer **User Story** (z. B. `27` oder `#27`). Fehlt sie, frag danach und mach nichts weiter.
+> **Für alle Agenten** (Claude Code, Codex u. a.). Aufruf in Claude Code mit `/implement-taiga-ticket`, in Codex mit `$implement-taiga-ticket`, jeweils gefolgt vom Argument. „Taiga-MCP `work`“ meint das Werkzeug `work` des MCP-Servers `taiga` (Claude Code: `mcp__taiga__work`). GitHub-Schritte bevorzugt über das GitHub-MCP, sonst mit `gh`. `<tmp>` ist ein temporärer Arbeitsordner außerhalb des Repositorys (Claude Code: Scratchpad der Sitzung, sonst `${TMPDIR:-/tmp}/moach`). Rückfragen mit Auswahl stellst du über das Auswahl-Werkzeug des Agenten (Claude Code: `AskUserQuestion`). Gibt es keins, stell sie als nummerierte Optionen im Chat und warte auf die Antwort.
+
+Argument: das Aufruf-Argument ist die Nummer einer **User Story** (z. B. `27` oder `#27`). Fehlt sie, frag danach und mach nichts weiter.
 
 Arbeite die Phasen der Reihe nach ab. **Zwei Haltepunkte sind Pflicht:** nach dem Plan (Phase 2) und nach der Umsetzung (Phase 5). Dort hältst du an und wartest auf ein ausdrückliches Go. Ein Go zum Plan ist kein Go zum Commit.
 
@@ -29,11 +31,11 @@ Taiga-Status (Slugs) in diesem Projekt:
 - **User Story:** `new`, `ready-to-implement`, `in-progress`, `in-test` (umgesetzt, wartet auf QA), `in-review` (QA bestanden, PR offen), `done`
 - **Task:** `New`, `In progress`, `In Test` (erledigt, wartet auf QA), `In Review`, `Closed` (setzt `/qa-taiga-ticket` nach bestandener QA), `Blockiert`
 
-Lies außerdem das Wiki „definition-of-done“ des Taiga-Projekts (`mcp__taiga__wiki`, op `get`). Seine Punkte gelten zusätzlich zu den Acceptance Criteria.
+Lies außerdem das Wiki „definition-of-done“ des Taiga-Projekts (Taiga-MCP `wiki`, op `get`). Seine Punkte gelten zusätzlich zu den Acceptance Criteria.
 
 ## Phase 1: Story laden und Lage prüfen
 
-1. Story laden: `mcp__taiga__work` mit `op: get`, `type: story`, `item: #<nr>`, `project: <slug>`. Merke Titel, Beschreibung, Acceptance Criteria (Checkliste), Tags, Epic, Status, Sprint und Punkte.
+1. Story laden: Taiga-MCP `work` mit `op: get`, `type: story`, `item: #<nr>`, `project: <slug>`. Merke Titel, Beschreibung, Acceptance Criteria (Checkliste), Tags, Epic, Status, Sprint und Punkte.
 2. Bestehende Tasks der Story laden (`op: list`, `type: task`, Filter auf die Story).
 3. Git-Lage prüfen:
    - `git status`: Gibt es uncommittete Änderungen, die nicht zu dieser Story gehören, halte an und frag.
@@ -53,12 +55,12 @@ Untersuche den betroffenen Code selbst, bevor du fragst. Was sich aus dem Code b
 - **Risiken**, z. B. Änderungen an localStorage-Schlüsseln, Supabase, Service Worker.
 - **Branch-Name:** `<typ>/tg-<nr>-<kurztitel>`. Typ `fix`, wenn die Story den Tag `bug` hat, `chore` für reine Infrastruktur oder Doku, sonst `feat`. Der Kurztitel ist englisch, kleingeschrieben, mit Bindestrichen, höchstens 5 Wörter.
 
-**Halte an** und warte auf ein Go. Wenn es offene Fragen gab, schreib die getroffenen Entscheidungen danach als Kommentar an die Story (`mcp__taiga__comments`).
+**Halte an** und warte auf ein Go. Wenn es offene Fragen gab, schreib die getroffenen Entscheidungen danach als Kommentar an die Story (Taiga-MCP `comments`).
 
 ## Phase 3: Vorbereiten (erst nach Go zum Plan)
 
 1. Branch von aktuellem `origin/<basis>` anlegen. Beim Fortsetzen den vorhandenen nehmen.
-2. Story auf `in-progress` setzen (`mcp__taiga__work`, `op: update`, `status: In progress`).
+2. Story auf `in-progress` setzen (Taiga-MCP `work`, `op: update`, `status: In progress`).
 3. Für jeden Planschritt, den es noch nicht gibt, einen Task in der Story anlegen (`op: create`, `type: task`, `parent: #<nr>`, Status `New`, als Batch).
 
 ## Phase 4: Umsetzen
