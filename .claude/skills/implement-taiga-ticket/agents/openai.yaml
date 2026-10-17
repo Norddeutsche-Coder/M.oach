@@ -1,0 +1,5 @@
+interface:
+  display_name: "Taiga-Story umsetzen"
+  short_description: "Setzt eine Taiga-User-Story bis zur QA-Bereitschaft um, ohne Pull Request"
+policy:
+  allow_implicit_invocation: false

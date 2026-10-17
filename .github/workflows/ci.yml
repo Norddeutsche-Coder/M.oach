@@ -13,6 +13,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  skills:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Check that .claude/skills mirrors .agents/skills
+        run: node scripts/sync-skills.mjs --check
+
   frontend:
     runs-on: ubuntu-latest
     defaults:

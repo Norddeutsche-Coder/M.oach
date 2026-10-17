@@ -1,0 +1,5 @@
+interface:
+  display_name: "Taiga-Epic planen"
+  short_description: "Plant ein neues Taiga-Epic mit User Stories aus einer Freitext-Idee, z"
+policy:
+  allow_implicit_invocation: false

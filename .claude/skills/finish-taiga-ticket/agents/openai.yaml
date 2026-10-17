@@ -1,0 +1,5 @@
+interface:
+  display_name: "Taiga-Story abschließen"
+  short_description: "Schließt eine Taiga-User-Story nach bestandener QA ab"
+policy:
+  allow_implicit_invocation: false
