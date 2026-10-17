@@ -1,0 +1,5 @@
+interface:
+  display_name: "Taiga-Sprint abschließen und planen"
+  short_description: "Schließt den laufenden Taiga-Sprint ab (Bilanz, unfertige Stories, Retro im Wiki) und plant den nächsten nach Kapazität, Velocity und festen Prioritätsregeln"
+policy:
+  allow_implicit_invocation: false

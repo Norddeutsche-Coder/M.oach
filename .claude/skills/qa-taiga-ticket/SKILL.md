@@ -7,6 +7,8 @@ disable-model-invocation: true
 
 # QA einer Taiga-Story
 
+> **Für alle Agenten** (Claude Code, Codex u. a.). Aufruf in Claude Code mit `/qa-taiga-ticket`, in Codex mit `$qa-taiga-ticket`, jeweils gefolgt vom Argument. „Taiga-MCP `work`“ meint das Werkzeug `work` des MCP-Servers `taiga` (Claude Code: `mcp__taiga__work`). GitHub-Schritte bevorzugt über das GitHub-MCP, sonst mit `gh`. `<tmp>` ist ein temporärer Arbeitsordner außerhalb des Repositorys (Claude Code: Scratchpad der Sitzung, sonst `${TMPDIR:-/tmp}/moach`). Rückfragen mit Auswahl stellst du über das Auswahl-Werkzeug des Agenten (Claude Code: `AskUserQuestion`). Gibt es keins, stell sie als nummerierte Optionen im Chat und warte auf die Antwort.
+
 Du bist die unabhängige Prüfinstanz. **Du behebst nichts**, auch keine Kleinigkeiten. Du prüfst, belegst und berichtest. Code, Tests und Konfiguration änderst du nicht.
 
 ## 0. Story und Projekt bestimmen
@@ -17,10 +19,10 @@ Du bist die unabhängige Prüfinstanz. **Du behebst nichts**, auch keine Kleinig
    |---|---|---|---|---|
    | `Norddeutsche-Coder/m.oach` | `fynndow-moach` | `main` | `frontend/` | `npm run check`, `npm run lint`, `npm test`, `npm run build`, `npm run test:e2e` |
 
-2. Story-Nummer: `$ARGUMENTS`. Fehlt sie, aus dem Branch-Namen lesen (`…/tg-<nr>-…`). Gibt es keine, prüf nur den Diff gegen den Basis-Branch, ohne Taiga-Schritte, und sag das zu Beginn.
-3. Story laden (`mcp__taiga__work`, `op: get`, `type: story`), außerdem ihre Tasks und das Wiki „definition-of-done“ (`mcp__taiga__wiki`, `op: get`).
+2. Story-Nummer: das Aufruf-Argument. Fehlt sie, aus dem Branch-Namen lesen (`…/tg-<nr>-…`). Gibt es keine, prüf nur den Diff gegen den Basis-Branch, ohne Taiga-Schritte, und sag das zu Beginn.
+3. Story laden (Taiga-MCP `work`, `op: get`, `type: story`), außerdem ihre Tasks und das Wiki „definition-of-done“ (Taiga-MCP `wiki`, `op: get`).
 4. **Prüfstand bestimmen.** Geprüft wird der **gepushte Branch** der Story (`origin/<branch>`, Branch `…/tg-<nr>-…`), genau in dem Stand, den `/implement-taiga-ticket` hinterlassen hat. Einen PR gibt es zu diesem Zeitpunkt noch nicht. Ihn erstellt erst `/finish-taiga-ticket` nach bestandener QA.
-   - `git fetch origin` und einen Worktree `<scratchpad>/qa-tg-<nr>/branch-src` von `origin/<branch>` anlegen. **Alle Prüfungen (1–4) laufen in diesem Worktree**, nicht im Arbeitsverzeichnis. Im App-Ordner `npm ci`. Ist `package-lock.json` identisch mit dem aktuellen Stand, darf `node_modules` verlinkt werden.
+   - `git fetch origin` und einen Worktree `<tmp>/qa-tg-<nr>/branch-src` von `origin/<branch>` anlegen. **Alle Prüfungen (1–4) laufen in diesem Worktree**, nicht im Arbeitsverzeichnis. Im App-Ordner `npm ci`. Ist `package-lock.json` identisch mit dem aktuellen Stand, darf `node_modules` verlinkt werden.
    - Merke den Head-Commit des Branches (Kurz-SHA). Er steht im Bericht und im QA-Kommentar, `/finish-taiga-ticket` gleicht ihn ab.
    - Diff = `git diff origin/<basis>...origin/<branch>`.
    - Story-Status sollte `In Test` sein. Ist sie `In progress`, sag das zu Beginn, prüfe aber trotzdem.
@@ -44,18 +46,18 @@ Prüfe ebenso die Punkte der Definition of Done, soweit sie vor dem Merge prüfb
 **Wann:** Wenn der Diff die Oberfläche betrifft (`.tsx`, `.css`, `index.html`, `src/legacy/app.js`, `public/`) oder Logik, die in der Oberfläche sichtbar wird (Trainingsplan, Readiness, Anpassungen, Berechnungen, Texte). Bei Logikänderungen prüfst du, **ob das neue Verhalten in der Oberfläche ankommt**. Dafür baust du Testdaten, die genau den betroffenen Fall auslösen (z. B. Readiness-Wert 8, Renntag, Plan mit genau 5 Wochen). Reine Änderungen an Tests, Doku oder CI brauchen keine Screenshots.
 
 **Vorgehen (Vorher/Nachher):**
-1. Arbeitsordner im Scratchpad der Sitzung anlegen, z. B. `<scratchpad>/qa-tg-<nr>/`, darin `branch/`, `basis/` und `szenarien.json`.
+1. Arbeitsordner unter `<tmp>` anlegen, z. B. `<tmp>/qa-tg-<nr>/`, darin `branch/`, `basis/` und `szenarien.json`.
 2. **Nachher:** Im App-Ordner des Prüfstands (Worktree aus Abschnitt 0) mit Testwerten bauen, dann `npx vite preview --host 127.0.0.1 --port 4181 --strictPort` im Hintergrund starten.
-3. **Vorher:** `git worktree add <scratchpad>/qa-tg-<nr>/worktree origin/<basis>`. Im App-Ordner des Worktrees `npm ci`. Ist `package-lock.json` identisch, darf stattdessen `node_modules` vom aktuellen Stand verlinkt werden. Dann bauen und auf Port 4182 starten.
+3. **Vorher:** `git worktree add <tmp>/qa-tg-<nr>/worktree origin/<basis>`. Im App-Ordner des Worktrees `npm ci`. Ist `package-lock.json` identisch, darf stattdessen `node_modules` vom aktuellen Stand verlinkt werden. Dann bauen und auf Port 4182 starten.
 4. `szenarien.json` schreiben: pro betroffener Ansicht und Fall ein Szenario, jeweils **Handy und Desktop, hell und dunkel**. Testdaten für M.oach werden über localStorage gesetzt, Vorlage siehe `frontend/tests/today.spec.ts` (Funktion `seed`) und `frontend/tests/fixtures/`. Immer mit festem Datum.
 5. Für beide Stände ausführen:
-   `node <repo>/.claude/skills/qa-taiga-ticket/scripts/shots.cjs <app-ordner>/node_modules/@playwright/test http://127.0.0.1:<port>/ <scratchpad>/qa-tg-<nr>/<branch|basis> <szenarien.json>` (`<repo>` ist das Wurzelverzeichnis des Repositorys)
-6. **Jeden Screenshot ansehen** (Read-Tool) und Vorher/Nachher vergleichen. Prüfe:
+   `node <repo>/.agents/skills/qa-taiga-ticket/scripts/shots.cjs <app-ordner>/node_modules/@playwright/test http://127.0.0.1:<port>/ <tmp>/qa-tg-<nr>/<branch|basis> <szenarien.json>` (`<repo>` ist das Wurzelverzeichnis des Repositorys)
+6. **Jeden Screenshot ansehen** (Bild öffnen, in Claude Code mit dem Read-Tool) und Vorher/Nachher vergleichen. Prüfe:
    - Ist die beabsichtigte Änderung sichtbar und richtig (inhaltlich und visuell)?
    - Gibt es Regressionen: Überlappungen, abgeschnittener Text, unschöne Umbrüche (z. B. Wert und Einheit getrennt), leere Bereiche, falsche Farben, Dunkelmodus, Inhalt hinter der Navigation?
    - Konsolenfehler, die das Skript meldet?
    Fehler sind **Befunde**, reine Geschmacksfragen **Hinweise**.
-7. Aufräumen: Preview-Server beenden und alle Worktrees mit `git worktree remove` entfernen. Die Screenshots bleiben im Scratchpad.
+7. Aufräumen: Preview-Server beenden und alle Worktrees mit `git worktree remove` entfernen. Die Screenshots bleiben unter `<tmp>`.
 
 ## 4. Code-Review
 
@@ -83,14 +85,14 @@ Jeder Befund wird überall (Chat, Taiga-Kommentar, QA-Task) mit denselben fünf 
 ## 5. Ergebnis in Taiga (nur mit Story)
 
 **Gibt es mindestens einen Befund:**
-1. Story auf `In progress` setzen (`mcp__taiga__work`, `op: update`, `status: In progress`).
+1. Story auf `In progress` setzen (Taiga-MCP `work`, `op: update`, `status: In progress`).
 2. Pro Befund einen Task in der Story anlegen, Titel `QA: <kurze Beschreibung>`, Status `New`. Die Beschreibung enthält die fünf Pflichtangaben (Geprüft, Erwartet, Tatsächlich, Ursache, Vorschlag). Mehrere als Batch (`op: create`, `type: task`, `items`). Gibt es einen gleichnamigen offenen QA-Task schon, lege keinen doppelten an, sondern ergänze ihn als Kommentar.
 
 **Gibt es keinen Befund:** Den Story-Status nicht ändern (bleibt `In Test`). Alle Tasks der Story mit Status `In Test` auf `Closed` setzen, auch behobene QA-Tasks.
 
 **In beiden Fällen:**
-1. Relevante Screenshots an die Story hängen (`mcp__taiga__attachments`, `op: upload`, `type: story`, `filePath`). Gemeint sind die Nachher-Bilder, die Befunde oder die beabsichtigte Änderung zeigen, und dazu die Vorher-Bilder für den Vergleich. Höchstens 8, mit Beschreibung wie „Nachher · Handy · dunkel · Readiness 8“.
-2. Einen Kommentar an die Story (`mcp__taiga__comments`, `op: add`):
+1. Relevante Screenshots an die Story hängen (Taiga-MCP `attachments`, `op: upload`, `type: story`, `filePath`). Gemeint sind die Nachher-Bilder, die Befunde oder die beabsichtigte Änderung zeigen, und dazu die Vorher-Bilder für den Vergleich. Höchstens 8, mit Beschreibung wie „Nachher · Handy · dunkel · Readiness 8“.
+2. Einen Kommentar an die Story (Taiga-MCP `comments`, `op: add`):
    ```
    ## QA <✅ bestanden | ❌ nicht bestanden> · <Datum> · Branch <branch> @ <head-kurz-sha>
 
@@ -125,7 +127,7 @@ Jeder Befund wird überall (Chat, Taiga-Kommentar, QA-Task) mit denselben fünf 
 ## 6. Bericht im Chat
 
 Derselbe Inhalt wie der Kommentar, also immer vollständig, was geprüft wurde, und je Befund die fünf Pflichtangaben. Zusätzlich:
-- die Pfade der wichtigsten Screenshots. Zeig 2–4 aussagekräftige Bilder direkt (Read-Tool),
+- die Pfade der wichtigsten Screenshots. Zeig 2–4 aussagekräftige Bilder direkt (Bild öffnen, in Claude Code mit dem Read-Tool),
 - bei Befunden: die angelegten QA-Tasks mit Nummer und den Hinweis, dass `/implement-taiga-ticket <nr>` beim Fortsetzen die offenen QA-Tasks abarbeitet,
 - bei bestanden: dass jetzt `/finish-taiga-ticket <nr>` den PR erstellen, mergen und veröffentlichen kann. Die Story bleibt `In Test`.
 

@@ -107,3 +107,5 @@ Codex liest die Projektregeln aus `AGENTS.md` automatisch. Den Taiga-Server beko
 - `env_vars` reicht nur die **Namen** `TAIGA_USERNAME` und `TAIGA_PASSWORD` aus der eigenen Umgebung weiter, die Werte stehen nie in der Datei.
 
 Die Zugangsdaten kommen wie für Claude Code aus `~/.zshrc` (Abschnitt 4). Ändert sich die Version von `mcp-taiga`, beide Dateien gemeinsam anpassen.
+
+Die Skills (`plan-taiga-epic`, `plan-taiga-sprint`, `implement-taiga-ticket`, `qa-taiga-ticket`, `finish-taiga-ticket`) liegen unter `.agents/skills/`. Dort findet Codex sie automatisch. Claude Code liest eine Kopie in `.claude/skills/`, die `node scripts/sync-skills.mjs` erzeugt (echte Dateien, keine Symlinks, deshalb ohne Zusatzeinstellungen auch unter Windows). Aufruf mit `$<name>`, z. B. `$implement-taiga-ticket 27`, oder über `/skills`. `agents/openai.yaml` verhindert, dass Codex sie ungefragt startet.

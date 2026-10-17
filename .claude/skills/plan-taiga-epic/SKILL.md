@@ -7,7 +7,9 @@ disable-model-invocation: true
 
 # Taiga-Epic planen
 
-Eingabe: `$ARGUMENTS` ist eine Idee in Freitext. Fehlt sie, frag danach.
+> **Für alle Agenten** (Claude Code, Codex u. a.). Aufruf in Claude Code mit `/plan-taiga-epic`, in Codex mit `$plan-taiga-epic`, jeweils gefolgt vom Argument. „Taiga-MCP `work`“ meint das Werkzeug `work` des MCP-Servers `taiga` (Claude Code: `mcp__taiga__work`). GitHub-Schritte bevorzugt über das GitHub-MCP, sonst mit `gh`. `<tmp>` ist ein temporärer Arbeitsordner außerhalb des Repositorys (Claude Code: Scratchpad der Sitzung, sonst `${TMPDIR:-/tmp}/moach`). Rückfragen mit Auswahl stellst du über das Auswahl-Werkzeug des Agenten (Claude Code: `AskUserQuestion`). Gibt es keins, stell sie als nummerierte Optionen im Chat und warte auf die Antwort.
+
+Eingabe: das Aufruf-Argument ist eine Idee in Freitext. Fehlt sie, frag danach.
 
 Du legst **nur Epics und User Stories** an, keine Tasks und keine Issues. Tasks entstehen später durch `/implement-taiga-ticket`. Alles landet im **Backlog**, ohne Sprint. Angelegt wird **erst nach ausdrücklichem Go** zum Entwurf.
 
@@ -21,7 +23,7 @@ Projekt aus `git remote get-url origin` bestimmen. Ist das Repo nicht in der Tab
 
 ## Phase 1: Verstehen
 
-1. **Bestand in Taiga laden:** alle Epics (`mcp__taiga__work`, `op: list`, `type: epic`) und alle Stories (`type: story`), dazu die Wiki-Seiten `home` und `definition-of-done` (`mcp__taiga__wiki`).
+1. **Bestand in Taiga laden:** alle Epics (Taiga-MCP `work`, `op: list`, `type: epic`) und alle Stories (`type: story`), dazu die Wiki-Seiten `home` und `definition-of-done` (Taiga-MCP `wiki`).
 2. **Code untersuchen:** Finde die Stellen, die die Idee betrifft (Ansichten, Logik, Daten, Supabase, Tests). Was sich aus dem Code beantworten lässt, fragst du nicht.
 3. **Dubletten prüfen:** Suche nach Epics und Stories mit gleichem oder überlappendem Inhalt (`op: list` mit `q`, Titel und Beschreibungen vergleichen).
 
@@ -29,7 +31,7 @@ Projekt aus `git remote get-url origin` bestimmen. Ist das Repo nicht in der Tab
 
 Kläre alles, was für gute Stories fehlt: Ziel und Nutzen für Läufer, Umfang (was ist bewusst **nicht** drin), Verhalten in Sonderfällen, Abhängigkeiten, Datenschutz und Sicherheit, Messbarkeit der Acceptance Criteria.
 
-- Stelle die Fragen mit `AskUserQuestion`, **immer als Einzelauswahl** (`multiSelect: false`), höchstens 4 pro Runde. Mehrfachauswahl nicht verwenden.
+- Stelle die Fragen über das Auswahl-Werkzeug des Agenten (siehe Hinweis oben), **immer als Einzelauswahl** (in Claude Code `multiSelect: false`), höchstens 4 pro Runde. Mehrfachauswahl nicht verwenden.
 - Jede Frage hat 2–4 Optionen. Die empfohlene steht zuerst und trägt „(Recommended)“, mit kurzer Begründung.
 - Frag, bis keine wesentliche Unklarheit mehr bleibt, in der Regel 1–3 Runden. Wiederhole nichts, was schon beantwortet ist.
 - Gibt der Nutzer statt einer Option eigenen Text ein, lies ihn genau und richte dich danach.
@@ -71,7 +73,7 @@ Regeln für Stories:
 
 ## Phase 4: Anlegen (erst nach Go)
 
-1. **Epic** anlegen (`mcp__taiga__work`, `op: create`, `type: epic`, `subject`, `description`). Beim Erweitern eines bestehenden Epics entfällt das.
+1. **Epic** anlegen (Taiga-MCP `work`, `op: create`, `type: epic`, `subject`, `description`). Beim Erweitern eines bestehenden Epics entfällt das.
 2. **Stories** als Batch anlegen (`op: create`, `type: story`, `items`, höchstens 20 pro Aufruf), jeweils mit `subject`, `description`, `status: "New"`, `tags`. Kein Sprint.
 3. **Mit dem Epic verknüpfen:** jede Story mit `op: link`, `type: story`, `item: #<story>`, `parent: #<epic>`.
 4. **Freigegebene Ergänzungen bestehender Stories** mit `op: update` vornehmen. Dabei die vorhandene Beschreibung erweitern, nicht ersetzen.

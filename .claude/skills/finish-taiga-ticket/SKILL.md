@@ -7,7 +7,9 @@ disable-model-invocation: true
 
 # Taiga-Story abschließen
 
-Argument: `$ARGUMENTS` ist die Nummer der **User Story**. Fehlt sie, frag danach.
+> **Für alle Agenten** (Claude Code, Codex u. a.). Aufruf in Claude Code mit `/finish-taiga-ticket`, in Codex mit `$finish-taiga-ticket`, jeweils gefolgt vom Argument. „Taiga-MCP `work`“ meint das Werkzeug `work` des MCP-Servers `taiga` (Claude Code: `mcp__taiga__work`). GitHub-Schritte bevorzugt über das GitHub-MCP, sonst mit `gh`. `<tmp>` ist ein temporärer Arbeitsordner außerhalb des Repositorys (Claude Code: Scratchpad der Sitzung, sonst `${TMPDIR:-/tmp}/moach`). Rückfragen mit Auswahl stellst du über das Auswahl-Werkzeug des Agenten (Claude Code: `AskUserQuestion`). Gibt es keins, stell sie als nummerierte Optionen im Chat und warte auf die Antwort.
+
+Argument: das Aufruf-Argument ist die Nummer der **User Story**. Fehlt sie, frag danach.
 
 **Ein Haltepunkt:** vor dem PR und dem Merge. Nach dem Go läuft alles bis „Done“ durch, außer etwas schlägt fehl.
 
@@ -25,7 +27,7 @@ GitHub: bevorzugt das GitHub-MCP (`pull_request_read`, `merge_pull_request`). F�
 
 ## Phase 1: Bedingungen prüfen
 
-1. Story laden (`mcp__taiga__work`, `op: get`, `type: story`), dazu ihre Tasks und Kommentare (`mcp__taiga__comments`, `op: list`).
+1. Story laden (Taiga-MCP `work`, `op: get`, `type: story`), dazu ihre Tasks und Kommentare (Taiga-MCP `comments`, `op: list`).
 2. Branch finden: `git fetch origin`, Branch `…/tg-<nr>-…` auf `origin`. Gibt es keinen, halte an. Merke den Head-Commit (Kurz-SHA).
 3. Prüfen, ob es schon einen PR für den Branch gibt (`list_pull_requests` bzw. `gh pr list --head <branch>`). Das sollte nicht so sein. Gibt es doch einen, weise im Haltepunkt darauf hin und verwende ihn weiter, statt einen zweiten zu erstellen.
 4. Prüfe **alle** Bedingungen und halte das Ergebnis je Punkt fest:
@@ -58,7 +60,7 @@ Ist eine Bedingung ❌, **erstelle keinen PR und merge nicht**. Nenn, was fehlt 
    - die Acceptance Criteria als abgehakte Checkliste,
    - QA: Link zum QA-Kommentar bzw. „QA bestanden für `<head-kurz-sha>`“,
    - Risiken bzw. was beim Review zu beachten ist,
-   - abschließend die Attribution-Zeile der Sitzung für PR-Beschreibungen.
+   - abschließend die Attribution-Zeile für PR-Beschreibungen, falls der Agent eine vorgibt.
 2. Den PR-Link in das Story-Feld **„Pull Request“** eintragen. Das MCP kann keine eigenen Felder setzen, deshalb über die Taiga-API mit `TAIGA_USERNAME` und `TAIGA_PASSWORD` aus der Umgebung:
    ```python
    # python3 -I - ; Zugangsdaten nie ausgeben
@@ -87,7 +89,7 @@ Ist eine Bedingung ❌, **erstelle keinen PR und merge nicht**. Nenn, was fehlt 
 1. **Deploy-Lauf abwarten:** Lauf des Deploy-Workflows für den Merge-Commit finden (`GET /repos/<repo>/actions/runs?head_sha=<sha>`) und warten, bis er abgeschlossen ist, höchstens 20 Minuten, Abfrage etwa jede Minute. Ergebnis und Link notieren.
 2. **Neue Version live:** `<Live-URL>` laden, bis der Bundle-Name sich gegenüber Phase 1 geändert hat (höchstens 5 Minuten, GitHub Pages cached kurz).
 3. **Smoke-Test mit Screenshot:** die betroffene Ansicht der Story auf der Live-URL mit Testdaten aufnehmen, Handy hell, plus Dunkelmodus, falls die Story die Oberfläche betrifft. Verwende das Skript des QA-Skills, das alle externen Anfragen blockiert (keine echten Konten, keine Anfragen an Supabase oder Intervals.icu):
-   `node <repo>/.claude/skills/qa-taiga-ticket/scripts/shots.cjs <app-ordner>/node_modules/@playwright/test <Live-URL> <scratchpad>/release-tg-<nr> <szenarien.json>` (`<repo>` ist das Wurzelverzeichnis des Repositorys)
+   `node <repo>/.agents/skills/qa-taiga-ticket/scripts/shots.cjs <app-ordner>/node_modules/@playwright/test <Live-URL> <tmp>/release-tg-<nr> <szenarien.json>` (`<repo>` ist das Wurzelverzeichnis des Repositorys)
    Szenarien wie im QA-Skill beschrieben (localStorage-Testdaten, festes Datum, Reiter). Bei M.oach ist für die Live-Version kein `moach_sb` nötig.
    **Jeden Screenshot ansehen.** Prüfe: Die App startet ohne Fehlermeldung, die Änderung der Story ist sichtbar, die Konsole zeigt keine Fehler (das Skript meldet sie).
 4. Schlägt einer dieser Schritte fehl, weiter mit **Phase 6**.
@@ -96,8 +98,8 @@ Ist eine Bedingung ❌, **erstelle keinen PR und merge nicht**. Nenn, was fehlt 
 
 1. Alle restlichen Tasks der Story auf `Closed` setzen.
 2. Story auf `Done` setzen.
-3. Screenshot(s) des Smoke-Tests an die Story hängen (`mcp__taiga__attachments`, `op: upload`, `type: story`, Beschreibung „Live · Handy · hell“ o. Ä.).
-4. Release-Kommentar an die Story (`mcp__taiga__comments`, `op: add`):
+3. Screenshot(s) des Smoke-Tests an die Story hängen (Taiga-MCP `attachments`, `op: upload`, `type: story`, Beschreibung „Live · Handy · hell“ o. Ä.).
+4. Release-Kommentar an die Story (Taiga-MCP `comments`, `op: add`):
    ```
    ## Released ✅ · <Datum>
    - **PR:** #<nr> <Link> (Squash)
@@ -109,7 +111,7 @@ Ist eine Bedingung ❌, **erstelle keinen PR und merge nicht**. Nenn, was fehlt 
 5. **Aufräumen:**
    - Remote-Branch löschen, falls GitHub ihn nicht automatisch gelöscht hat (`git push origin --delete <branch>`),
    - lokal auf den Basis-Branch wechseln, `git pull --ff-only`, lokalen Branch löschen (`git branch -d`, nicht `-D`). Weigert sich Git, halte an und frag,
-   - temporäre Ordner im Scratchpad bleiben bestehen.
+   - temporäre Ordner unter `<tmp>` bleiben bestehen.
 
 ## Phase 6: Fehler nach dem Merge
 
@@ -127,7 +129,7 @@ Story **nicht** auf Done setzen. Sie bleibt `In Review`.
 
 - Ergebnis: ✅ released oder ❌ mit Grund,
 - PR, Merge-Commit, Deploy-Lauf, Live-Version,
-- Smoke-Test mit 1–2 Screenshots direkt im Chat (Read-Tool),
+- Smoke-Test mit 1–2 Screenshots direkt im Chat (Bild öffnen, in Claude Code mit dem Read-Tool),
 - Taiga-Status von Story und Tasks,
 - aufgeräumte Branches.
 
