@@ -1,6 +1,6 @@
 ---
 name: finish-taiga-ticket
-description: Schließt eine Taiga-User-Story nach bestandener QA ab. Aufruf mit der Story-Nummer, z. B. `/finish-taiga-ticket 27`. Prüft CI, QA und Acceptance Criteria auf dem Branch, wartet auf Go, erstellt erst dann den PR, setzt die Story auf In Review, merged den PR per Squash, wartet auf das Deployment, macht einen Smoke-Test der Live-App, setzt Story und Tasks auf Done/Closed, schreibt einen Release-Kommentar und räumt den Branch auf. Bei Fehlern nach dem Merge hält er an und bereitet einen Revert vor.
+description: Schließt eine Taiga-User-Story nach bestandener QA und Abnahme durch den Product Owner ab. Aufruf mit der Story-Nummer, z. B. `/finish-taiga-ticket 27`. Prüft CI, QA, Abnahme und Acceptance Criteria auf dem Branch, wartet auf Go, erstellt erst dann den PR, setzt die Story auf Im Review, merged den PR per Squash, wartet auf das Deployment, macht einen Smoke-Test der Live-App, setzt Story und Tasks auf Fertig/Erledigt, schreibt einen Release-Kommentar und eine Neuigkeit in Alltagssprache und räumt den Branch auf. Bei Fehlern nach dem Merge hält er an und bereitet einen Revert vor.
 argument-hint: <story-nummer>
 disable-model-invocation: true
 ---
@@ -11,9 +11,11 @@ disable-model-invocation: true
 
 Argument: das Aufruf-Argument ist die Nummer der **User Story**. Fehlt sie, frag danach.
 
-**Ein Haltepunkt:** vor dem PR und dem Merge. Nach dem Go läuft alles bis „Done“ durch, außer etwas schlägt fehl.
+**Ein Haltepunkt:** vor dem PR und dem Merge. Nach dem Go läuft alles bis „Fertig“ durch, außer etwas schlägt fehl.
 
-**Erst QA, dann PR.** Der PR wird ausschließlich in diesem Skill erstellt, und nur, wenn `/qa-taiga-ticket` für den aktuellen Head-Commit des Branches mit „bestanden“ durchgelaufen ist. Fehlt das, wird kein PR erstellt.
+**Erst QA und Abnahme, dann PR.** Der PR wird ausschließlich in diesem Skill erstellt, und nur, wenn `/qa-taiga-ticket` für den aktuellen Head-Commit des Branches mit „bestanden“ durchgelaufen ist und der Product Owner danach „Abgenommen“ kommentiert hat. Fehlt eins davon, wird kein PR erstellt.
+
+**Product Owner** in diesem Projekt: `fynndow`. Bei Stories mit Tag `hotfix` ist die Abnahme optional, das nennst du im Haltepunkt.
 
 ## Projektzuordnung
 
@@ -34,8 +36,11 @@ GitHub: bevorzugt das GitHub-MCP (`pull_request_read`, `merge_pull_request`). F�
    - [ ] **CI grün** für den Head-Commit des Branches (`GET /repos/<repo>/actions/runs?head_sha=<sha>` bzw. `gh run list --commit <sha>`). Läuft sie noch, warte darauf, höchstens 15 Minuten.
    - [ ] **QA bestanden:** Der neueste QA-Kommentar an der Story (`## QA ✅ bestanden · … · Branch <branch> @ <head>`) nennt den aktuellen Head-Commit des Branches (Kurz-SHA). Ein älteres „bestanden“ für einen früheren Commit zählt nicht.
    - [ ] **Basis eingearbeitet:** Die QA hat nur den Branch geprüft. Enthält `origin/<basis>` Commits, die nicht im Branch sind (`git log origin/<branch>..origin/<basis>`), liste sie auf und frag, ob vorher `<basis>` in den Branch gemergt und `/qa-taiga-ticket` erneut ausgeführt werden soll. Empfehlung: ja, wenn diese Commits dieselben Dateien berühren.
-   - [ ] **Story-Status `In Test`.**
-   - [ ] **Keine offenen QA-Tasks** (`QA: …` mit Status ungleich `Closed`).
+   - [ ] **Abgenommen:** Der neueste Kommentar des Product Owners nach dem letzten QA-Kommentar beginnt mit „Abgenommen“.
+     - Beginnt er mit „Nicht abgenommen“: Lege pro genanntem Punkt einen Task `Abnahme: <Punkt>` (Status `Neu`) an, setze die Story auf `In Arbeit` und halte an. Nächster Schritt ist `/implement-taiga-ticket <nr>`.
+     - Gibt es noch keine Antwort: Halte an und bitte den Product Owner um die Abnahme (Hinweis auf den Abschnitt „Zur Abnahme“ im QA-Kommentar).
+   - [ ] **Story-Status `Abnahme`.**
+   - [ ] **Keine offenen QA- oder Abnahme-Tasks** (`QA: …`, `Abnahme: …` mit Status ungleich `Erledigt`).
    - [ ] **Alle Acceptance Criteria abgehakt** in der Story-Beschreibung (`- [x]`). Ist eine noch `- [ ]`, aber laut QA-Kommentar erfüllt, darfst du sie im Zuge des Abschlusses abhaken. Das sagst du im Haltepunkt ausdrücklich.
    - [ ] **Keine sonstigen offenen Tasks.** Gibt es welche, liste sie auf und frag, ob sie geschlossen, in eine neue Story verschoben oder zuerst erledigt werden sollen.
    - [ ] **Ohne Konflikte mergebar:** `git merge-tree --write-tree origin/<basis> origin/<branch>` meldet keine Konflikte.
@@ -48,17 +53,19 @@ Zeig:
 - die Bedingungen mit ✅/❌,
 - den geplanten PR: Titel `<Story-Titel> (TG-<nr>)` und die Beschreibung (siehe Phase 3),
 - die geplante Squash-Commit-Nachricht: Titel `<PR-Titel>` (enthält `TG-<nr>`), Text als kurze Zusammenfassung der Änderungen, **ohne** `Co-authored-by:`-Zeilen für KI-Agenten (GitHub schlägt sie beim Squash automatisch vor, entferne sie),
-- was danach automatisch passiert (PR erstellen, In Review, Checks abwarten, Merge, Deploy abwarten, Smoke-Test, Done, Aufräumen).
+- was danach automatisch passiert (PR erstellen, Im Review, Checks abwarten, Merge, Deploy abwarten, Smoke-Test, Fertig, Neuigkeit, Aufräumen).
 
-Ist eine Bedingung ❌, **erstelle keinen PR und merge nicht**. Nenn, was fehlt und welcher Skill das erledigt (`/implement-taiga-ticket`, `/qa-taiga-ticket`). Ist alles ✅, **halte an** und warte auf ein Go.
+Ist eine Bedingung ❌, **erstelle keinen PR und merge nicht**. Nenn, was fehlt und wer bzw. welcher Skill das erledigt (`/implement-taiga-ticket`, `/qa-taiga-ticket`, Abnahme durch den Product Owner). Ist alles ✅, **halte an** und warte auf ein Go.
 
 ## Phase 3: PR und Merge (erst nach Go)
 
 1. **PR erstellen** nach `<basis>`, bevorzugt mit dem GitHub-MCP (`create_pull_request`), sonst `gh pr create`. Gibt es eine PR-Vorlage im Repo, nutz sie. Titel: `<Story-Titel> (TG-<nr>)`. Die Beschreibung ist auf Deutsch:
+   - **Kurz gesagt:** 2–3 Sätze ohne Fachbegriffe, was sich für Läufer ändert,
    - Worum es geht (1–2 Sätze) und ein Link zur Story `https://tree.taiga.io/project/<slug>/us/<nr>`,
    - Änderungen,
    - die Acceptance Criteria als abgehakte Checkliste,
    - QA: Link zum QA-Kommentar bzw. „QA bestanden für `<head-kurz-sha>`“,
+   - Abnahme: „Abgenommen durch <Product Owner> am <Datum>“,
    - Risiken bzw. was beim Review zu beachten ist,
    - abschließend die Attribution-Zeile für PR-Beschreibungen, falls der Agent eine vorgibt.
 2. Den PR-Link in das Story-Feld **„Pull Request“** eintragen. Das MCP kann keine eigenen Felder setzen, deshalb über die Taiga-API mit `TAIGA_USERNAME` und `TAIGA_PASSWORD` aus der Umgebung:
@@ -78,8 +85,8 @@ Ist eine Bedingung ❌, **erstelle keinen PR und merge nicht**. Nenn, was fehlt 
    vals = {**cur["attributes_values"], str(attr["id"]): PR_URL}
    call("PATCH", f"/userstories/custom-attributes-values/{us['id']}", {"attributes_values": vals, "version": cur["version"]}, t=t)
    ```
-3. Story auf `In Review` setzen.
-4. **Checks des PR abwarten** (`pull_request_read`, Methode `get_status`, bzw. Check-Runs, z. B. der Secret-Scan), höchstens 15 Minuten. Ist einer rot, halte an, zeig Job und Ursache. Die Story bleibt `In Review`.
+3. Story auf `Im Review` setzen.
+4. **Checks des PR abwarten** (`pull_request_read`, Methode `get_status`, bzw. Check-Runs, z. B. der Secret-Scan), höchstens 15 Minuten. Ist einer rot, halte an, zeig Job und Ursache. Die Story bleibt `Im Review`.
 5. Gegebenenfalls die laut QA erfüllten Acceptance Criteria in der Story abhaken (`op: update`, Beschreibung mit `- [x]`).
 6. PR per **Squash** mergen (`merge_pull_request`, `merge_method: squash`, mit Commit-Titel und -Text aus Phase 2). Nie mit Admin-Rechten Schutzregeln umgehen. Lehnt GitHub den Merge ab, halte an und melde den Grund.
 7. Merge-Commit-SHA notieren.
@@ -96,37 +103,42 @@ Ist eine Bedingung ❌, **erstelle keinen PR und merge nicht**. Nenn, was fehlt 
 
 ## Phase 5: Abschließen (nur wenn Phase 4 erfolgreich)
 
-1. Alle restlichen Tasks der Story auf `Closed` setzen.
-2. Story auf `Done` setzen.
+1. Alle restlichen Tasks der Story auf `Erledigt` setzen.
+2. Story auf `Fertig` setzen.
 3. Screenshot(s) des Smoke-Tests an die Story hängen (Taiga-MCP `attachments`, `op: upload`, `type: story`, Beschreibung „Live · Handy · hell“ o. Ä.).
 4. Release-Kommentar an die Story (Taiga-MCP `comments`, `op: add`):
    ```
    ## Released ✅ · <Datum>
+
+   **Kurz gesagt:** <1–2 Sätze ohne Fachbegriffe: was Läufer ab jetzt in der App bemerken>
+
    - **PR:** #<nr> <Link> (Squash)
    - **Merge-Commit:** <kurz-sha> <Link>
    - **Deployment:** <Link zum Deploy-Lauf> · <Dauer>
    - **Live:** <Live-URL> · Version <bundle-name>
    - **Smoke-Test:** <geprüfte Ansicht(en)> · ✅ ohne Konsolenfehler · Screenshot angehängt
    ```
-5. **Aufräumen:**
+5. **Neuigkeit eintragen:** Bemerken Läufer die Änderung, oben in der Wiki-Seite `neuigkeiten` eine Zeile ergänzen (Taiga-MCP `wiki`, `op: get`, dann `op: update`): `- <Datum>: <was Läufer davon haben, ohne Fachbegriffe> (#<nr>)`. Reine Technik-Änderungen überspringen.
+6. **Aufräumen:**
    - Remote-Branch löschen, falls GitHub ihn nicht automatisch gelöscht hat (`git push origin --delete <branch>`),
    - lokal auf den Basis-Branch wechseln, `git pull --ff-only`, lokalen Branch löschen (`git branch -d`, nicht `-D`). Weigert sich Git, halte an und frag,
    - temporäre Ordner unter `<tmp>` bleiben bestehen.
 
 ## Phase 6: Fehler nach dem Merge
 
-Story **nicht** auf Done setzen. Sie bleibt `In Review`.
+Story **nicht** auf Fertig setzen. Sie bleibt `Im Review`.
 
-1. Einen Task in der Story anlegen: Titel `Release: <kurze Beschreibung>`, Status `New`, Beschreibung mit **Geprüft, Erwartet, Tatsächlich, Ursache, Vorschlag** (wie im QA-Skill), mit Link zum Deploy-Lauf bzw. Screenshot.
+1. Einen Task in der Story anlegen: Titel `Release: <kurze Beschreibung>`, Status `Neu`, Beschreibung mit **Geprüft, Erwartet, Tatsächlich, Ursache, Vorschlag** (wie im QA-Skill), mit Link zum Deploy-Lauf bzw. Screenshot.
 2. **Revert vorbereiten, nicht ausführen:**
    - Branch `revert/tg-<nr>-<kurztitel>` vom aktuellen Basis-Branch, `git revert <merge-sha>` (Squash-Commit, daher ohne `-m`), pushen,
    - PR „Revert: <PR-Titel>“ öffnen, mit Begründung und Link zum Release-Task,
    - **nicht mergen.**
 3. Im Chat melden: was fehlgeschlagen ist (die fünf Angaben), der Link zum Revert-PR, und die Frage, ob reverted oder vorwärts korrigiert werden soll (`/implement-taiga-ticket <nr>` arbeitet den Release-Task ab).
-4. Auf Go zum Revert: Revert-PR mergen (Squash), Deployment abwarten, Smoke-Test wiederholen und das Ergebnis als Kommentar an die Story. Die Story auf `In progress` setzen.
+4. Auf Go zum Revert: Revert-PR mergen (Squash), Deployment abwarten, Smoke-Test wiederholen und das Ergebnis als Kommentar an die Story. Die Story auf `In Arbeit` setzen.
 
 ## Abschlussbericht
 
+- **Kurz gesagt** (1–2 Sätze ohne Fachbegriffe),
 - Ergebnis: ✅ released oder ❌ mit Grund,
 - PR, Merge-Commit, Deploy-Lauf, Live-Version,
 - Smoke-Test mit 1–2 Screenshots direkt im Chat (Bild öffnen, in Claude Code mit dem Read-Tool),
@@ -135,7 +147,8 @@ Story **nicht** auf Done setzen. Sie bleibt `In Review`.
 
 ## Grenzen
 
-- Nie einen PR erstellen ohne bestandene QA für den aktuellen Head-Commit des Branches.
+- Nie einen PR erstellen ohne bestandene QA für den aktuellen Head-Commit des Branches und ohne Abnahme (außer `hotfix`).
+- Nie selbst abnehmen. Die Abnahme ist ein Kommentar des Product Owners.
 - Nie einen PR erstellen oder mergen ohne Go und nie bei einer nicht erfüllten Bedingung. Schutzregeln nie umgehen.
 - Nie force-pushen, nie direkt auf den Basis-Branch pushen (der Revert läuft immer über einen PR).
 - Kein automatischer Revert ohne Go.

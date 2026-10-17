@@ -11,7 +11,7 @@ disable-model-invocation: true
 
 Eingabe: das Aufruf-Argument ist eine Idee in Freitext. Fehlt sie, frag danach.
 
-Du legst **nur Epics und User Stories** an, keine Tasks und keine Issues. Tasks entstehen später durch `/implement-taiga-ticket`. Alles landet im **Backlog**, ohne Sprint. Angelegt wird **erst nach ausdrücklichem Go** zum Entwurf.
+Du legst **nur Epics und User Stories** an, keine Tasks und keine Issues. Tasks entstehen später durch `/implement-taiga-ticket`. Alles landet im **Backlog**, ohne Sprint. Angelegt wird **erst nach ausdrücklichem Go des Product Owners** (in diesem Projekt `fynndow`) zum Entwurf. Ideen und Fehler, die als Taiga-Issue gemeldet wurden, verarbeitet `/triage-taiga-issues`.
 
 ## Projektzuordnung
 
@@ -49,11 +49,13 @@ Zeig den kompletten Entwurf im Chat:
 **Stories**, als Tabelle zur Übersicht (Nr. im Entwurf, Titel, Punkte gesamt und pro Rolle, Tags, Abhängigkeiten), dann jede Story ausführlich im Format:
 
 ```
-**Problem / Ziel:** Was fehlt oder stört heute, aus Sicht der Läufer. Bei Bugs mit Fundstelle (`datei:zeile`).
+**Problem / Ziel:** Was fehlt oder stört heute, aus Sicht der Läufer, in Alltagssprache und ohne Fachbegriffe verständlich. Bei Bugs mit Fundstelle (`datei:zeile`) in einem eigenen Satz danach.
 
 **Umsetzung:** Grober Lösungsweg in 2–5 Punkten. Keine Detailplanung, die macht /implement-taiga-ticket.
 
 **Abhängig von:** andere Stories (falls vorhanden)
+
+**Entwurf:** nötig, vor der Umsetzung vom Product Owner freigeben (nur bei Stories, die die Oberfläche ändern)
 
 ## Acceptance Criteria
 - [ ] Prüfbare Aussage mit konkretem Wert, Zustand oder Ergebnis (z. B. „auf 390 × 844 px ohne Scrollen sichtbar“, „Wert 8 ergibt Stufe 2“).
@@ -65,16 +67,17 @@ Regeln für Stories:
 - **Schätzung pro Rolle:** UX, Design, Front, Back. 1 Punkt = 1 Arbeitstag. Erlaubte Werte pro Rolle: 0, ½, 1, 2, 3. Rollen ohne Anteil bekommen 0.
 - **Acceptance Criteria** sind einzeln prüfbar, enthalten keine vagen Wörter wie „schnell“ oder „schön“ ohne Maßstab und decken Sonderfälle ab. `/qa-taiga-ticket` prüft sie wörtlich.
 - **Tags:** bevorzugt bestehende Tags des Projekts wiederverwenden. Neue nur, wenn nötig, dann mit Farbvorschlag.
+- **Oberflächen-Stories** tragen die Zeile „Entwurf: nötig“. Die Rolle Design bekommt dann mindestens ½ Punkt.
 - Titel kurz und als Ergebnis formuliert („Readiness nur einmal anzeigen“, nicht „Readiness-Anzeige überarbeiten“).
 
 **Summe:** Punkte gesamt und pro Rolle, grob in Sprints à 14 Arbeitstagen.
 
-**Halte an** und warte auf ein Go. Änderungswünsche arbeitest du ein und zeigst den Entwurf erneut, bis das Go kommt.
+**Halte an** und warte auf ein Go des Product Owners. Änderungswünsche arbeitest du ein und zeigst den Entwurf erneut, bis das Go kommt.
 
 ## Phase 4: Anlegen (erst nach Go)
 
 1. **Epic** anlegen (Taiga-MCP `work`, `op: create`, `type: epic`, `subject`, `description`). Beim Erweitern eines bestehenden Epics entfällt das.
-2. **Stories** als Batch anlegen (`op: create`, `type: story`, `items`, höchstens 20 pro Aufruf), jeweils mit `subject`, `description`, `status: "New"`, `tags`. Kein Sprint.
+2. **Stories** als Batch anlegen (`op: create`, `type: story`, `items`, höchstens 20 pro Aufruf), jeweils mit `subject`, `description`, `status: "Neu"`, `tags`. Kein Sprint. Auf `Bereit` setzt der Product Owner eine Story erst, wenn die Definition of Ready (Wiki `definition-of-ready`) erfüllt ist.
 3. **Mit dem Epic verknüpfen:** jede Story mit `op: link`, `type: story`, `item: #<story>`, `parent: #<epic>`.
 4. **Freigegebene Ergänzungen bestehender Stories** mit `op: update` vornehmen. Dabei die vorhandene Beschreibung erweitern, nicht ersetzen.
 5. **Punkte, Farben und neue Tag-Farben** über die Taiga-API setzen. Das MCP kann keine Punkte pro Rolle und keine Farben. Zugangsdaten aus `TAIGA_USERNAME` und `TAIGA_PASSWORD`, nie ausgeben:
@@ -110,7 +113,7 @@ Regeln für Stories:
 - Tabelle der angelegten Stories (Nummer, Titel, Punkte),
 - Summe der Punkte und grobe Sprint-Anzahl,
 - ergänzte bestehende Stories,
-- Hinweis, dass alles im Backlog liegt und mit `/implement-taiga-ticket <nr>` umgesetzt werden kann.
+- Hinweis, dass alles im Backlog mit Status `Neu` liegt, der Product Owner Stories nach der Definition of Ready auf `Bereit` setzt und sie dann mit `/implement-taiga-ticket <nr>` umgesetzt werden können.
 
 ## Grenzen
 
