@@ -1,6 +1,6 @@
 ---
 name: triage-taiga-issues
-description: Verarbeitet neue Ideen und Fehlermeldungen aus Taiga-Issues, die auch Nicht-Techniker anlegen können. Aufruf `/triage-taiga-issues` oder mit einer Issue-Nummer, z. B. `/triage-taiga-issues 12`. Klärt offene Punkte mit dem Product Owner und der meldenden Person, macht nach Go daraus Stories im Backlog (Fehler mit Tag bug, dringende mit hotfix) oder ergänzt bestehende, trägt die meldende Person als Beobachter ein und schließt das Issue mit einem Verweis.
+description: Verarbeitet neue Ideen und Fehlermeldungen aus Taiga-Issues, die auch Nicht-Techniker anlegen können. Aufruf `/triage-taiga-issues` oder mit einer Issue-Nummer, z. B. `/triage-taiga-issues 12`. Klärt offene Punkte mit lukcy22 (fachlich), fynndow (Architektur) und der meldenden Person, macht nach Go der aufrufenden Person daraus Stories im Backlog (Fehler mit Tag bug, dringende mit hotfix) oder ergänzt bestehende, trägt die meldende Person als Beobachter ein und schließt das Issue mit einem Verweis.
 argument-hint: [issue-nummer]
 disable-model-invocation: true
 ---
@@ -9,15 +9,15 @@ disable-model-invocation: true
 
 > **Für alle Agenten** (Claude Code, Codex u. a.). Aufruf in Claude Code mit `/triage-taiga-issues`, in Codex mit `$triage-taiga-issues`, optional gefolgt von einer Issue-Nummer. „Taiga-MCP `work`“ meint das Werkzeug `work` des MCP-Servers `taiga` (Claude Code: `mcp__taiga__work`). Rückfragen mit Auswahl stellst du über das Auswahl-Werkzeug des Agenten (Claude Code: `AskUserQuestion`). Gibt es keins, stell sie als nummerierte Optionen im Chat und warte auf die Antwort.
 
-Meldungen kommen von allen Beteiligten, auch ohne Technikkenntnis, nach der Vorlage auf der Wiki-Seite `ideen-und-fehler-melden`. Dieser Skill macht daraus Stories, die `/implement-taiga-ticket` umsetzen kann. **Angelegt oder geändert wird erst nach Go des Product Owners.**
+Meldungen kommen von allen Beteiligten, auch ohne Technikkenntnis, nach der Vorlage auf der Wiki-Seite `ideen-und-fehler-melden`. Dieser Skill macht daraus Stories, die `/implement-taiga-ticket` umsetzen kann. **Angelegt oder geändert wird erst nach Go der Person, die den Skill aufruft.** Einen entscheidenden Product Owner gibt es nicht.
 
 ## Projektzuordnung
 
 Projekt aus `git remote get-url origin` bestimmen. Ist das Repo nicht in der Tabelle, halte an und frag.
 
-| Repo | Taiga-Projekt | Product Owner | Fachliche Fragen | Technische Fragen (nur Architektur) |
-|---|---|---|---|---|
-| `Norddeutsche-Coder/m.oach` | `fynndow-moach` | `fynndow` | `lukcy22` | `fynndow` |
+| Repo | Taiga-Projekt | Fachliche Fragen | Technische Fragen (nur Architektur) |
+|---|---|---|---|
+| `Norddeutsche-Coder/m.oach` | `fynndow-moach` | `lukcy22` | `fynndow` |
 
 Issue-Arten: Fehler, Idee, Frage. Issue-Status: Neu, In Klärung, Rückfrage (wartet auf die meldende Person), Übernommen (Story angelegt oder ergänzt), Erledigt (ohne Story beantwortet), Abgelehnt, Zurückgestellt.
 
@@ -40,11 +40,11 @@ Zeig je Issue in einer kurzen Tabelle: Nummer, Art, Titel, meldende Person und e
 - **Rückfrage** an die meldende Person (Frage in Alltagssprache) → Status `Rückfrage`,
 - **Ablehnen** oder **Zurückstellen**, mit Begründung in Alltagssprache.
 
-Ist ein Issue fachlich unklar (was soll für Läufer passieren, welche Texte, welcher Umfang), stell die Fragen an `lukcy22`: als Kommentar `## Fachliche Fragen an @lukcy22` am Issue, nummeriert, je Frage 2–4 Antwortmöglichkeiten, Empfehlung zuerst. Setz das Issue auf `In Klärung` und verarbeite es erst nach seiner Antwort. Fragen zu Priorität und zur technischen Umsetzung klärst du mit `fynndow` über das Auswahl-Werkzeug (Einzelauswahl, höchstens 4 pro Runde, empfohlene Option zuerst mit „(Recommended)“). **Halte an** und warte auf ein Go des Product Owners. Änderungswünsche arbeitest du ein und zeigst den Vorschlag erneut.
+Ist ein Issue fachlich unklar (was soll für Läufer passieren, welche Texte, welcher Umfang), stell die Fragen an `lukcy22`: als Kommentar `## Fachliche Fragen an @lukcy22` am Issue, nummeriert, je Frage 2–4 Antwortmöglichkeiten, Empfehlung zuerst. Setz das Issue auf `In Klärung` und verarbeite es erst nach seiner Antwort. Fragen zu Priorität und zur technischen Umsetzung klärst du mit `fynndow` über das Auswahl-Werkzeug (Einzelauswahl, höchstens 4 pro Runde, empfohlene Option zuerst mit „(Recommended)“). **Halte an** und warte auf ein Go der aufrufenden Person. Änderungswünsche arbeitest du ein und zeigst den Vorschlag erneut.
 
 ## Phase 3: Umsetzen (erst nach Go)
 
-1. **Neue Stories** anlegen (`op: create`, `type: story`, `status: "Neu"`, `tags`), Format wie in `/plan-taiga-epic` (Problem / Ziel in Alltagssprache, Umsetzung, Abhängig von, Entwurf bei Oberflächen-Stories, Acceptance Criteria). Unten in die Beschreibung: `Gemeldet in Issue #<nr> von <Person>.` Mit dem Epic verknüpfen (`op: link`). Punkte pro Rolle über die Taiga-API wie in `/plan-taiga-epic` setzen.
+1. **Neue Stories** anlegen (`op: create`, `type: story`, `status: "Neu"` bzw. `"Bereit"`, wenn die Definition of Ready schon erfüllt ist, `tags`), Format wie in `/plan-taiga-epic` (Problem / Ziel in Alltagssprache, Umsetzung, Abhängig von, Entwurf bei Oberflächen-Stories, Acceptance Criteria). Unten in die Beschreibung: `Gemeldet in Issue #<nr> von <Person>.` Mit dem Epic verknüpfen (`op: link`). Punkte pro Rolle über die Taiga-API wie in `/plan-taiga-epic` setzen.
 2. **Bestehende Stories ergänzen:** Beschreibung erweitern, nicht ersetzen (`op: update`), mit Verweis auf das Issue.
 3. **Meldende Person als Beobachter** jeder neuen oder ergänzten Story eintragen, damit Taiga sie über Statusänderungen informiert. Das MCP kann keine Beobachter setzen, deshalb über die Taiga-API (Zugangsdaten aus `TAIGA_USERNAME` und `TAIGA_PASSWORD`, nie ausgeben):
    ```python
@@ -68,11 +68,11 @@ Ist ein Issue fachlich unklar (was soll für Läufer passieren, welche Texte, we
 ## Abschlussbericht
 
 - Tabelle: Issue → Ergebnis (neue Story #…, ergänzte Story #…, beantwortet, Rückfrage, abgelehnt, zurückgestellt),
-- neue Stories mit Punkten, Epic und Tags; Hinweis, dass sie im Status `Neu` liegen und der Product Owner sie nach der Definition of Ready auf `Bereit` setzt,
+- neue Stories mit Punkten, Epic und Tags; Hinweis, welche wegen erfüllter Definition of Ready auf `Bereit` stehen und welche mit welchem fehlenden Punkt auf `Neu` bleiben,
 - Stories mit Tag `hotfix` gesondert mit dem Hinweis, sie sofort in den laufenden Sprint zu nehmen (Wiki `hotfix`).
 
 ## Grenzen
 
 - Nichts löschen. Bestehende Stories nur ergänzen, nie inhaltlich überschreiben.
 - Keine Sprints anlegen oder zuordnen, keine Tasks, keinen Code ändern.
-- Keine Zugangsdaten oder Secrets in Beschreibungen und Kommentaren. Enthält eine Meldung ein Secret oder persönliche Gesundheitsdaten, nicht wiederholen, den Product Owner darauf hinweisen und die Regeln aus AGENTS.md (Abschnitt Secrets) befolgen.
+- Keine Zugangsdaten oder Secrets in Beschreibungen und Kommentaren. Enthält eine Meldung ein Secret oder persönliche Gesundheitsdaten, nicht wiederholen, die aufrufende Person darauf hinweisen und die Regeln aus AGENTS.md (Abschnitt Secrets) befolgen.

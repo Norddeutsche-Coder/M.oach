@@ -23,11 +23,13 @@ Ablauf über alle Skills: umsetzen → Checks → Go → Commit + Push → CI gr
 
 Bestimme das Projekt aus `git remote get-url origin`. Ist das Repo nicht in der Tabelle, halte an und frag nach. Rate nie.
 
-| Repo | Taiga-Projekt | Basis-Branch | App-Ordner | Schnelle Checks | Product Owner | Fachliche Fragen | Technische Fragen (nur Architektur) |
-|---|---|---|---|---|---|---|---|
-| `Norddeutsche-Coder/m.oach` | `fynndow-moach` | `main` | `frontend/` | `npm run check`, `npm run lint`, `npm test` | `fynndow` | `lukcy22` | `fynndow` |
+| Repo | Taiga-Projekt | Basis-Branch | App-Ordner | Schnelle Checks | Fachliche Fragen | Technische Fragen (nur Architektur) |
+|---|---|---|---|---|---|---|
+| `Norddeutsche-Coder/m.oach` | `fynndow-moach` | `main` | `frontend/` | `npm run check`, `npm run lint`, `npm test` | `lukcy22` | `fynndow` |
 
-**Fachliche Fragen** (Verhalten, Texte, Umfang, Entwurf) beantwortet `lukcy22`, nicht der Agent und nicht die Entwicklung. Stell sie als Kommentar an die Story mit der Überschrift `## Fachliche Fragen an @lukcy22`: nummeriert, je Frage 2–4 Antwortmöglichkeiten in Alltagssprache, die empfohlene zuerst mit „(Empfehlung)“. Die Erwähnung `@lukcy22` löst die E-Mail von Taiga aus. Danach halte an. Weiter geht es erst, wenn `lukcy22` in einem Kommentar geantwortet hat. Antwortet er nicht, kann der Product Owner ausdrücklich an seiner Stelle entscheiden, mit einem Kommentar, der mit „Entschieden“ beginnt.
+Es gibt **keinen Product Owner, der entscheidet.** Freigaben (Go) gibt die Person, die den Skill aufruft.
+
+**Fachliche Fragen** (Verhalten, Texte, Umfang, Entwurf) beantwortet `lukcy22`, nicht der Agent und nicht die Entwicklung. Stell sie als Kommentar an die Story mit der Überschrift `## Fachliche Fragen an @lukcy22`: nummeriert, je Frage 2–4 Antwortmöglichkeiten in Alltagssprache, die empfohlene zuerst mit „(Empfehlung)“. Die Erwähnung `@lukcy22` löst die E-Mail von Taiga aus. Danach halte an. Weiter geht es erst, wenn `lukcy22` in einem Kommentar geantwortet hat. Antwortet er nach **2 Arbeitstagen** nicht, darf die aufrufende Person selbst entscheiden, mit einem Kommentar, der mit „Entschieden“ beginnt (z. B. `Entschieden nach 2 Arbeitstagen ohne Antwort: 1: A, 2: B`).
 
 **Technische Fragen** gehen nur an `fynndow`, wenn sie die **Architektur** beeinflussen: neue Abhängigkeiten oder Bibliotheken, Datenmodell, localStorage-Schlüssel und -Format, Supabase (Schema, RLS, Edge Functions), Sync, Offline und Service Worker, Sicherheit, neue Module oder Ordner und Schnittstellen zwischen Features, Aufteilung zwischen Legacy-Modul und React. Stell sie im Dialog über das Auswahl-Werkzeug, mit Empfehlung. Läuft die Sitzung ohne ihn, als Kommentar `## Technische Fragen an @fynndow` an die Story, dann anhalten. **Alle übrigen technischen Entscheidungen triffst du selbst** (Umsetzung innerhalb eines Features, Benennung, Aufteilung in Komponenten und Funktionen, Testaufbau) und dokumentierst sie im Plan und im Kommentar „Technische Entscheidungen“.
 
@@ -44,7 +46,7 @@ Lies außerdem die Wiki-Seiten `definition-of-ready` und `definition-of-done` (T
 Bevor du die Story lädst, prüfst du, ob in **anderen Stories des laufenden Sprints** noch Fragen an die aufrufende Person unbeantwortet sind. Sie sollen beantwortet werden, bevor neue Arbeit beginnt, sonst bleiben andere Stories stehen.
 
 1. Aufrufende Person bestimmen: Taiga-Konto der Sitzung (`GET /users/me`).
-2. Nur die offenen Stories (Status nicht `Fertig`/`Archiviert`) im **laufenden Sprint** durchsuchen, also im offenen Sprint, dessen Zeitraum das heutige Datum enthält. Backlog, andere Sprints und Issues nicht. Gibt es keinen laufenden Sprint, entfällt Phase 0. Offen ist eine Frage, wenn ein Kommentar mit `## Fachliche Fragen an @<person>` oder `## Technische Fragen an @<person>` beginnt und danach weder ein Kommentar dieser Person folgt noch ein Kommentar einer anderen Person, der mit „Antworten“ oder „Entschieden“ beginnt (z. B. wenn der Product Owner stellvertretend entschieden hat). Das MCP kann Kommentare nicht projektweit durchsuchen, deshalb über die Taiga-API (Zugangsdaten aus `TAIGA_USERNAME` und `TAIGA_PASSWORD`, nie ausgeben):
+2. Nur die offenen Stories (Status nicht `Fertig`/`Archiviert`) im **laufenden Sprint** durchsuchen, also im offenen Sprint, dessen Zeitraum das heutige Datum enthält. Backlog, andere Sprints und Issues nicht. Gibt es keinen laufenden Sprint, entfällt Phase 0. Offen ist eine Frage, wenn ein Kommentar mit `## Fachliche Fragen an @<person>` oder `## Technische Fragen an @<person>` beginnt und danach weder ein Kommentar dieser Person folgt noch ein Kommentar einer anderen Person, der mit „Antworten“ oder „Entschieden“ beginnt (z. B. wenn die aufrufende Person nach 2 Arbeitstagen ohne Antwort entschieden hat). Das MCP kann Kommentare nicht projektweit durchsuchen, deshalb über die Taiga-API (Zugangsdaten aus `TAIGA_USERNAME` und `TAIGA_PASSWORD`, nie ausgeben):
    ```python
    # python3 -I -
    import json, os, urllib.request
@@ -73,7 +75,7 @@ Bevor du die Story lädst, prüfst du, ob in **anderen Stories des laufenden Spr
        if asked and not any(h["user"]["username"] == me or h["comment"].lstrip().startswith(("Antworten", "Entschieden")) for h in later):
            print(sprint["name"], it["ref"], it["subject"], comments[asked[-1]]["created_at"][:10])
    ```
-3. **Gibt es offene Fragen:** Zeig sie zuerst, je Story mit Nummer, Titel und den Fragen samt Antwortmöglichkeiten. Frag über das Auswahl-Werkzeug, ob sie jetzt beantwortet werden (Empfehlung) oder erst später. Antwortet die Person im Dialog, schreib die Antworten als Kommentar an die jeweilige Story: `Antworten von @<person> (im Dialog mit <Agent>): 1: …, 2: …`. Danach geht es mit der aufgerufenen Story weiter.
+3. **Gibt es offene Fragen:** Zeig sie zuerst, je Story mit Nummer, Titel und den Fragen samt Antwortmöglichkeiten. Frag über das Auswahl-Werkzeug, ob sie jetzt beantwortet werden (Empfehlung) oder erst später. Antwortet die Person im Dialog, schreib die Antworten als Kommentar an die jeweilige Story: `Antworten von @<person> (im Dialog mit <Agent>): 1: …, 2: …`. Ist eine dieser Stories dadurch vollständig geklärt und erfüllt die Definition of Ready, setz sie auf `Bereit`. Danach geht es mit der aufgerufenen Story weiter.
 4. **Keine offenen Fragen:** kurz melden und mit Phase 1 weitermachen.
 
 ## Phase 1: Story laden und Lage prüfen
@@ -83,12 +85,12 @@ Bevor du die Story lädst, prüfst du, ob in **anderen Stories des laufenden Spr
 3. Git-Lage prüfen:
    - `git status`: Gibt es uncommittete Änderungen, die nicht zu dieser Story gehören, halte an und frag.
    - `git fetch origin` und nach einem Branch suchen, der `tg-<nr>-` im Namen trägt (lokal und remote).
-4. **Fortsetzen statt neu anfangen:** Ist die Story schon `In Arbeit` oder gibt es den Branch, wechsle dorthin. Lies die offenen Tasks (vor allem `QA: …`, `Abnahme: …` und `Release: …` mit Geprüft, Erwartet, Tatsächlich, Ursache, Vorschlag), die Kommentare von QA und Product Owner und `git diff origin/<basis>...HEAD` und plane nur noch den Rest. Der Haltepunkt nach dem Plan gilt trotzdem.
+4. **Fortsetzen statt neu anfangen:** Ist die Story schon `In Arbeit` oder gibt es den Branch, wechsle dorthin. Lies die offenen Tasks (vor allem `QA: …`, `Abnahme: …` und `Release: …` mit Geprüft, Erwartet, Tatsächlich, Ursache, Vorschlag), die Kommentare von QA, Abnahme und Fragerunden und `git diff origin/<basis>...HEAD` und plane nur noch den Rest. Der Haltepunkt nach dem Plan gilt trotzdem.
 5. Ist die Story `Fertig`, `Im Review` oder `Abnahme`, oder `Im Test` ohne offene Tasks, halte an und melde den Stand. Nächster Schritt ist dann `/qa-taiga-ticket`, `/finish-taiga-ticket` bzw. die Abnahme durch die andere Person. Wurde eine Story „Nicht abgenommen“, steht sie mit `Abnahme: …`-Tasks auf `In Arbeit`. Dann setzt du diese Tasks auf einem neuen Branch um.
 6. **Wer arbeitet:** Die Story gehört der Person, die diesen Skill aufruft. Das ist das Taiga-Konto der Sitzung, angemeldet über `TAIGA_USERNAME` (im Taiga-MCP `assignee: "me"`, in der API `GET /users/me`). Ist die Story schon einer anderen Person zugeordnet, halte an und frag, ob du sie übernehmen sollst. Ohne ausdrückliches Ja wird nicht umgehängt.
 7. **WIP-Limit:** Gibt es außer dieser eine andere Story im Status `In Arbeit`, die der aufrufenden Person zugeordnet ist (`op: list`, `type: story`, `status: In Arbeit`, `assignee: "me"`), halte an und frag, ob die andere zuerst fertig werden soll. Höchstens eine Story pro Person ist gleichzeitig in Arbeit (gilt nicht für `hotfix`).
-8. **Definition of Ready:** Ist die Story `Bereit`, weiter. Ist sie `Neu`, prüf die Punkte der Wiki-Seite `definition-of-ready` und zeig das Ergebnis im Plan. Fehlende fachliche Punkte sind Fragen an `lukcy22`, fehlende Schätzung oder Priorität klärt der Product Owner.
-9. **Entwurf bei Oberflächen-Stories:** Betrifft die Story die Oberfläche (sichtbare Ansichten, Texte, Layout), braucht sie einen freigegebenen Entwurf: einen Link (z. B. Figma) oder ein Bild in der Story und einen Kommentar des Product Owners „Entwurf freigegeben“ oder „Kein Entwurf nötig“. Fehlt das, ist es eine fachliche Frage an `lukcy22`.
+8. **Definition of Ready:** Ist die Story `Bereit`, weiter. Ist sie `Neu`, prüf die Punkte der Wiki-Seite `definition-of-ready` und zeig das Ergebnis im Plan. Fehlende fachliche Punkte sind Fragen an `lukcy22`, eine fehlende Schätzung ergänzt du im Plan. Sind danach alle Punkte erfüllt, setz die Story selbst auf `Bereit`.
+9. **Entwurf bei Oberflächen-Stories:** Betrifft die Story die Oberfläche (sichtbare Ansichten, Texte, Layout), braucht sie einen freigegebenen Entwurf: einen Link (z. B. Figma) oder ein Bild in der Story und einen Kommentar von `lukcy22` „Entwurf freigegeben“ oder „Kein Entwurf nötig“. Fehlt das, ist es eine fachliche Frage an `lukcy22`.
 
 ## Phase 2: Plan (Haltepunkt 1)
 
@@ -106,7 +108,7 @@ Untersuche den betroffenen Code selbst, bevor du fragst. Was sich aus dem Code b
 - **Risiken**, z. B. Änderungen an localStorage-Schlüsseln, Supabase, Service Worker.
 - **Branch-Name:** `<typ>/tg-<nr>-<kurztitel>`. Typ `fix`, wenn die Story den Tag `bug` oder `hotfix` hat, `chore` für reine Infrastruktur oder Doku, sonst `feat`. Der Kurztitel ist englisch, kleingeschrieben, mit Bindestrichen, höchstens 5 Wörter.
 
-**Halte an** und warte auf ein Go. Ein Go zum Plan gibt es erst, wenn alle fachlichen Fragen von `lukcy22` (oder ausdrücklich vom Product Owner) beantwortet sind. Ebenso müssen die Architektur-Fragen von `fynndow` entschieden sein. Schreib die technischen Entscheidungen danach als Kommentar an die Story (Taiga-MCP `comments`).
+**Halte an** und warte auf ein Go. Ein Go zum Plan gibt es erst, wenn alle fachlichen Fragen von `lukcy22` (oder nach 2 Arbeitstagen ohne Antwort mit „Entschieden“ von der aufrufenden Person) beantwortet sind. Ebenso müssen die Architektur-Fragen von `fynndow` entschieden sein. Schreib die technischen Entscheidungen danach als Kommentar an die Story (Taiga-MCP `comments`).
 
 ## Phase 3: Vorbereiten (erst nach Go zum Plan)
 
