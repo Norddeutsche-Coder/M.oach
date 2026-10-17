@@ -444,7 +444,8 @@ export function mountMap(
     observer = host.resizeObserver(() => {
       const before = W
       measure()
-      if (!before && W) fit()
+      // A hidden map (width 0) becomes visible again: keep a view the user has moved.
+      if (!before && W && !moved) fit()
       else render()
     })
     observer.observe(el)

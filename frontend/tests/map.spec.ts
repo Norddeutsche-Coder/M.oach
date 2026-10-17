@@ -95,3 +95,23 @@ test('run detail shows the route and the zoom controls change the view', async (
     'true',
   )
 })
+
+test('heatmap keeps a zoomed view when switching to another tab and back', async ({ page }) => {
+  await seedRun(page)
+  await page.goto('/')
+  const heatmap = page.locator('#hmm')
+  const lines = heatmap.locator('.mmh.h0')
+  await expect(lines).toHaveAttribute('d', /^M[\d. L-]+$/)
+  const fitted = await lines.getAttribute('d')
+
+  await heatmap.getByRole('button', { name: 'Vergrößern' }).click()
+  await expect(lines).not.toHaveAttribute('d', fitted!)
+  const zoomed = await lines.getAttribute('d')
+
+  const nav = page.getByRole('navigation', { name: 'Hauptmenü' })
+  await nav.getByRole('button', { name: 'Kalender', exact: true }).click()
+  await expect(heatmap).toBeHidden()
+  await nav.getByRole('button', { name: 'Heute', exact: true }).click()
+  await expect(heatmap).toBeVisible()
+  await expect(lines).toHaveAttribute('d', zoomed!)
+})
