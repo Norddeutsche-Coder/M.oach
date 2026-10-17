@@ -115,3 +115,134 @@ test('heatmap keeps a zoomed view when switching to another tab and back', async
   await expect(heatmap).toBeVisible()
   await expect(lines).toHaveAttribute('d', zoomed!)
 })
+
+async function openRunMap(page: Page) {
+  await seedRun(page)
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Lauf öffnen: Morgenlauf', exact: true }).click()
+  const map = page.locator('#rvm')
+  await expect(map.locator('.mml')).toHaveAttribute('d', /^M/)
+  return map
+}
+
+const toMeters = (label: string) => {
+  const [value, unit] = label.trim().split(' ')
+  return Number(value) * (unit === 'km' ? 1000 : 1)
+}
+
+test('maps load topo tiles and name Esri and the OpenStreetMap contributors', async ({ page }) => {
+  const map = await openRunMap(page)
+  await expect(map.locator('.mmi').first()).toHaveAttribute(
+    'src',
+    /\/World_Topo_Map\/MapServer\/tile\//,
+  )
+  const attribution = map.locator('.mma span')
+  await expect(attribution).toContainText('Esri')
+  await expect(attribution).toContainText('OpenStreetMap-Mitwirkende')
+  await expect(page.locator('#hmm .mmi').first()).toHaveAttribute('src', /World_Topo_Map/)
+})
+
+test('zoom and center buttons are stacked at the top left with at least 40 × 40 px', async ({
+  page,
+}) => {
+  const map = await openRunMap(page)
+  const mapBox = (await map.boundingBox())!
+  const boxes = []
+  for (const name of ['Vergrößern', 'Verkleinern', 'Route zentrieren']) {
+    const box = (await map.getByRole('button', { name, exact: true }).boundingBox())!
+    expect(box.width).toBeGreaterThanOrEqual(40)
+    expect(box.height).toBeGreaterThanOrEqual(40)
+    expect(box.x - mapBox.x).toBeLessThan(20)
+    expect(box.y - mapBox.y).toBeLessThan(mapBox.height / 2)
+    boxes.push(box)
+  }
+  expect(boxes[1].y).toBeGreaterThanOrEqual(boxes[0].y + boxes[0].height)
+  expect(boxes[2].y).toBeGreaterThanOrEqual(boxes[1].y + boxes[1].height)
+})
+
+test('info and scale sit at the bottom left without overlapping', async ({ page }) => {
+  const map = await openRunMap(page)
+  const mapBox = (await map.boundingBox())!
+  const info = (await map.getByRole('button', { name: 'Kartenquellen anzeigen' }).boundingBox())!
+  const scale = (await map.locator('.mmsc').boundingBox())!
+  for (const box of [info, scale]) {
+    expect(box.x - mapBox.x).toBeLessThan(mapBox.width / 2)
+    expect(mapBox.y + mapBox.height - (box.y + box.height)).toBeLessThan(20)
+  }
+  expect(info.x + info.width).toBeLessThanOrEqual(scale.x)
+})
+
+test('the scale shows a round distance of 50 to 125 px that shrinks after zooming in', async ({
+  page,
+}) => {
+  const map = await openRunMap(page)
+  const scale = map.locator('.mmsc')
+  const before = (await scale.textContent())!
+  expect(before).toMatch(/^[125]0* (m|km)$/)
+  const width = (await scale.boundingBox())!.width
+  expect(width).toBeGreaterThanOrEqual(50)
+  expect(width).toBeLessThanOrEqual(125 + 1)
+
+  await map.getByRole('button', { name: 'Vergrößern' }).click()
+  await expect(scale).not.toHaveText(before)
+  expect(toMeters((await scale.textContent())!)).toBeLessThan(toMeters(before))
+})
+
+test('route and heatmap lines have a white casing below the blue line', async ({ page }) => {
+  const map = await openRunMap(page)
+  const route = map.locator('.mml'),
+    casing = map.locator('.mmlc')
+  await expect(casing).toHaveAttribute('d', (await route.getAttribute('d'))!)
+  const widths = await map.evaluate((el) => {
+    const style = (sel: string) => getComputedStyle(el.querySelector(sel)!)
+    return {
+      route: [style('.mml').stroke, parseFloat(style('.mml').strokeWidth)],
+      casing: [style('.mmlc').stroke, parseFloat(style('.mmlc').strokeWidth)],
+    }
+  })
+  expect(widths.route[0]).toBe('rgb(23, 65, 143)')
+  expect(widths.casing[0]).toBe('rgb(255, 255, 255)')
+  expect((widths.casing[1] as number) - (widths.route[1] as number)).toBeGreaterThanOrEqual(2)
+
+  await page.locator('#rvx').click()
+  const heat = page.locator('#hmm')
+  await expect(heat.locator('.mmhc.h0')).toHaveAttribute(
+    'd',
+    (await heat.locator('.mmh.h0').getAttribute('d'))!,
+  )
+})
+
+test('the attribution opens and closes with the keyboard', async ({ page }) => {
+  const map = await openRunMap(page)
+  await map.getByRole('button', { name: 'Route zentrieren' }).focus()
+  await page.keyboard.press('Tab')
+  const info = map.locator('.mma')
+  await expect(info).toBeFocused()
+  await page.keyboard.press('Enter')
+  await expect(info).toHaveAttribute('aria-expanded', 'true')
+  await page.keyboard.press('Enter')
+  await expect(info).toHaveAttribute('aria-expanded', 'false')
+})
+
+test.describe('dark mode', () => {
+  test.use({ colorScheme: 'dark' })
+
+  test('dims the map to 85 % without inverting it and uses dark controls', async ({ page }) => {
+    const map = await openRunMap(page)
+    const styles = await map.evaluate((el) => {
+      const zoom = getComputedStyle(el.querySelector('.mmz button')!)
+      return {
+        filter: getComputedStyle(el.querySelector('.mmt')!).filter,
+        background: zoom.backgroundColor,
+        color: zoom.color,
+      }
+    })
+    expect(styles.filter).toBe('brightness(0.85)')
+    const lum = (rgb: string) => {
+      const [r, g, b] = rgb.match(/\d+/g)!.map(Number)
+      return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255
+    }
+    expect(lum(styles.background)).toBeLessThan(0.25)
+    expect(lum(styles.color)).toBeGreaterThan(0.75)
+  })
+})

@@ -16,7 +16,6 @@ export interface TileSource {
   tmax?: number
   zmax?: number
   attr?: string
-  gray?: boolean
 }
 /** Owner of timers and observers, so the legacy lifecycle can clean them up on unmount. */
 export interface MapHost {
@@ -55,13 +54,13 @@ export const TILE = 256
 const FIT_PAD = 28
 const FALLBACK_VIEW: MapView = { z: 4, la: 51, ln: 10 }
 
-export const GRAY_TILES: TileSource = {
-  gray: true,
+// Attribution as required by Esri for World Topo Map ("Powered by Esri" plus the service's sources).
+export const TOPO_TILES: TileSource = {
   tile: (z, x, y) =>
-    `https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/${z}/${y}/${x}`,
-  tmax: 16,
-  zmax: 17,
-  attr: 'Karte © Esri, © OpenStreetMap-Mitwirkende',
+    `https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/${z}/${y}/${x}`,
+  tmax: 18,
+  zmax: 18,
+  attr: 'Powered by Esri · Quellen: Esri, HERE, Garmin, Intermap, increment P Corp., GEBCO, USGS, FAO, NPS, NRCAN, GeoBase, IGN, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), © OpenStreetMap-Mitwirkende und die GIS User Community',
 }
 const OSM_TILE = (z: number, x: number, y: number) =>
   `https://tile.openstreetmap.org/${z}/${x}/${y}.png`
@@ -138,6 +137,27 @@ export function tileRange(view: MapView, width: number, height: number, tmax = 1
   }
 }
 
+export interface ScaleBar {
+  meters: number
+  px: number
+  label: string
+}
+const EARTH_CIRCUMFERENCE = 40075016.686
+const SCALE_MAX_PX = 125
+
+/** Longest round distance (1, 2 or 5 × 10ⁿ m) that fits into 125 px; with steps ≤ 2.5 it is ≥ 50 px. */
+export function scaleBar(lat: number, z: number): ScaleBar {
+  const metersPerPx = (Math.cos((lat * Math.PI) / 180) * EARTH_CIRCUMFERENCE) / (TILE * 2 ** z),
+    max = metersPerPx * SCALE_MAX_PX,
+    base = 10 ** Math.floor(Math.log10(max)),
+    meters = [5, 2, 1].map((f) => f * base).find((m) => m <= max) ?? base
+  return {
+    meters,
+    px: meters / metersPerPx,
+    label: meters >= 1000 ? `${meters / 1000} km` : `${meters} m`,
+  }
+}
+
 export function isDarkUI(): boolean {
   const theme = document.documentElement.getAttribute('data-theme')
   return (
@@ -153,7 +173,7 @@ const defaultHost: MapHost = {
 }
 
 const CONTROLS =
-  '<div class="mmz"><button type="button" data-z="1" aria-label="Vergrößern">+</button><button type="button" data-z="-1" aria-label="Verkleinern">−</button><button type="button" data-z="0" aria-label="Route zentrieren">⌖</button></div><button type="button" class="mma" aria-label="Kartenquellen anzeigen" aria-expanded="false"><b>i</b><span></span></button>'
+  '<div class="mmz"><button type="button" data-z="1" aria-label="Vergrößern">+</button><button type="button" data-z="-1" aria-label="Verkleinern">−</button><button type="button" data-z="0" aria-label="Route zentrieren">⌖</button></div><div class="mmsc"><span></span></div><button type="button" class="mma" aria-label="Kartenquellen anzeigen" aria-expanded="false"><b>i</b><span></span></button>'
 const COOP_HINT =
   '<div class="mmg" hidden>Mit zwei Fingern bewegen<br><small>Mit Strg + Mausrad zoomen</small></div>'
 
@@ -173,18 +193,25 @@ export function mountMap(
     mk: LatLng | null = null,
     moved = false,
     hintTimer = 0
-  el.classList.toggle('mmd', isDarkUI() && !opt.gray)
-  el.classList.toggle('mmn', !!opt.gray)
+  el.classList.toggle('mmd', isDarkUI())
+  const layerCount = (opt.layers || []).length,
+    paths = (cls: string) =>
+      Array.from({ length: layerCount }, (_, i) => `<path class="${cls} h${i}"/>`).join('')
+  // White casings are drawn below all coloured lines so crossings stay blue.
   el.innerHTML =
     '<div class="mmt"></div><svg class="mmo" aria-hidden="true">' +
-    (opt.layers || []).map((_, i) => `<path class="mmh h${i}"/>`).join('') +
-    '<path class="mml"/><circle class="mms" r="5.5"/><circle class="mme" r="5.5"/><circle class="mmk" r="6.5" hidden/></svg>' +
+    paths('mmhc') +
+    paths('mmh') +
+    '<path class="mmlc"/><path class="mml"/><circle class="mms" r="5.5"/><circle class="mme" r="5.5"/><circle class="mmk" r="6.5" hidden/></svg>' +
     CONTROLS +
     (opt.coop ? COOP_HINT : '')
   el.querySelector('.mma span')!.textContent = opt.attr || '© OpenStreetMap-Mitwirkende'
   const T = el.querySelector<HTMLElement>('.mmt')!,
     O = el.querySelector<SVGSVGElement>('.mmo')!,
     line = O.querySelector('.mml')!,
+    lineCasing = O.querySelector('.mmlc')!,
+    casings = O.querySelectorAll('.mmhc'),
+    scale = el.querySelector<HTMLElement>('.mmsc')!,
     start = O.querySelector('.mms')!,
     end = O.querySelector('.mme')!,
     marker = O.querySelector('.mmk')!
@@ -241,6 +268,7 @@ export function mountMap(
         d += (i ? 'L' : 'M') + q[0].toFixed(1) + ' ' + q[1].toFixed(1)
       })
       line.setAttribute('d', d)
+      lineCasing.setAttribute('d', d)
       const a = toScreen(...route[0]),
         b = toScreen(...route[route.length - 1])
       start.setAttribute('cx', String(a[0]))
@@ -272,8 +300,12 @@ export function mountMap(
               (p[k + 1] * size - oy + H / 2).toFixed(1)
         }
         path.setAttribute('d', d)
+        casings[i]?.setAttribute('d', d)
       })
     }
+    const bar = scaleBar(st.la, st.z)
+    scale.style.width = `${bar.px.toFixed(1)}px`
+    scale.firstElementChild!.textContent = bar.label
     if (mk) {
       const q = toScreen(mk[0], mk[1])
       marker.setAttribute('cx', String(q[0]))
