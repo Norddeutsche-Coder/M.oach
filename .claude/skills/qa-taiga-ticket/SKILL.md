@@ -86,7 +86,7 @@ Jeder Befund wird überall (Chat, Taiga-Kommentar, QA-Task) mit denselben fünf 
 1. Story auf `In progress` setzen (`mcp__taiga__work`, `op: update`, `status: In progress`).
 2. Pro Befund einen Task in der Story anlegen, Titel `QA: <kurze Beschreibung>`, Status `New`. Die Beschreibung enthält die fünf Pflichtangaben (Geprüft, Erwartet, Tatsächlich, Ursache, Vorschlag). Mehrere als Batch (`op: create`, `type: task`, `items`). Gibt es einen gleichnamigen offenen QA-Task schon, lege keinen doppelten an, sondern ergänze ihn als Kommentar.
 
-**Gibt es keinen Befund:** Den Status nicht ändern.
+**Gibt es keinen Befund:** Den Story-Status nicht ändern (bleibt `In Test`). Alle Tasks der Story mit Status `In Test` auf `Closed` setzen, auch behobene QA-Tasks.
 
 **In beiden Fällen:**
 1. Relevante Screenshots an die Story hängen (`mcp__taiga__attachments`, `op: upload`, `type: story`, `filePath`). Gemeint sind die Nachher-Bilder, die Befunde oder die beabsichtigte Änderung zeigen, und dazu die Vorher-Bilder für den Vergleich. Höchstens 8, mit Beschreibung wie „Nachher · Handy · dunkel · Readiness 8“.
@@ -131,7 +131,7 @@ Derselbe Inhalt wie der Kommentar, also immer vollständig, was geprüft wurde, 
 
 ## Grenzen
 
-- Nichts beheben, nichts committen, pushen oder mergen, keinen PR erstellen. Nur QA-Tasks, Kommentare, Anhänge und den Status `In progress` bei Befunden in Taiga anlegen bzw. setzen.
+- Nichts beheben, nichts committen, pushen oder mergen, keinen PR erstellen. Nur QA-Tasks, Kommentare, Anhänge, den Story-Status `In progress` bei Befunden und bei bestandener QA den Task-Status `Closed` (von `In Test`) in Taiga anlegen bzw. setzen.
 - Story nie auf `In Review` oder `Done` setzen.
 - Keine echten Zugangsdaten für Builds oder Screenshots verwenden. Keine Anfragen an Live-Systeme (das Skript blockiert externe Hosts).
 - Kann ein Schritt nicht ausgeführt werden (z. B. Build schlägt fehl, deshalb keine Screenshots), ist das ein Befund. Weiterprüfen, was noch geht.
